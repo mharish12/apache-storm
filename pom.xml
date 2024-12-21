@@ -498,6 +498,7 @@
                 <module>external/storm-redis</module>
                 <module>external/storm-metrics</module>
                 <module>external/storm-metrics-prometheus</module>
+                <module>external/storm-metrics-micrometer</module>
                 <module>external/storm-kafka-client</module>
                 <module>external/storm-kafka-migration</module>
                 <module>external/storm-kafka-monitor</module>
