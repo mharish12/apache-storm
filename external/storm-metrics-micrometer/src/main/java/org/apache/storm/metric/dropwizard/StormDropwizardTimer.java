@@ -18,8 +18,11 @@
 
 package org.apache.storm.metric.dropwizard;
 
+import com.codahale.metrics.Clock;
 import com.codahale.metrics.Timer;
 import org.apache.storm.metric.ITimer;
+
+import java.util.concurrent.TimeUnit;
 
 public class StormDropwizardTimer implements ITimer {
     private final Timer timer;
@@ -36,5 +39,34 @@ public class StormDropwizardTimer implements ITimer {
     @Override
     public long getCount() {
         return timer.getCount();
+    }
+
+    @Override
+    public IContext time() {
+        return new Context(this.timer, Clock.defaultClock());
+    }
+
+    public static class Context implements IContext {
+        private final Timer timer;
+        private final Clock clock;
+        private final long startTime;
+
+        Context(Timer timer, Clock clock) {
+            this.timer = timer;
+            this.clock = clock;
+            this.startTime = clock.getTick();
+        }
+
+        @Override
+        public long stop() {
+            long elapsed = this.clock.getTick() - this.startTime;
+            this.timer.update(elapsed, TimeUnit.NANOSECONDS);
+            return elapsed;
+        }
+
+        @Override
+        public void close() {
+            this.stop();
+        }
     }
 }

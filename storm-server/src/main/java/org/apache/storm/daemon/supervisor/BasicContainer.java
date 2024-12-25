@@ -45,7 +45,7 @@ import org.apache.storm.generated.ProfileAction;
 import org.apache.storm.generated.ProfileRequest;
 import org.apache.storm.generated.StormTopology;
 import org.apache.storm.generated.WorkerResources;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.shade.com.google.common.base.Joiner;
 import org.apache.storm.shade.com.google.common.collect.Lists;
 import org.apache.storm.utils.ConfigUtils;
@@ -97,7 +97,7 @@ public class BasicContainer extends Container {
      */
     public BasicContainer(ContainerType type, Map<String, Object> conf, String supervisorId, int supervisorPort,
                           int port, LocalAssignment assignment, ResourceIsolationInterface resourceIsolationManager,
-                          LocalState localState, String workerId, StormMetricsRegistry metricsRegistry, 
+                          LocalState localState, String workerId, StormCustomMetricsRegistry metricsRegistry,
                           ContainerMemoryTracker containerMemoryTracker) throws IOException {
         this(type, conf, supervisorId, supervisorPort, port, assignment, resourceIsolationManager, localState,
              workerId, metricsRegistry, containerMemoryTracker, null, null, null);
@@ -126,7 +126,7 @@ public class BasicContainer extends Container {
      */
     BasicContainer(ContainerType type, Map<String, Object> conf, String supervisorId, int supervisorPort, int port,
         LocalAssignment assignment, ResourceIsolationInterface resourceIsolationManager, LocalState localState, String workerId,
-        StormMetricsRegistry metricsRegistry, ContainerMemoryTracker containerMemoryTracker, Map<String, Object> topoConf,
+        StormCustomMetricsRegistry metricsRegistry, ContainerMemoryTracker containerMemoryTracker, Map<String, Object> topoConf,
         AdvancedFSOps ops, String profileCmd) throws IOException {
         super(type, conf, supervisorId, supervisorPort, port, assignment,
             resourceIsolationManager, workerId, topoConf, ops, metricsRegistry, containerMemoryTracker);

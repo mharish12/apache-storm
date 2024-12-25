@@ -19,7 +19,7 @@ import org.apache.storm.container.DefaultResourceIsolationManager;
 import org.apache.storm.container.ResourceIsolationInterface;
 import org.apache.storm.generated.LocalAssignment;
 import org.apache.storm.messaging.IContext;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.utils.ConfigUtils;
 import org.apache.storm.utils.LocalState;
 import org.apache.storm.utils.ObjectReader;
@@ -51,7 +51,7 @@ public abstract class ContainerLauncher {
      * @throws IOException on any error
      */
     public static ContainerLauncher make(Map<String, Object> conf, String supervisorId, int supervisorPort,
-                                         IContext sharedContext, StormMetricsRegistry metricsRegistry, 
+                                         IContext sharedContext, StormCustomMetricsRegistry metricsRegistry,
                                          ContainerMemoryTracker containerMemoryTracker,
                                          org.apache.storm.generated.Supervisor.Iface localSupervisor) throws IOException {
         if (ConfigUtils.isLocalMode(conf)) {

@@ -35,12 +35,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.storm</groupId>
-            <artifactId>storm-server</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-core</artifactId>
             <version>${micrometer.version}</version>

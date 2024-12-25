@@ -30,7 +30,7 @@ public class StormHistogram implements IHistogram {
     }
 
     @Override
-    public void update(int value) {
+    public void update(long value) {
         summary.record(value);
     }
 

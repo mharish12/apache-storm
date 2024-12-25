@@ -88,7 +88,7 @@ import org.apache.storm.generated.TopologySummary;
 import org.apache.storm.generated.WorkerMetrics;
 import org.apache.storm.messaging.IContext;
 import org.apache.storm.messaging.local.Context;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.nimbus.ILeaderElector;
 import org.apache.storm.scheduler.INimbus;
 import org.apache.storm.scheduler.ISupervisor;
@@ -149,7 +149,7 @@ public class LocalCluster implements ILocalClusterTrackedTopologyAware, Iface {
     private final StormCommonInstaller commonInstaller;
     private final SimulatedTime time;
     private final NimbusClient.LocalOverride nimbusOverride;
-    private final StormMetricsRegistry metricRegistry;
+    private final StormCustomMetricsRegistry metricRegistry;
 
     /**
      * Create a default LocalCluster.
@@ -224,7 +224,7 @@ public class LocalCluster implements ILocalClusterTrackedTopologyAware, Iface {
             this.zookeeper = zookeeper;
             conf.putAll(builder.daemonConf);
             this.daemonConf = new HashMap<>(conf);
-            this.metricRegistry = new StormMetricsRegistry();
+            this.metricRegistry = new StormCustomMetricsRegistry();
 
             this.portCounter = builder.supervisorSlotPortMin;
             ClusterStateContext cs = new ClusterStateContext(DaemonType.NIMBUS, daemonConf);
@@ -435,7 +435,7 @@ public class LocalCluster implements ILocalClusterTrackedTopologyAware, Iface {
      * Reference to metrics registry.
      * @return The metrics registry for the local cluster.
      */
-    public StormMetricsRegistry getMetricRegistry() {
+    public StormCustomMetricsRegistry getMetricRegistry() {
         return metricRegistry;
     }
 

@@ -14,7 +14,7 @@
 
 package org.apache.storm.metric.timed;
 
-import com.codahale.metrics.Timer;
+import org.apache.storm.metric.ITimer;
 
 public interface TimerDecorated extends AutoCloseable {
 
@@ -27,7 +27,7 @@ public interface TimerDecorated extends AutoCloseable {
      *
      * @return Time a object is in use, or under measurement, in nanoseconds.
      */
-    default long stopTiming(final Timer.Context timing) {
+    default long stopTiming(final ITimer.IContext timing) {
         return timing.stop();
     }
 

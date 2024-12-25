@@ -11,7 +11,6 @@
 
 package org.apache.storm.metricstore.rocksdb;
 
-import com.codahale.metrics.Meter;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,7 +18,8 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicReference;
 import org.apache.storm.DaemonConfig;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.IMeter;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.metricstore.AggLevel;
 import org.apache.storm.metricstore.FilterOptions;
 import org.apache.storm.metricstore.Metric;
@@ -49,7 +49,7 @@ public class RocksDbStore implements MetricStore, AutoCloseable {
     private BlockingQueue queue = new LinkedBlockingQueue(MAX_QUEUE_CAPACITY);
     private RocksDbMetricsWriter metricsWriter = null;
     private MetricsCleaner metricsCleaner = null;
-    private Meter failureMeter = null;
+    private IMeter failureMeter = null;
 
     /**
      * Create metric store instance using the configurations provided via the config map.
@@ -59,7 +59,7 @@ public class RocksDbStore implements MetricStore, AutoCloseable {
      * @throws MetricException on preparation error
      */
     @Override
-    public void prepare(Map<String, Object> config, StormMetricsRegistry metricsRegistry) throws MetricException {
+    public void prepare(Map<String, Object> config, StormCustomMetricsRegistry metricsRegistry) throws MetricException {
         validateConfig(config);
 
         this.failureMeter = metricsRegistry.registerMeter("RocksDB:metric-failures");

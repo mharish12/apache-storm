@@ -14,7 +14,7 @@
 
 package org.apache.storm.daemon.logviewer.utils;
 
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 
 public class ExceptionMeterNames {
 
@@ -40,7 +40,7 @@ public class ExceptionMeterNames {
      * It may be helpful to register these meters up front, so they are output even if their values are zero.
      * @param registry The metrics registry.
      */
-    public static void registerMeters(StormMetricsRegistry registry) {
+    public static void registerMeters(StormCustomMetricsRegistry registry) {
         
         registry.registerMeter(NUM_FILE_OPEN_EXCEPTIONS);
         registry.registerMeter(NUM_FILE_READ_EXCEPTIONS);

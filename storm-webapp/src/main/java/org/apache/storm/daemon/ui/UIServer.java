@@ -38,7 +38,7 @@ import org.apache.storm.daemon.ui.exceptionmappers.NotAliveExceptionMapper;
 import org.apache.storm.daemon.ui.filters.AuthorizedUserFilter;
 import org.apache.storm.daemon.ui.filters.HeaderResponseFilter;
 import org.apache.storm.daemon.ui.filters.HeaderResponseServletFilter;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.security.auth.IHttpCredentialsPlugin;
 import org.apache.storm.security.auth.ServerAuthUtils;
 import org.apache.storm.utils.ConfigUtils;
@@ -120,14 +120,14 @@ public class UIServer {
 
         UIHelpers.configFilters(context, filterConfigurationList);
 
-        StormMetricsRegistry metricsRegistry = new StormMetricsRegistry();
+        StormCustomMetricsRegistry metricsRegistry = new StormCustomMetricsRegistry();
         ResourceConfig resourceConfig =
             new ResourceConfig()
                 .packages("org.apache.storm.daemon.ui.resources")
                 .registerInstances(new AbstractBinder() {
                     @Override
                     protected void configure() {
-                        super.bind(metricsRegistry).to(StormMetricsRegistry.class);
+                        super.bind(metricsRegistry).to(StormCustomMetricsRegistry.class);
                     }
                 })
                 .register(AuthorizedUserFilter.class)

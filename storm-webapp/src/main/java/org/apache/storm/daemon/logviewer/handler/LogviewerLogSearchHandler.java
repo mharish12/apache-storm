@@ -73,7 +73,9 @@ import org.apache.storm.daemon.supervisor.SupervisorUtils;
 import org.apache.storm.daemon.ui.InvalidRequestException;
 import org.apache.storm.daemon.utils.StreamUtil;
 import org.apache.storm.daemon.utils.UrlBuilder;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.IHistogram;
+import org.apache.storm.metric.IMeter;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.utils.ObjectReader;
 import org.apache.storm.utils.ServerUtils;
 import org.apache.storm.utils.Utils;
@@ -89,11 +91,11 @@ public class LogviewerLogSearchHandler {
     public static final int GREP_CONTEXT_SIZE = 128;
     public static final Pattern WORKER_LOG_FILENAME_PATTERN = Pattern.compile("^worker.log(.*)");
 
-    private final Meter numDeepSearchNoResult;
-    private final Histogram numFileScanned;
-    private final Meter numSearchRequestNoResult;
-    private final Meter numFileOpenExceptions;
-    private final Meter numFileReadExceptions;
+    private final IMeter numDeepSearchNoResult;
+    private final IHistogram numFileScanned;
+    private final IMeter numSearchRequestNoResult;
+    private final IMeter numFileOpenExceptions;
+    private final IMeter numFileReadExceptions;
 
     private final Map<String, Object> stormConf;
     private final Path logRoot;
@@ -113,7 +115,7 @@ public class LogviewerLogSearchHandler {
      * @param metricsRegistry The logviewer metrics registry
      */
     public LogviewerLogSearchHandler(Map<String, Object> stormConf, Path logRoot, Path daemonLogRoot,
-        ResourceAuthorizer resourceAuthorizer, StormMetricsRegistry metricsRegistry) {
+        ResourceAuthorizer resourceAuthorizer, StormCustomMetricsRegistry metricsRegistry) {
         this.stormConf = stormConf;
         this.logRoot = logRoot.toAbsolutePath().normalize();
         this.daemonLogRoot = daemonLogRoot.toAbsolutePath().normalize();

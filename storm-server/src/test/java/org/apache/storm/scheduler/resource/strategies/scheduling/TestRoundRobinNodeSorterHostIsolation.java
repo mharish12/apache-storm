@@ -20,7 +20,7 @@ package org.apache.storm.scheduler.resource.strategies.scheduling;
 
 import com.google.common.collect.Sets;
 import org.apache.storm.Config;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.networktopography.DNSToSwitchMapping;
 import org.apache.storm.scheduler.Cluster;
 import org.apache.storm.scheduler.INimbus;
@@ -195,11 +195,11 @@ public class TestRoundRobinNodeSorterHostIsolation {
         TopologyDetails td2 = topos[1];
 
         IScheduler scheduler = new ResourceAwareScheduler();
-        scheduler.prepare(configs[0], new StormMetricsRegistry());
+        scheduler.prepare(configs[0], new StormCustomMetricsRegistry());
 
         //Schedule the topo1 topology and ensure it uses limited number of nodes
         Topologies topologies = new Topologies(td1);
-        Cluster cluster = new Cluster(iNimbus, new ResourceMetrics(new StormMetricsRegistry()), supMap, new HashMap<>(), topologies, configs[0]);
+        Cluster cluster = new Cluster(iNimbus, new ResourceMetrics(new StormCustomMetricsRegistry()), supMap, new HashMap<>(), topologies, configs[0]);
         cluster.setNetworkTopography(testDNSToSwitchMapping.getRackToHosts());
 
         scheduler.schedule(topologies, cluster);

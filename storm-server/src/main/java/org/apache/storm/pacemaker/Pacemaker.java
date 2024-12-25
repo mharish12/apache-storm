@@ -25,7 +25,10 @@ import org.apache.storm.generated.HBMessageData;
 import org.apache.storm.generated.HBNodes;
 import org.apache.storm.generated.HBPulse;
 import org.apache.storm.generated.HBServerMessageType;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.IGauge;
+import org.apache.storm.metric.IHistogram;
+import org.apache.storm.metric.IMeter;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.shade.uk.org.lidalia.sysoutslf4j.context.SysOutOverSLF4J;
 import org.apache.storm.utils.ConfigUtils;
 import org.apache.storm.utils.Utils;
@@ -36,29 +39,29 @@ import org.slf4j.LoggerFactory;
 public class Pacemaker implements IServerMessageHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(Pacemaker.class);
-    private final Meter meterSendPulseCount;
-    private final Meter meterTotalReceivedSize;
-    private final Meter meterGetPulseCount;
-    private final Meter meterTotalSentSize;
-    private final Histogram histogramHeartbeatSize;
+    private final IMeter meterSendPulseCount;
+    private final IMeter meterTotalReceivedSize;
+    private final IMeter meterGetPulseCount;
+    private final IMeter meterTotalSentSize;
+    private final IHistogram histogramHeartbeatSize;
     private final Map<String, byte[]> heartbeats;
     private final Map<String, Object> conf;
 
-    public Pacemaker(Map<String, Object> conf, StormMetricsRegistry metricsRegistry) {
+    public Pacemaker(Map<String, Object> conf, StormCustomMetricsRegistry metricsRegistry) {
         heartbeats = new ConcurrentHashMap<>();
         this.conf = conf;
         this.meterSendPulseCount = metricsRegistry.registerMeter("pacemaker:send-pulse-count");
         this.meterTotalReceivedSize = metricsRegistry.registerMeter("pacemaker:total-receive-size");
         this.meterGetPulseCount = metricsRegistry.registerMeter("pacemaker:get-pulse=count");
         this.meterTotalSentSize = metricsRegistry.registerMeter("pacemaker:total-sent-size");
-        this.histogramHeartbeatSize = metricsRegistry.registerHistogram("pacemaker:heartbeat-size", new ExponentiallyDecayingReservoir());
-        metricsRegistry.registerGauge("pacemaker:size-total-keys", heartbeats::size);
+        this.histogramHeartbeatSize = metricsRegistry.registerHistogram("pacemaker:heartbeat-size");
+        metricsRegistry.registerGauge("pacemaker:size-total-keys", (IGauge<Integer>) heartbeats::size);
     }
 
     public static void main(String[] args) {
         SysOutOverSLF4J.sendSystemOutAndErrToSLF4J();
         Map<String, Object> conf = ConfigUtils.overrideLoginConfigWithSystemProperty(ConfigUtils.readStormConfig());
-        StormMetricsRegistry metricsRegistry = new StormMetricsRegistry();
+        StormCustomMetricsRegistry metricsRegistry = new StormCustomMetricsRegistry();
         final Pacemaker serverHandler = new Pacemaker(conf, metricsRegistry);
         serverHandler.launchServer();
         metricsRegistry.startMetricsReporters(conf);

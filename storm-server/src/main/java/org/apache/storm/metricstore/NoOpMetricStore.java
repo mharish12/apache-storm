@@ -12,13 +12,13 @@
 package org.apache.storm.metricstore;
 
 import java.util.Map;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 
 @SuppressWarnings("unused")
 public class NoOpMetricStore implements MetricStore {
 
     @Override
-    public void prepare(Map<String, Object> config, StormMetricsRegistry metricsRegistry) {}
+    public void prepare(Map<String, Object> config, StormCustomMetricsRegistry metricsRegistry) {}
 
     @Override
     public void insert(Metric metric) { }

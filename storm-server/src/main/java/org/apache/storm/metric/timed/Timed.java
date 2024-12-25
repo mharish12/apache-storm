@@ -14,13 +14,14 @@
 
 package org.apache.storm.metric.timed;
 
-import com.codahale.metrics.Timer;
+
+import org.apache.storm.metric.ITimer;
 
 public class Timed<T> implements TimerDecorated {
     private final T measured;
-    private final Timer.Context timing;
+    private final ITimer.IContext timing;
 
-    public Timed(T measured, Timer timer) {
+    public Timed(T measured, ITimer timer) {
         this.measured = measured;
         timing = timer.time();
     }

@@ -40,6 +40,7 @@ import java.util.Map;
 
 import org.apache.storm.daemon.common.JsonResponseBuilder;
 import org.apache.storm.daemon.ui.UIHelpers;
+import org.apache.storm.metric.IMeter;
 
 public class LogviewerResponseBuilder {
 
@@ -75,7 +76,7 @@ public class LogviewerResponseBuilder {
      * @param file file to download
      */
     public static Response buildDownloadFile(String contentDispositionName,
-        File file, Meter numFileDownloadExceptions) throws IOException {
+        File file, IMeter numFileDownloadExceptions) throws IOException {
         try {
             // do not close this InputStream in method: it will be used from jetty server
             InputStream is = Files.newInputStream(file.toPath());

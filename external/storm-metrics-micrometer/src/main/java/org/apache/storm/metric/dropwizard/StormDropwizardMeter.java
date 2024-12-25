@@ -34,6 +34,11 @@ public class StormDropwizardMeter implements IMeter {
     }
 
     @Override
+    public void mark(double n) {
+        meter.mark((long) n);
+    }
+
+    @Override
     public double getCount() {
         return meter.getCount();
     }

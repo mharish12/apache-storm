@@ -21,5 +21,7 @@ package org.apache.storm.metric;
 public interface IMeter extends IStormMetric {
     void mark();
 
+    void mark(double n);
+
     double getCount();
 }

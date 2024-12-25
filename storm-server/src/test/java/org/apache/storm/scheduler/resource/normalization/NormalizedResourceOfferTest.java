@@ -21,7 +21,7 @@ package org.apache.storm.scheduler.resource.normalization;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.storm.Constants;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -31,7 +31,7 @@ public class NormalizedResourceOfferTest {
     public void testNodeOverExtendedCpu() {
         NormalizedResourceOffer availableResources = createOffer(100.0, 0.0);
         NormalizedResourceOffer scheduledResources = createOffer(110.0, 0.0);
-        availableResources.remove(scheduledResources, new ResourceMetrics(new StormMetricsRegistry()));
+        availableResources.remove(scheduledResources, new ResourceMetrics(new StormCustomMetricsRegistry()));
         assertEquals(0.0, availableResources.getTotalCpu(), 0.001);
     }
 
@@ -39,7 +39,7 @@ public class NormalizedResourceOfferTest {
     public void testNodeOverExtendedMemory() {
         NormalizedResourceOffer availableResources = createOffer(0.0, 5.0);
         NormalizedResourceOffer scheduledResources = createOffer(0.0, 10.0);
-        availableResources.remove(scheduledResources, new ResourceMetrics(new StormMetricsRegistry()));
+        availableResources.remove(scheduledResources, new ResourceMetrics(new StormCustomMetricsRegistry()));
         assertEquals(0.0, availableResources.getTotalMemoryMb(), 0.001);
     }
 

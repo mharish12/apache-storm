@@ -16,18 +16,18 @@
 
 package org.apache.storm.scheduler.resource.normalization;
 
-import com.codahale.metrics.Meter;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.IMeter;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 
 public class ResourceMetrics {
 
-    private final Meter numNegativeResourceEvents;
+    private final IMeter numNegativeResourceEvents;
     
-    public ResourceMetrics(StormMetricsRegistry metricsRegistry) {
+    public ResourceMetrics(StormCustomMetricsRegistry metricsRegistry) {
         numNegativeResourceEvents = metricsRegistry.registerMeter("nimbus:num-negative-resource-events");
     }
 
-    public Meter getNegativeResourceEventsMeter() {
+    public IMeter getNegativeResourceEventsMeter() {
         return numNegativeResourceEvents;
     }
     

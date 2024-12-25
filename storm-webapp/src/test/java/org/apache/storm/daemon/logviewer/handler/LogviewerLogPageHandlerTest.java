@@ -38,7 +38,7 @@ import jakarta.ws.rs.core.Response;
 import org.apache.storm.daemon.logviewer.utils.LogviewerResponseBuilder;
 import org.apache.storm.daemon.logviewer.utils.ResourceAuthorizer;
 import org.apache.storm.daemon.logviewer.utils.WorkerLogs;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.testing.TmpPath;
 import org.apache.storm.utils.Utils;
 import org.junit.jupiter.api.Test;
@@ -64,7 +64,7 @@ public class LogviewerLogPageHandlerTest {
 
         String origin = "www.origin.server.net";
         Map<String, Object> stormConf = Utils.readStormConfig();
-        StormMetricsRegistry metricsRegistry = new StormMetricsRegistry();
+        StormCustomMetricsRegistry metricsRegistry = new StormCustomMetricsRegistry();
         LogviewerLogPageHandler handler = new LogviewerLogPageHandler(rootPath, rootPath,
                 new WorkerLogs(stormConf, Paths.get(rootPath), metricsRegistry), new ResourceAuthorizer(stormConf), metricsRegistry);
 
@@ -188,7 +188,7 @@ public class LogviewerLogPageHandlerTest {
         Files.createFile(daemonFile);
 
         Map<String, Object> stormConf = Utils.readStormConfig();
-        StormMetricsRegistry metricsRegistry = new StormMetricsRegistry();
+        StormCustomMetricsRegistry metricsRegistry = new StormCustomMetricsRegistry();
         return new LogviewerLogPageHandler(workerLogRoot.toString(), daemonLogRoot.toString(),
             new WorkerLogs(stormConf, workerLogRoot, metricsRegistry), new ResourceAuthorizer(stormConf), metricsRegistry);
     }

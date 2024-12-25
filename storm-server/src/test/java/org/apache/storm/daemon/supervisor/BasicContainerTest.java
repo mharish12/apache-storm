@@ -41,7 +41,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.utils.ConfigUtils;
 
 public class BasicContainerTest {
@@ -107,7 +107,7 @@ public class BasicContainerTest {
         ResourceIsolationInterface iso = mock(ResourceIsolationInterface.class);
 
         MockBasicContainer mc = new MockBasicContainer(ContainerType.LAUNCH, superConf,
-            "SUPERVISOR", supervisorPort, port, la, iso, ls, null, new StormMetricsRegistry(),
+            "SUPERVISOR", supervisorPort, port, la, iso, ls, null, new StormCustomMetricsRegistry(),
             new HashMap<>(), ops, "profile");
         //null worker id means generate one...
 
@@ -140,7 +140,7 @@ public class BasicContainerTest {
         ResourceIsolationInterface iso = mock(ResourceIsolationInterface.class);
 
         MockBasicContainer mc = new MockBasicContainer(ContainerType.RECOVER_FULL, superConf,
-            "SUPERVISOR", supervisorPort, port, la, iso, ls, null, new StormMetricsRegistry(),
+            "SUPERVISOR", supervisorPort, port, la, iso, ls, null, new StormCustomMetricsRegistry(),
             new HashMap<>(), ops, "profile");
 
         assertEquals(workerId, mc.workerId);
@@ -162,7 +162,7 @@ public class BasicContainerTest {
 
         try {
             new MockBasicContainer(ContainerType.RECOVER_FULL, new HashMap<>(),
-                "SUPERVISOR", supervisorPort, port, la, null, ls, null, new StormMetricsRegistry(),
+                "SUPERVISOR", supervisorPort, port, la, null, ls, null, new StormCustomMetricsRegistry(),
                 new HashMap<>(), null, "profile");
             fail("Container recovered worker incorrectly");
         } catch (ContainerRecoveryException e) {
@@ -192,7 +192,7 @@ public class BasicContainerTest {
         ResourceIsolationInterface iso = mock(ResourceIsolationInterface.class);
 
         MockBasicContainer mc = new MockBasicContainer(ContainerType.LAUNCH, superConf,
-            "SUPERVISOR", supervisorPort, port, la, iso, ls, workerId, new StormMetricsRegistry(), new HashMap<>(), ops,
+            "SUPERVISOR", supervisorPort, port, la, iso, ls, workerId, new StormCustomMetricsRegistry(), new HashMap<>(), ops,
                                                        "profile");
 
         mc.cleanUp();
@@ -230,7 +230,7 @@ public class BasicContainerTest {
         MockResourceIsolationManager iso = new MockResourceIsolationManager();
 
         MockBasicContainer mc = new MockBasicContainer(ContainerType.LAUNCH, superConf,
-            "SUPERVISOR", supervisorPort, port, la, iso, ls, workerId, new StormMetricsRegistry(),
+            "SUPERVISOR", supervisorPort, port, la, iso, ls, workerId, new StormCustomMetricsRegistry(),
             new HashMap<>(), ops, "profile");
 
         //HEAP DUMP
@@ -343,7 +343,7 @@ public class BasicContainerTest {
 
         checkpoint(() -> {
                        MockBasicContainer mc = new MockBasicContainer(ContainerType.LAUNCH, superConf,
-                "SUPERVISOR", supervisorPort, port, la, iso, ls, workerId, new StormMetricsRegistry(),
+                "SUPERVISOR", supervisorPort, port, la, iso, ls, workerId, new StormCustomMetricsRegistry(),
                 new HashMap<>(), ops, "profile");
 
                        mc.launch();
@@ -447,7 +447,7 @@ public class BasicContainerTest {
 
         checkpoint(() -> {
                        MockBasicContainer mc = new MockBasicContainer(ContainerType.LAUNCH, superConf,
-                "SUPERVISOR", supervisorPort, port, la, iso, ls, workerId, new StormMetricsRegistry(),
+                "SUPERVISOR", supervisorPort, port, la, iso, ls, workerId, new StormCustomMetricsRegistry(),
                 new HashMap<>(), ops, "profile");
 
                        mc.launch();
@@ -550,7 +550,7 @@ public class BasicContainerTest {
 
         checkpoint(() -> {
                        MockBasicContainer mc = new MockBasicContainer(ContainerType.LAUNCH, superConf,
-                "SUPERVISOR", supervisorPort, port, la, iso, ls, workerId, new StormMetricsRegistry(),
+                "SUPERVISOR", supervisorPort, port, la, iso, ls, workerId, new StormCustomMetricsRegistry(),
                 new HashMap<>(), ops, "profile");
 
                        mc.launch();
@@ -630,7 +630,7 @@ public class BasicContainerTest {
         ResourceIsolationInterface iso = mock(ResourceIsolationInterface.class);
 
         MockBasicContainer mc = new MockBasicContainer(ContainerType.LAUNCH, superConf,
-            "SUPERVISOR", supervisorPort, port, la, iso, ls, workerId, new StormMetricsRegistry(),
+            "SUPERVISOR", supervisorPort, port, la, iso, ls, workerId, new StormCustomMetricsRegistry(),
             new HashMap<>(), ops, "profile");
 
         assertListEquals(Arrays.asList(
@@ -678,7 +678,7 @@ public class BasicContainerTest {
     public static class MockBasicContainer extends BasicContainer {
         public MockBasicContainer(ContainerType type, Map<String, Object> conf, String supervisorId, int supervisorPort,
                                   int port, LocalAssignment assignment, ResourceIsolationInterface resourceIsolationManager,
-                                  LocalState localState, String workerId, StormMetricsRegistry metricsRegistry, 
+                                  LocalState localState, String workerId, StormCustomMetricsRegistry metricsRegistry,
                                   Map<String, Object> topoConf, AdvancedFSOps ops, String profileCmd) throws IOException {
             super(type, conf, supervisorId, supervisorPort, port, assignment, resourceIsolationManager, localState,
                   workerId, metricsRegistry,new ContainerMemoryTracker(metricsRegistry), topoConf, ops, profileCmd);

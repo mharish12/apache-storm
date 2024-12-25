@@ -19,7 +19,7 @@
 package org.apache.storm.metric;
 
 public interface IHistogram extends IStormMetric{
-    void update(int value);
+    void update(long value);
 
     long getCount();
 }

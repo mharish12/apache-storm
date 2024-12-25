@@ -22,7 +22,7 @@ import org.apache.storm.daemon.supervisor.IAdvancedFSOps;
 import org.apache.storm.generated.AuthorizationException;
 import org.apache.storm.generated.KeyNotFoundException;
 import org.apache.storm.generated.LocalAssignment;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -37,7 +37,7 @@ public class LocallyCachedBlobTest {
     @Test
     public void testNotUsed() throws KeyNotFoundException, AuthorizationException {
         LocallyCachedBlob blob = new LocalizedResource("key", Paths.get("/bogus"), false,
-                AdvancedFSOps.make(conf), conf, "user1", new StormMetricsRegistry());
+                AdvancedFSOps.make(conf), conf, "user1", new StormCustomMetricsRegistry());
         assertFalse(blob.isUsed());
         assertFalse(blob.requiresUpdate(blobStore, -1L));
     }
@@ -45,7 +45,7 @@ public class LocallyCachedBlobTest {
     @Test
     public void testNotDownloaded() throws KeyNotFoundException, AuthorizationException {
         LocallyCachedBlob blob = new LocalizedResource("key", Paths.get("/bogus"), false,
-                AdvancedFSOps.make(conf), conf, "user1", new StormMetricsRegistry());
+                AdvancedFSOps.make(conf), conf, "user1", new StormCustomMetricsRegistry());
         blob.addReference(pna, null);
         assertTrue(blob.isUsed());
         assertFalse(blob.isFullyDownloaded());
@@ -55,7 +55,7 @@ public class LocallyCachedBlobTest {
     @Test
     public void testOutOfDate() throws KeyNotFoundException, AuthorizationException {
         TestableBlob blob = new TestableBlob("key", Paths.get("/bogus"), false,
-                AdvancedFSOps.make(conf), conf, "user1", new StormMetricsRegistry());
+                AdvancedFSOps.make(conf), conf, "user1", new StormCustomMetricsRegistry());
         blob.addReference(pna, null);
         assertTrue(blob.isUsed());
         assertTrue(blob.isFullyDownloaded());
@@ -82,7 +82,7 @@ public class LocallyCachedBlobTest {
     public class TestableBlob extends LocalizedResource {
         long localVersion = 9L;
 
-        TestableBlob(String key, Path localBaseDir, boolean shouldUncompress, IAdvancedFSOps fsOps, Map<String, Object> conf, String user, StormMetricsRegistry metricRegistry) {
+        TestableBlob(String key, Path localBaseDir, boolean shouldUncompress, IAdvancedFSOps fsOps, Map<String, Object> conf, String user, StormCustomMetricsRegistry metricRegistry) {
             super(key, localBaseDir, shouldUncompress, fsOps, conf, user, metricRegistry);
         }
 

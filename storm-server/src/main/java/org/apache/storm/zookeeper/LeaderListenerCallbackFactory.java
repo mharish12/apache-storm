@@ -25,7 +25,7 @@ import java.util.Map;
 import org.apache.storm.blobstore.BlobStore;
 import org.apache.storm.cluster.IStormClusterState;
 import org.apache.storm.daemon.nimbus.TopoCache;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.nimbus.ILeaderElector;
 import org.apache.storm.nimbus.LeaderListenerCallback;
 import org.apache.storm.shade.org.apache.curator.framework.CuratorFramework;
@@ -44,11 +44,11 @@ public class LeaderListenerCallbackFactory {
     private final TopoCache tc;
     private final IStormClusterState clusterState;
     private final List<ACL> acls;
-    private final StormMetricsRegistry metricsRegistry;
+    private final StormCustomMetricsRegistry metricsRegistry;
     private final Object submitLock;
 
     public LeaderListenerCallbackFactory(Map<String, Object> conf, CuratorFramework zk, BlobStore blobStore, TopoCache tc,
-        IStormClusterState clusterState, List<ACL> acls, StormMetricsRegistry metricsRegistry, Object submitLock) {
+        IStormClusterState clusterState, List<ACL> acls, StormCustomMetricsRegistry metricsRegistry, Object submitLock) {
         this.conf = conf;
         this.zk = zk;
         this.blobStore = blobStore;

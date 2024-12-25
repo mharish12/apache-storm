@@ -73,7 +73,6 @@ public class MicrometerPersister implements StormMetricsPersister {
 
     @Override
     public IHistogram histogram(String name) {
-        DistributionSummary summary = registry.summary(name);
         return new StormHistogram(registry.summary(name));
     }
 

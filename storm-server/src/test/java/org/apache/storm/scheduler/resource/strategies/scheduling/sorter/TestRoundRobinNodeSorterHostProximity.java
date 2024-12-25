@@ -19,7 +19,7 @@
 package org.apache.storm.scheduler.resource.strategies.scheduling.sorter;
 
 import org.apache.storm.Config;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.networktopography.DNSToSwitchMapping;
 import org.apache.storm.scheduler.Cluster;
 import org.apache.storm.scheduler.ExecutorDetails;
@@ -219,7 +219,7 @@ public class TestRoundRobinNodeSorterHostProximity {
         TopologyDetails topo2 = genTopology("topo-2", t2Conf, 8, 0, 2, 0, CURRENT_TIME - 2, 10, "user");
 
         Topologies topologies = new Topologies(topo1, topo2);
-        Cluster cluster = new Cluster(iNimbus, new ResourceMetrics(new StormMetricsRegistry()), supMap, new HashMap<>(), topologies, config);
+        Cluster cluster = new Cluster(iNimbus, new ResourceMetrics(new StormCustomMetricsRegistry()), supMap, new HashMap<>(), topologies, config);
 
         List<String> supHostnames = new LinkedList<>();
         for (SupervisorDetails sup : supMap.values()) {
@@ -328,7 +328,7 @@ public class TestRoundRobinNodeSorterHostProximity {
         TopologyDetails topo2 = genTopology("topo-2", t2Conf, 8, 0, 2, 0, CURRENT_TIME - 2, 10, "user");
 
         Topologies topologies = new Topologies(topo1, topo2);
-        Cluster cluster = new Cluster(iNimbus, new ResourceMetrics(new StormMetricsRegistry()), supMap, new HashMap<>(), topologies, config);
+        Cluster cluster = new Cluster(iNimbus, new ResourceMetrics(new StormCustomMetricsRegistry()), supMap, new HashMap<>(), topologies, config);
 
         cluster.setNetworkTopography(testDNSToSwitchMapping.getRackToHosts());
 
@@ -415,7 +415,7 @@ public class TestRoundRobinNodeSorterHostProximity {
         TopologyDetails topo2 = genTopology("topo-2", config, 8, 0, 2, 0, CURRENT_TIME - 2, 10, "user");
 
         Topologies topologies = new Topologies(topo1, topo2);
-        Cluster cluster = new Cluster(iNimbus, new ResourceMetrics(new StormMetricsRegistry()), supMap, new HashMap<>(), topologies, config);
+        Cluster cluster = new Cluster(iNimbus, new ResourceMetrics(new StormCustomMetricsRegistry()), supMap, new HashMap<>(), topologies, config);
 
         cluster.setNetworkTopography(testDNSToSwitchMapping.getRackToHosts());
 
@@ -459,14 +459,14 @@ public class TestRoundRobinNodeSorterHostProximity {
         config.putAll(createRoundRobinClusterConfig(88, 775, 25, null, null));
 
         IScheduler scheduler = new ResourceAwareScheduler();
-        scheduler.prepare(config, new StormMetricsRegistry());
+        scheduler.prepare(config, new StormCustomMetricsRegistry());
 
         TopologyDetails tdSimple = genTopology("topology-simple", config, 1,
                 5, 100, 300, 0, 0, "user", 8192);
 
         //Schedule the simple topology first
         Topologies topologies = new Topologies(tdSimple);
-        Cluster cluster = new Cluster(iNimbus, new ResourceMetrics(new StormMetricsRegistry()), supMap, new HashMap<>(), topologies, config);
+        Cluster cluster = new Cluster(iNimbus, new ResourceMetrics(new StormCustomMetricsRegistry()), supMap, new HashMap<>(), topologies, config);
 
         {
             NodeSorterHostProximity nodeSorter = new NodeSorterHostProximity(cluster, tdSimple);
@@ -615,14 +615,14 @@ public class TestRoundRobinNodeSorterHostProximity {
         config.putAll(createRoundRobinClusterConfig(compPcore, compOnHeap, compOffHeap, null, null));
 
         IScheduler scheduler = new ResourceAwareScheduler();
-        scheduler.prepare(config, new StormMetricsRegistry());
+        scheduler.prepare(config, new StormCustomMetricsRegistry());
 
         TopologyDetails td1 = genTopology(topoName1, config, topo1NumSpouts,
                 topo1NumBolts, topo1SpoutParallelism, topo1BoltParallelism, 0, 0, "user", topo1MaxHeapSize);
 
         //Schedule the topo1 topology and ensure it fits on 2 racks
         Topologies topologies = new Topologies(td1);
-        Cluster cluster = new Cluster(iNimbus, new ResourceMetrics(new StormMetricsRegistry()), supMap, new HashMap<>(), topologies, config);
+        Cluster cluster = new Cluster(iNimbus, new ResourceMetrics(new StormCustomMetricsRegistry()), supMap, new HashMap<>(), topologies, config);
         cluster.setNetworkTopography(testDNSToSwitchMapping.getRackToHosts());
 
         scheduler.schedule(topologies, cluster);
@@ -680,14 +680,14 @@ public class TestRoundRobinNodeSorterHostProximity {
         config.putAll(createRoundRobinClusterConfig(compPcore, compOnHeap, compOffHeap, null, null));
 
         IScheduler scheduler = new ResourceAwareScheduler();
-        scheduler.prepare(config, new StormMetricsRegistry());
+        scheduler.prepare(config, new StormCustomMetricsRegistry());
 
         TopologyDetails td1 = genTopology(topoName1, config, topo1NumSpouts,
                 topo1NumBolts, topo1SpoutParallelism, topo1BoltParallelism, 0, 0, "user", topo1MaxHeapSize);
 
         //Schedule the topo1 topology and ensure it fits on 1 rack
         Topologies topologies = new Topologies(td1);
-        Cluster cluster = new Cluster(iNimbus, new ResourceMetrics(new StormMetricsRegistry()), supMap, new HashMap<>(), topologies, config);
+        Cluster cluster = new Cluster(iNimbus, new ResourceMetrics(new StormCustomMetricsRegistry()), supMap, new HashMap<>(), topologies, config);
         cluster.setNetworkTopography(testDNSToSwitchMapping.getRackToHosts());
 
         scheduler.schedule(topologies, cluster);
@@ -772,13 +772,13 @@ public class TestRoundRobinNodeSorterHostProximity {
         config.putAll(createRoundRobinClusterConfig(compPcore, compOnHeap, compOffHeap, null, null));
 
         IScheduler scheduler = new ResourceAwareScheduler();
-        scheduler.prepare(config, new StormMetricsRegistry());
+        scheduler.prepare(config, new StormCustomMetricsRegistry());
 
         TopologyDetails td1 = genTopology(topoName1, config, topo1NumSpouts,
             topo1NumBolts, topo1SpoutParallelism, topo1BoltParallelism, 0, 0, "user", topo1MaxHeapSize);
 
         Topologies topologies = new Topologies(td1);
-        Cluster cluster = new Cluster(iNimbus, new ResourceMetrics(new StormMetricsRegistry()), supMap, new HashMap<>(), topologies, config);
+        Cluster cluster = new Cluster(iNimbus, new ResourceMetrics(new StormCustomMetricsRegistry()), supMap, new HashMap<>(), topologies, config);
         cluster.setNetworkTopography(testDNSToSwitchMapping.getRackToHosts());
 
         Map<String, List<String>> networkTopography = cluster.getNetworkTopography();
@@ -811,7 +811,7 @@ public class TestRoundRobinNodeSorterHostProximity {
 
         // Now fully impair the cluster - confirm no default rack
         {
-            cluster = new Cluster(iNimbus, new ResourceMetrics(new StormMetricsRegistry()), supMap, new HashMap<>(), topologies, config);
+            cluster = new Cluster(iNimbus, new ResourceMetrics(new StormCustomMetricsRegistry()), supMap, new HashMap<>(), topologies, config);
             cluster.setNetworkTopography(new TestDNSToSwitchMapping(supMap.values()).getRackToHosts());
             impairClusterRack(cluster, rackIdToZero, true, true);
             Set<String> seenRacks = new HashSet<>();
@@ -861,13 +861,13 @@ public class TestRoundRobinNodeSorterHostProximity {
         config.putAll(createRoundRobinClusterConfig(compPcore, compOnHeap, compOffHeap, null, null));
 
         IScheduler scheduler = new ResourceAwareScheduler();
-        scheduler.prepare(config, new StormMetricsRegistry());
+        scheduler.prepare(config, new StormCustomMetricsRegistry());
 
         TopologyDetails td1 = genTopology(topoName1, config, topo1NumSpouts,
             topo1NumBolts, topo1SpoutParallelism, topo1BoltParallelism, 0, 0, "user", topo1MaxHeapSize);
 
         Topologies topologies = new Topologies(td1);
-        Cluster cluster = new Cluster(iNimbus, new ResourceMetrics(new StormMetricsRegistry()), supMap, new HashMap<>(), topologies, config);
+        Cluster cluster = new Cluster(iNimbus, new ResourceMetrics(new StormCustomMetricsRegistry()), supMap, new HashMap<>(), topologies, config);
         cluster.setNetworkTopography(testDNSToSwitchMapping.getRackToHosts());
 
         Map<String, List<String>> networkTopography = cluster.getNetworkTopography();

@@ -21,7 +21,7 @@ import org.apache.storm.generated.HBMessage;
 import org.apache.storm.generated.HBMessageData;
 import org.apache.storm.generated.HBPulse;
 import org.apache.storm.generated.HBServerMessageType;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.pacemaker.Pacemaker;
 import org.apache.storm.utils.Utils;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,7 +42,7 @@ public class PacemakerTest {
     @BeforeEach
     public void init() {
         random = new Random(100);
-        handler = new Pacemaker(new ConcurrentHashMap<>(), new StormMetricsRegistry());
+        handler = new Pacemaker(new ConcurrentHashMap<>(), new StormCustomMetricsRegistry());
     }
 
     @Test

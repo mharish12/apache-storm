@@ -76,14 +76,15 @@ import org.apache.storm.daemon.ui.InvalidRequestException;
 import org.apache.storm.daemon.ui.UIHelpers;
 import org.apache.storm.daemon.utils.StreamUtil;
 import org.apache.storm.daemon.utils.UrlBuilder;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.IMeter;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.utils.ConfigUtils;
 import org.apache.storm.utils.ServerUtils;
 
 public class LogviewerLogPageHandler {
-    private final Meter numPageRead;
-    private final Meter numFileOpenExceptions;
-    private final Meter numFileReadExceptions;
+    private final IMeter numPageRead;
+    private final IMeter numFileOpenExceptions;
+    private final IMeter numFileReadExceptions;
     private final Path logRoot;
     private final Path daemonLogRoot;
     private final WorkerLogs workerLogs;
@@ -102,7 +103,7 @@ public class LogviewerLogPageHandler {
     public LogviewerLogPageHandler(String logRoot, String daemonLogRoot,
                                    WorkerLogs workerLogs,
                                    ResourceAuthorizer resourceAuthorizer,
-                                   StormMetricsRegistry metricsRegistry) {
+                                   StormCustomMetricsRegistry metricsRegistry) {
         this.logRoot = Paths.get(logRoot).toAbsolutePath().normalize();
         this.daemonLogRoot = Paths.get(daemonLogRoot).toAbsolutePath().normalize();
         this.workerLogs = workerLogs;

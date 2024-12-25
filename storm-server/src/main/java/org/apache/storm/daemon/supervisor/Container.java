@@ -43,7 +43,9 @@ import org.apache.storm.generated.ProfileRequest;
 import org.apache.storm.generated.WorkerMetricList;
 import org.apache.storm.generated.WorkerMetricPoint;
 import org.apache.storm.generated.WorkerMetrics;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.IMeter;
+import org.apache.storm.metric.ITimer;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.metricstore.MetricException;
 import org.apache.storm.metricstore.WorkerMetricsProcessor;
 import org.apache.storm.utils.ConfigUtils;
@@ -66,12 +68,12 @@ public abstract class Container implements Killable {
     private static final String INVALID_STREAM_ID = "None";
     private static final Map<String, Integer> cachedUserToUidMap = new ConcurrentHashMap<>();
 
-    private final Meter numCleanupExceptions;
-    private final Meter numKillExceptions;
-    private final Meter numForceKillExceptions;
-    private final Meter numForceKill;
-    private final Timer shutdownDuration;
-    private final Timer cleanupDuration;
+    private final IMeter numCleanupExceptions;
+    private final IMeter numKillExceptions;
+    private final IMeter numForceKillExceptions;
+    private final IMeter numForceKill;
+    private final ITimer shutdownDuration;
+    private final ITimer cleanupDuration;
     protected final Map<String, Object> conf;
     protected final Map<String, Object> topoConf; //Not set if RECOVER_PARTIAL
     protected final String topologyId; //Not set if RECOVER_PARTIAL
@@ -86,7 +88,7 @@ public abstract class Container implements Killable {
     protected ContainerType type;
     protected ContainerMemoryTracker containerMemoryTracker;
     private long lastMetricProcessTime = 0L;
-    private Timer.Context shutdownTimer = null;
+    private ITimer.IContext shutdownTimer = null;
     protected boolean runAsUser;
     private String cachedUser;
 
@@ -110,7 +112,7 @@ public abstract class Container implements Killable {
     protected Container(ContainerType type, Map<String, Object> conf, String supervisorId, int supervisorPort,
         int port, LocalAssignment assignment, ResourceIsolationInterface resourceIsolationManager,
         String workerId, Map<String, Object> topoConf, AdvancedFSOps ops,
-        StormMetricsRegistry metricsRegistry, ContainerMemoryTracker containerMemoryTracker) throws IOException {
+        StormCustomMetricsRegistry metricsRegistry, ContainerMemoryTracker containerMemoryTracker) throws IOException {
         if (type == null) {
             throw new IOException("ContainerType parameter is null");
         }
@@ -258,13 +260,16 @@ public abstract class Container implements Killable {
 
     @Override
     public void cleanUp() throws IOException {
-        try (Timer.Context t = cleanupDuration.time()) {
+        try (ITimer.IContext t = cleanupDuration.time()) {
             containerMemoryTracker.remove(port);
             cleanUpForRestart();
         } catch (IOException e) {
             //This may or may not be reported depending on when process exits
             numCleanupExceptions.mark();
             throw e;
+        } catch (Exception e) {
+            numCleanupExceptions.mark();
+            throw new RuntimeException(e);
         }
     }
 

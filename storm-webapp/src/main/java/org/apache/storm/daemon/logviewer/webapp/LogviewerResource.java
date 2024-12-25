@@ -18,7 +18,6 @@
 
 package org.apache.storm.daemon.logviewer.webapp;
 
-import com.codahale.metrics.Meter;
 import com.codahale.metrics.Timer;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -42,7 +41,9 @@ import org.apache.storm.daemon.logviewer.utils.ExceptionMeterNames;
 import org.apache.storm.daemon.ui.InvalidRequestException;
 import org.apache.storm.daemon.ui.UIHelpers;
 import org.apache.storm.daemon.ui.resources.StormApiResource;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.IMeter;
+import org.apache.storm.metric.ITimer;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.security.auth.IHttpCredentialsPlugin;
 import org.apache.storm.utils.Utils;
 import org.slf4j.Logger;
@@ -55,24 +56,24 @@ import org.slf4j.LoggerFactory;
 public class LogviewerResource {
     private static final Logger LOG = LoggerFactory.getLogger(LogviewerResource.class);
 
-    private final Meter meterLogPageHttpRequests;
-    private final Meter meterDaemonLogPageHttpRequests;
-    private final Meter meterDownloadLogFileHttpRequests;
-    private final Meter meterDownloadLogDaemonFileHttpRequests;
-    private final Meter meterListLogsHttpRequests;
-    private final Meter numSearchLogRequests;
-    private final Meter numDeepSearchArchived;
-    private final Meter numDeepSearchNonArchived;
-    private final Meter numReadLogExceptions;
-    private final Meter numReadDaemonLogExceptions;
-    private final Meter numListLogExceptions;
-    private final Meter numListDumpExceptions;
-    private final Meter numDownloadDumpExceptions;
-    private final Meter numDownloadLogExceptions;
-    private final Meter numDownloadDaemonLogExceptions;
-    private final Meter numSearchExceptions;
-    private final Timer searchLogRequestDuration;
-    private final Timer deepSearchRequestDuration;
+    private final IMeter meterLogPageHttpRequests;
+    private final IMeter meterDaemonLogPageHttpRequests;
+    private final IMeter meterDownloadLogFileHttpRequests;
+    private final IMeter meterDownloadLogDaemonFileHttpRequests;
+    private final IMeter meterListLogsHttpRequests;
+    private final IMeter numSearchLogRequests;
+    private final IMeter numDeepSearchArchived;
+    private final IMeter numDeepSearchNonArchived;
+    private final IMeter numReadLogExceptions;
+    private final IMeter numReadDaemonLogExceptions;
+    private final IMeter numListLogExceptions;
+    private final IMeter numListDumpExceptions;
+    private final IMeter numDownloadDumpExceptions;
+    private final IMeter numDownloadLogExceptions;
+    private final IMeter numDownloadDaemonLogExceptions;
+    private final IMeter numSearchExceptions;
+    private final ITimer searchLogRequestDuration;
+    private final ITimer deepSearchRequestDuration;
 
     private final LogviewerLogPageHandler logviewer;
     private final LogviewerProfileHandler profileHandler;
@@ -92,7 +93,7 @@ public class LogviewerResource {
      */
     public LogviewerResource(LogviewerLogPageHandler logviewerParam, LogviewerProfileHandler profileHandler,
                              LogviewerLogDownloadHandler logDownloadHandler, LogviewerLogSearchHandler logSearchHandler,
-                             IHttpCredentialsPlugin httpCredsHandler, StormMetricsRegistry metricsRegistry) {
+                             IHttpCredentialsPlugin httpCredsHandler, StormCustomMetricsRegistry metricsRegistry) {
         this.meterLogPageHttpRequests = metricsRegistry.registerMeter("logviewer:num-log-page-http-requests");
         this.meterDaemonLogPageHttpRequests = metricsRegistry.registerMeter(
             "logviewer:num-daemonlog-page-http-requests");

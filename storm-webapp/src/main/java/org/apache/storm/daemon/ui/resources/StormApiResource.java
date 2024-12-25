@@ -35,7 +35,8 @@ import jakarta.ws.rs.core.SecurityContext;
 import java.util.Map;
 import net.minidev.json.JSONValue;
 import org.apache.storm.daemon.ui.UIHelpers;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.IMeter;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.thrift.TException;
 import org.apache.storm.utils.ConfigUtils;
 import org.apache.storm.utils.NimbusClient;
@@ -58,28 +59,28 @@ public class StormApiResource {
 
     public static Map<String, Object> config = ConfigUtils.readStormConfig();
 
-    private final Meter clusterConfigurationRequestMeter;
-    private final Meter clusterSummaryRequestMeter;
-    private final Meter nimbusSummaryRequestMeter;
-    private final Meter supervisorRequestMeter;
-    private final Meter supervisorSummaryRequestMeter;
-    private final Meter allTopologiesSummaryRequestMeter;
-    private final Meter topologyPageRequestMeter;
-    private final Meter topologyMetricRequestMeter;
-    private final Meter buildVisualizationRequestMeter;
-    private final Meter mkVisualizationDataRequestMeter;
-    private final Meter componentPageRequestMeter;
-    private final Meter logConfigRequestMeter;
-    private final Meter activateTopologyRequestMeter;
-    private final Meter deactivateTopologyRequestMeter;
-    private final Meter debugTopologyRequestMeter;
-    private final Meter componentOpResponseRequestMeter;
-    private final Meter topologyOpResponseMeter;
-    private final Meter topologyLagRequestMeter;
-    private final Meter getOwnerResourceSummariesMeter;
+    private final IMeter clusterConfigurationRequestMeter;
+    private final IMeter clusterSummaryRequestMeter;
+    private final IMeter nimbusSummaryRequestMeter;
+    private final IMeter supervisorRequestMeter;
+    private final IMeter supervisorSummaryRequestMeter;
+    private final IMeter allTopologiesSummaryRequestMeter;
+    private final IMeter topologyPageRequestMeter;
+    private final IMeter topologyMetricRequestMeter;
+    private final IMeter buildVisualizationRequestMeter;
+    private final IMeter mkVisualizationDataRequestMeter;
+    private final IMeter componentPageRequestMeter;
+    private final IMeter logConfigRequestMeter;
+    private final IMeter activateTopologyRequestMeter;
+    private final IMeter deactivateTopologyRequestMeter;
+    private final IMeter debugTopologyRequestMeter;
+    private final IMeter componentOpResponseRequestMeter;
+    private final IMeter topologyOpResponseMeter;
+    private final IMeter topologyLagRequestMeter;
+    private final IMeter getOwnerResourceSummariesMeter;
 
     @Inject
-    public StormApiResource(StormMetricsRegistry metricsRegistry) {
+    public StormApiResource(StormCustomMetricsRegistry metricsRegistry) {
         this.clusterConfigurationRequestMeter = metricsRegistry.registerMeter("ui:num-cluster-configuration-http-requests");
         this.clusterSummaryRequestMeter = metricsRegistry.registerMeter("ui:num-cluster-summary-http-requests");
         this.nimbusSummaryRequestMeter = metricsRegistry.registerMeter("ui:num-nimbus-summary-http-requests");

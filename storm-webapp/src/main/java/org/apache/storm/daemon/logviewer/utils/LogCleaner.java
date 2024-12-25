@@ -52,7 +52,11 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.apache.storm.StormTimer;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.IGauge;
+import org.apache.storm.metric.IHistogram;
+import org.apache.storm.metric.IMeter;
+import org.apache.storm.metric.ITimer;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.utils.ObjectReader;
 import org.apache.storm.utils.Time;
 import org.apache.storm.utils.Utils;
@@ -65,11 +69,11 @@ import org.slf4j.LoggerFactory;
 public class LogCleaner implements Runnable, Closeable {
     private static final Logger LOG = LoggerFactory.getLogger(LogCleaner.class);
 
-    private final Timer cleanupRoutineDuration;
-    private final Histogram numFilesCleanedUp;
-    private final Histogram diskSpaceFreed;
-    private final Meter numFileRemovalExceptions;
-    private final Meter numCleanupExceptions;
+    private final ITimer cleanupRoutineDuration;
+    private final IHistogram numFilesCleanedUp;
+    private final IHistogram diskSpaceFreed;
+    private final IMeter numFileRemovalExceptions;
+    private final IMeter numCleanupExceptions;
 
     private final Map<String, Object> stormConf;
     private final Integer intervalSecs;
@@ -91,7 +95,7 @@ public class LogCleaner implements Runnable, Closeable {
      * @param metricsRegistry  The logviewer metrics registry
      */
     public LogCleaner(Map<String, Object> stormConf, WorkerLogs workerLogs, DirectoryCleaner directoryCleaner,
-                      Path logRootDir, StormMetricsRegistry metricsRegistry) {
+                      Path logRootDir, StormCustomMetricsRegistry metricsRegistry) {
         this.stormConf = stormConf;
         this.intervalSecs = ObjectReader.getInt(stormConf.get(LOGVIEWER_CLEANUP_INTERVAL_SECS), null);
         this.logRootDir = logRootDir;
@@ -105,7 +109,7 @@ public class LogCleaner implements Runnable, Closeable {
         LOG.info("configured max total size of worker logs: {} MB, max total size of worker logs per directory: {} MB",
                 maxSumWorkerLogsSizeMb, maxPerWorkerLogsSizeMb);
         //Switch to CachedGauge if this starts to hurt performance
-        metricsRegistry.registerGauge("logviewer:worker-log-dir-size", () -> sizeOfDir(logRootDir));
+        metricsRegistry.registerGauge("logviewer:worker-log-dir-size", (IGauge<Long>) () -> sizeOfDir(logRootDir));
         this.cleanupRoutineDuration = metricsRegistry.registerTimer("logviewer:cleanup-routine-duration-ms");
         this.numFilesCleanedUp = metricsRegistry.registerHistogram("logviewer:num-files-cleaned-up");
         this.diskSpaceFreed = metricsRegistry.registerHistogram("logviewer:disk-space-freed-in-bytes");
@@ -162,7 +166,7 @@ public class LogCleaner implements Runnable, Closeable {
     public void run() {
         int numFilesCleaned = 0;
         long diskSpaceCleaned = 0L;
-        try (Timer.Context t = cleanupRoutineDuration.time()) {
+        try (ITimer.IContext t = cleanupRoutineDuration.time()) {
             final long nowMills = Time.currentTimeMillis();
             Set<Path> oldLogDirs = selectDirsForCleanup(nowMills);
 

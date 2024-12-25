@@ -15,7 +15,7 @@ package org.apache.storm.scheduler.resource;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.storm.Config;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.scheduler.Cluster;
 import org.apache.storm.scheduler.INimbus;
 import org.apache.storm.scheduler.SupervisorDetails;
@@ -69,7 +69,7 @@ public class TestUser {
             TopologyDetails topo1 = genTopology("topo-1", config, 1, 1, 2, 1, Time.currentTimeSecs() - 24, 9, "user1");
             Topologies topologies = new Topologies(topo1);
 
-            Cluster cluster = new Cluster(iNimbus, new ResourceMetrics(new StormMetricsRegistry()), supMap, new HashMap<>(), topologies, config);
+            Cluster cluster = new Cluster(iNimbus, new ResourceMetrics(new StormCustomMetricsRegistry()), supMap, new HashMap<>(), topologies, config);
             User user1 = new User("user1", toDouble(resourceUserPool.get("user1")));
             WorkerSlot slot = cluster.getAvailableSlots().get(0);
             cluster.assign(slot, topo1.getId(), topo1.getExecutors());

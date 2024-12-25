@@ -18,12 +18,18 @@
 
 package org.apache.storm.metric;
 
+import com.codahale.metrics.MetricRegistry;
+import io.micrometer.core.instrument.Clock;
+import io.micrometer.core.instrument.util.HierarchicalNameMapper;
+import org.apache.storm.metric.micrometer.persister.DropwizardPersister;
 import org.apache.storm.metric.micrometer.persister.StormMetricsPersister;
+import org.apache.storm.metric.micrometer.persister.config.DropwizardStormConfig;
 import org.apache.storm.metric.micrometer.reporter.Reporter;
 import org.apache.storm.metric.micrometer.util.MetricsUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +39,10 @@ public class StormCustomMetricsRegistry {
     private final StormMetricsPersister stormMetricsPersister;
     private List<Reporter> reporters;
     private boolean reportersStarted = false;
+
+    public StormCustomMetricsRegistry() {
+        this(new DropwizardPersister(new DropwizardStormConfig(), new MetricRegistry(), HierarchicalNameMapper.DEFAULT, Clock.SYSTEM, 0d), Collections.emptyList());
+    }
 
     public StormCustomMetricsRegistry(StormMetricsPersister stormMetricsPersister, List<Reporter> reporters) {
         this.stormMetricsPersister = stormMetricsPersister;
@@ -78,6 +88,12 @@ public class StormCustomMetricsRegistry {
 
     public <T extends Number> T registerGauge(final String name, T number) {
         return stormMetricsPersister.gauge(name, number);
+    }
+
+    public <T extends Number> T registerGauge(final String name, IGauge<T> gauge) {
+//        return stormMetricsPersister.gauge(name, number);
+        //TODO: Implementation left.
+        return null;
     }
 
     public void registerAll(IMetricSet metrics) {

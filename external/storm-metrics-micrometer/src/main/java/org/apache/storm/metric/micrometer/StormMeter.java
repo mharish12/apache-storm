@@ -35,6 +35,11 @@ public class StormMeter implements IMeter, ICounter {
     }
 
     @Override
+    public void mark(double n) {
+        counter.increment(n);
+    }
+
+    @Override
     public void inc() {
         counter.increment();
     }

@@ -18,8 +18,6 @@
 
 package org.apache.storm.daemon.logviewer.utils;
 
-import com.codahale.metrics.Histogram;
-import com.codahale.metrics.Meter;
 
 import jakarta.ws.rs.core.Response;
 
@@ -28,12 +26,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.IHistogram;
+import org.apache.storm.metric.IMeter;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 
 
 public class LogFileDownloader {
-    private final Histogram fileDownloadSizeDistMb;
-    private final Meter numFileDownloadExceptions;
+    private final IHistogram fileDownloadSizeDistMb;
+    private final IMeter numFileDownloadExceptions;
     private final Path logRoot;
     private final Path daemonLogRoot;
     private final ResourceAuthorizer resourceAuthorizer;
@@ -47,7 +47,7 @@ public class LogFileDownloader {
      * @param metricsRegistry The logviewer metrics registry
      */
     public LogFileDownloader(String logRoot, String daemonLogRoot, ResourceAuthorizer resourceAuthorizer,
-        StormMetricsRegistry metricsRegistry) {
+        StormCustomMetricsRegistry metricsRegistry) {
         this.logRoot = Paths.get(logRoot).toAbsolutePath().normalize();
         this.daemonLogRoot = Paths.get(daemonLogRoot).toAbsolutePath().normalize();
         this.resourceAuthorizer = resourceAuthorizer;

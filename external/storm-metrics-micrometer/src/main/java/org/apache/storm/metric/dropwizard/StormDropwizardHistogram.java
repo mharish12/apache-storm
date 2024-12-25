@@ -30,7 +30,7 @@ public class StormDropwizardHistogram implements IHistogram {
     }
 
     @Override
-    public void update(int value) {
+    public void update(long value) {
         histogram.update(value);
     }
 

@@ -25,7 +25,7 @@ import java.io.IOException;
 import org.apache.storm.daemon.logviewer.utils.LogFileDownloader;
 import org.apache.storm.daemon.logviewer.utils.ResourceAuthorizer;
 import org.apache.storm.daemon.logviewer.utils.WorkerLogs;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 
 public class LogviewerLogDownloadHandler {
 
@@ -42,7 +42,7 @@ public class LogviewerLogDownloadHandler {
      * @param metricsRegistry The logviewer metrics registry
      */
     public LogviewerLogDownloadHandler(String logRoot, String daemonLogRoot, WorkerLogs workerLogs,
-        ResourceAuthorizer resourceAuthorizer, StormMetricsRegistry metricsRegistry) {
+        ResourceAuthorizer resourceAuthorizer, StormCustomMetricsRegistry metricsRegistry) {
         this.workerLogs = workerLogs;
         this.logFileDownloadHelper = new LogFileDownloader(logRoot, daemonLogRoot, resourceAuthorizer, metricsRegistry);
     }

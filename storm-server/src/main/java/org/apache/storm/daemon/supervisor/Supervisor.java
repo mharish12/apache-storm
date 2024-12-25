@@ -61,7 +61,8 @@ import org.apache.storm.generated.SupervisorWorkerHeartbeat;
 import org.apache.storm.localizer.AsyncLocalizer;
 import org.apache.storm.logging.ThriftAccessLogger;
 import org.apache.storm.messaging.IContext;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.scheduler.ISupervisor;
 import org.apache.storm.security.auth.IAuthorizer;
 import org.apache.storm.security.auth.MultiThriftServer;
@@ -110,7 +111,7 @@ public class Supervisor implements DaemonCommon, AutoCloseable {
     // to really make this work well.
     private final ExecutorService heartbeatExecutor;
     private final AsyncLocalizer asyncLocalizer;
-    private final StormMetricsRegistry metricsRegistry;
+    private final StormCustomMetricsRegistry metricsRegistry;
     private Meter killErrorMeter;
     private final ContainerMemoryTracker containerMemoryTracker;
     private final SlotMetrics slotMetrics;
@@ -126,7 +127,7 @@ public class Supervisor implements DaemonCommon, AutoCloseable {
     private org.apache.storm.generated.Supervisor.Iface supervisorThriftInterface;
 
     @SuppressWarnings("checkstyle:ParameterName")
-    private Supervisor(ISupervisor iSupervisor, StormMetricsRegistry metricsRegistry)
+    private Supervisor(ISupervisor iSupervisor, StormCustomMetricsRegistry metricsRegistry)
         throws IOException, IllegalAccessException, InstantiationException, ClassNotFoundException {
         this(ConfigUtils.readStormConfig(), null, iSupervisor, metricsRegistry);
     }
@@ -139,7 +140,7 @@ public class Supervisor implements DaemonCommon, AutoCloseable {
      * @param iSupervisor   {@link ISupervisor}
      */
     @SuppressWarnings("checkstyle:ParameterName")
-    public Supervisor(Map<String, Object> conf, IContext sharedContext, ISupervisor iSupervisor, StormMetricsRegistry metricsRegistry)
+    public Supervisor(Map<String, Object> conf, IContext sharedContext, ISupervisor iSupervisor, StormCustomMetricsRegistry metricsRegistry)
         throws IOException, IllegalAccessException, ClassNotFoundException, InstantiationException {
         this.conf = conf;
         this.metricsRegistry = metricsRegistry;
@@ -199,7 +200,7 @@ public class Supervisor implements DaemonCommon, AutoCloseable {
      */
     public static void main(String[] args) throws Exception {
         Utils.setupDefaultUncaughtExceptionHandler();
-        StormMetricsRegistry metricsRegistry = new StormMetricsRegistry();
+        StormCustomMetricsRegistry metricsRegistry = new StormCustomMetricsRegistry();
         @SuppressWarnings("resource")
         Supervisor instance = new Supervisor(new StandaloneSupervisor(), metricsRegistry);
         instance.launchDaemon();
@@ -220,7 +221,7 @@ public class Supervisor implements DaemonCommon, AutoCloseable {
         return sharedContext;
     }
 
-    public StormMetricsRegistry getMetricsRegistry() {
+    public StormCustomMetricsRegistry getMetricsRegistry() {
         return metricsRegistry;
     }
     

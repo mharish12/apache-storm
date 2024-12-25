@@ -20,6 +20,7 @@ package org.apache.storm.metricstore.rocksdb;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.storm.DaemonConfig;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.metricstore.AggLevel;
 import org.apache.storm.metricstore.FilterOptions;
 import org.apache.storm.metricstore.Metric;
@@ -37,7 +38,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.storm.metric.StormMetricsRegistry;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -58,7 +58,7 @@ public class RocksDbStoreTest {
         conf.put(DaemonConfig.STORM_ROCKSDB_CREATE_IF_MISSING, true);
         conf.put(DaemonConfig.STORM_ROCKSDB_METADATA_STRING_CACHE_CAPACITY, 4000);
         conf.put(DaemonConfig.STORM_ROCKSDB_METRIC_RETENTION_HOURS, 240);
-        store = MetricStoreConfig.configure(conf, new StormMetricsRegistry());
+        store = MetricStoreConfig.configure(conf, new StormCustomMetricsRegistry());
     }
 
     @AfterAll
@@ -306,7 +306,7 @@ public class RocksDbStoreTest {
         assertTrue(list.size() >= 2);
 
         // delete anything older than an hour
-        MetricsCleaner cleaner = new MetricsCleaner((RocksDbStore)store, 1, 1, null, new StormMetricsRegistry());
+        MetricsCleaner cleaner = new MetricsCleaner((RocksDbStore)store, 1, 1, null, new StormCustomMetricsRegistry());
         cleaner.purgeMetrics();
         list = getMetricsFromScan(filter);
         assertEquals(1, list.size());

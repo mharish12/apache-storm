@@ -18,34 +18,36 @@ package org.apache.storm.daemon.supervisor;
 
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import org.apache.storm.metric.StormMetricsRegistry;
+
+import org.apache.storm.metric.IGauge;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 
 public class ContainerMemoryTracker {
 
     private final ConcurrentHashMap<Integer, TopoAndMemory> usedMemory = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<Integer, TopoAndMemory> reservedMemory = new ConcurrentHashMap<>();
 
-    public ContainerMemoryTracker(StormMetricsRegistry metricsRegistry) {
+    public ContainerMemoryTracker(StormCustomMetricsRegistry metricsRegistry) {
         metricsRegistry.registerGauge(
             "supervisor:current-used-memory-mb",
-            () -> {
-                Long val = usedMemory.values().stream().mapToLong((topoAndMem) -> topoAndMem.memory).sum();
-                int ret = val.intValue();
-                if (val > Integer.MAX_VALUE) { // Would only happen at 2 PB so we are OK for now
-                    ret = Integer.MAX_VALUE;
-                }
-                return ret;
-            });
+                (IGauge<Integer>) () -> {
+                    Long val = usedMemory.values().stream().mapToLong((topoAndMem) -> topoAndMem.memory).sum();
+                    int ret = val.intValue();
+                    if (val > Integer.MAX_VALUE) { // Would only happen at 2 PB so we are OK for now
+                        ret = Integer.MAX_VALUE;
+                    }
+                    return ret;
+                });
         metricsRegistry.registerGauge(
             "supervisor:current-reserved-memory-mb",
-            () -> {
-                Long val = reservedMemory.values().stream().mapToLong((topoAndMem) -> topoAndMem.memory).sum();
-                int ret = val.intValue();
-                if (val > Integer.MAX_VALUE) { // Would only happen at 2 PB so we are OK for now
-                    ret = Integer.MAX_VALUE;
-                }
-                return ret;
-            });
+                (IGauge<Integer>) () -> {
+                    Long val = reservedMemory.values().stream().mapToLong((topoAndMem) -> topoAndMem.memory).sum();
+                    int ret = val.intValue();
+                    if (val > Integer.MAX_VALUE) { // Would only happen at 2 PB so we are OK for now
+                        ret = Integer.MAX_VALUE;
+                    }
+                    return ret;
+                });
     }
 
     /**

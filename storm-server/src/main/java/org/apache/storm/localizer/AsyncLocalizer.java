@@ -52,7 +52,9 @@ import org.apache.storm.generated.AuthorizationException;
 import org.apache.storm.generated.KeyNotFoundException;
 import org.apache.storm.generated.LocalAssignment;
 import org.apache.storm.generated.StormTopology;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.IMeter;
+import org.apache.storm.metric.ITimer;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.shade.com.google.common.annotations.VisibleForTesting;
 import org.apache.storm.shade.com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.apache.storm.thrift.transport.TTransportException;
@@ -75,10 +77,10 @@ public class AsyncLocalizer implements AutoCloseable {
     private static final CompletableFuture<Void> ALL_DONE_FUTURE = CompletableFuture.completedFuture(null);
     private static final int ATTEMPTS_INTERVAL_TIME = 100;
 
-    private final Timer blobCacheUpdateDuration;
-    private final Timer blobLocalizationDuration;
-    private final Meter localResourceFileNotFoundWhenReleasingSlot;
-    private final Meter updateBlobExceptions;
+    private final ITimer blobCacheUpdateDuration;
+    private final ITimer blobLocalizationDuration;
+    private final IMeter localResourceFileNotFoundWhenReleasingSlot;
+    private final IMeter updateBlobExceptions;
 
     // track resources - user to resourceSet
     //ConcurrentHashMap is explicitly used everywhere in this class because it uses locks to guarantee atomicity for compute and
@@ -100,13 +102,13 @@ public class AsyncLocalizer implements AutoCloseable {
     private final ScheduledExecutorService taskExecService;
     private final long cacheCleanupPeriod;
     private final int updateBlobPeriod;
-    private final StormMetricsRegistry metricsRegistry;
+    private final StormCustomMetricsRegistry metricsRegistry;
     // cleanup
     @VisibleForTesting
     protected long cacheTargetSize;
 
     @VisibleForTesting
-    AsyncLocalizer(Map<String, Object> conf, AdvancedFSOps ops, String baseDir, StormMetricsRegistry metricsRegistry) throws IOException {
+    AsyncLocalizer(Map<String, Object> conf, AdvancedFSOps ops, String baseDir, StormCustomMetricsRegistry metricsRegistry) throws IOException {
         this.conf = conf;
         this.blobCacheUpdateDuration = metricsRegistry.registerTimer("supervisor:blob-cache-update-duration");
         this.blobLocalizationDuration = metricsRegistry.registerTimer("supervisor:blob-localization-duration");
@@ -140,7 +142,7 @@ public class AsyncLocalizer implements AutoCloseable {
         blobPending = new ConcurrentHashMap<>();
     }
 
-    public AsyncLocalizer(Map<String, Object> conf, StormMetricsRegistry metricsRegistry) throws IOException {
+    public AsyncLocalizer(Map<String, Object> conf, StormCustomMetricsRegistry metricsRegistry) throws IOException {
         this(conf, AdvancedFSOps.make(conf), ConfigUtils.supervisorLocalDir(conf), metricsRegistry);
     }
 

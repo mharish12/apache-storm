@@ -12,8 +12,6 @@
 
 package org.apache.storm.localizer;
 
-import com.codahale.metrics.Histogram;
-import com.codahale.metrics.Meter;
 import com.codahale.metrics.Timer;
 
 import java.io.File;
@@ -36,7 +34,10 @@ import org.apache.storm.blobstore.ClientBlobStore;
 import org.apache.storm.blobstore.InputStreamWithMeta;
 import org.apache.storm.generated.AuthorizationException;
 import org.apache.storm.generated.KeyNotFoundException;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.IHistogram;
+import org.apache.storm.metric.IMeter;
+import org.apache.storm.metric.ITimer;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.utils.Time;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,9 +56,9 @@ public abstract class LocallyCachedBlob {
     private final String blobKey;
     private AtomicLong lastUsed = new AtomicLong(Time.currentTimeMillis());
 
-    private final Histogram fetchingRate;
-    private final Meter numBlobUpdateVersionChanged;
-    private final Timer singleBlobLocalizationDuration;
+    private final IHistogram fetchingRate;
+    private final IMeter numBlobUpdateVersionChanged;
+    private final ITimer singleBlobLocalizationDuration;
     protected long localUpdateTime = -1L;
 
     /**
@@ -66,7 +67,7 @@ public abstract class LocallyCachedBlob {
      * @param blobDescription a description of the blob this represents.  Typically it should at least be the blob key, but ideally also
      *                        include if it is an archive or not, what user or topology it is for, or if it is a storm.jar etc.
      */
-    protected LocallyCachedBlob(String blobDescription, String blobKey, StormMetricsRegistry metricsRegistry) {
+    protected LocallyCachedBlob(String blobDescription, String blobKey, StormCustomMetricsRegistry metricsRegistry) {
         this.blobDescription = blobDescription;
         this.blobKey = blobKey;
         this.fetchingRate = metricsRegistry.registerHistogram("supervisor:blob-fetching-rate-MB/s");

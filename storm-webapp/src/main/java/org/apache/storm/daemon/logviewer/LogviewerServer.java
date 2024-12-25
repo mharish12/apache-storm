@@ -36,7 +36,9 @@ import org.apache.storm.daemon.logviewer.utils.WorkerLogs;
 import org.apache.storm.daemon.logviewer.webapp.LogviewerApplication;
 import org.apache.storm.daemon.ui.FilterConfiguration;
 import org.apache.storm.daemon.ui.UIHelpers;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.IMeter;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.utils.ConfigUtils;
 import org.apache.storm.utils.ObjectReader;
 import org.apache.storm.utils.Utils;
@@ -56,9 +58,9 @@ public class LogviewerServer implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(LogviewerServer.class);
     private static final String stormHome = System.getProperty(ConfigUtils.STORM_HOME);
     public static final String STATIC_RESOURCE_DIRECTORY_PATH = stormHome + "/public";
-    private final Meter meterShutdownCalls;
+    private final IMeter meterShutdownCalls;
 
-    private static Server mkHttpServer(StormMetricsRegistry metricsRegistry, Map<String, Object> conf) {
+    private static Server mkHttpServer(StormCustomMetricsRegistry metricsRegistry, Map<String, Object> conf) {
         Integer logviewerHttpPort = (Integer) conf.get(DaemonConfig.LOGVIEWER_PORT);
         Server ret = null;
         if (logviewerHttpPort != null && logviewerHttpPort >= 0) {
@@ -126,7 +128,7 @@ public class LogviewerServer implements AutoCloseable {
      * @param conf Logviewer conf for the servers
      * @param metricsRegistry The metrics registry
      */
-    public LogviewerServer(Map<String, Object> conf, StormMetricsRegistry metricsRegistry) {
+    public LogviewerServer(Map<String, Object> conf, StormCustomMetricsRegistry metricsRegistry) {
         httpServer = mkHttpServer(metricsRegistry, conf);
         meterShutdownCalls = metricsRegistry.registerMeter("logviewer:num-shutdown-calls");
         ExceptionMeterNames.registerMeters(metricsRegistry);
@@ -164,7 +166,7 @@ public class LogviewerServer implements AutoCloseable {
         Utils.setupDefaultUncaughtExceptionHandler();
         Map<String, Object> conf = ConfigUtils.readStormConfig();
 
-        StormMetricsRegistry metricsRegistry = new StormMetricsRegistry();
+        StormCustomMetricsRegistry metricsRegistry = new StormCustomMetricsRegistry();
         String logRoot = ConfigUtils.workerArtifactsRoot(conf);
         File logRootDir = new File(logRoot);
         logRootDir.mkdirs();

@@ -33,7 +33,8 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.IMeter;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 
 import org.apache.storm.utils.Utils;
 import org.slf4j.Logger;
@@ -55,9 +56,9 @@ public class DirectoryCleaner {
     private static final int MAX_ROUNDS = 512; // max rounds of scanning the dirs
     public static final int MAX_NUMBER_OF_FILES_FOR_DIR = 1024;
 
-    private final Meter numFileOpenExceptions;
+    private final IMeter numFileOpenExceptions;
 
-    public DirectoryCleaner(StormMetricsRegistry metricsRegistry) {
+    public DirectoryCleaner(StormCustomMetricsRegistry metricsRegistry) {
         this.numFileOpenExceptions = metricsRegistry.registerMeter(ExceptionMeterNames.NUM_FILE_OPEN_EXCEPTIONS);
     }
 

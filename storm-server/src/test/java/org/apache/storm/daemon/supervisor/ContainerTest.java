@@ -32,6 +32,7 @@ import org.apache.storm.daemon.supervisor.BasicContainerTest.CommandRun;
 import org.apache.storm.daemon.supervisor.Container.ContainerType;
 import org.apache.storm.generated.LocalAssignment;
 import org.apache.storm.generated.ProfileRequest;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.utils.ObjectReader;
 import org.junit.jupiter.api.Test;
 import org.yaml.snakeyaml.Yaml;
@@ -45,7 +46,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 
 public class ContainerTest {
     private static final Joiner PATH_JOIN = Joiner.on(File.separator).skipNulls();
@@ -78,7 +79,7 @@ public class ContainerTest {
         MockResourceIsolationManager iso = new MockResourceIsolationManager();
         String workerId = "worker-id";
         MockContainer mc = new MockContainer(ContainerType.LAUNCH, superConf,
-            "SUPERVISOR", 6628, 8080, la, iso, workerId, new HashMap<>(), ops, new StormMetricsRegistry());
+            "SUPERVISOR", 6628, 8080, la, iso, workerId, new HashMap<>(), ops, new StormCustomMetricsRegistry());
         iso.allWorkerIds.add(workerId);
 
         assertEquals(Collections.EMPTY_LIST, iso.killedWorkerIds);
@@ -136,7 +137,7 @@ public class ContainerTest {
         la.set_owner(user);
         ResourceIsolationInterface iso = mock(ResourceIsolationInterface.class);
         MockContainer mc = new MockContainer(ContainerType.LAUNCH, superConf,
-                                             "SUPERVISOR", 6628, 8080, la, iso, workerId, topoConf, ops, new StormMetricsRegistry());
+                                             "SUPERVISOR", 6628, 8080, la, iso, workerId, topoConf, ops, new StormCustomMetricsRegistry());
 
         mc.setup();
 
@@ -206,7 +207,7 @@ public class ContainerTest {
         la.set_owner(user);
         la.set_topology_id(topoId);
         MockContainer mc = new MockContainer(ContainerType.LAUNCH, superConf,
-                                             "SUPERVISOR", supervisorPort, port, la, iso, workerId, topoConf, ops, new StormMetricsRegistry());
+                                             "SUPERVISOR", supervisorPort, port, la, iso, workerId, topoConf, ops, new StormCustomMetricsRegistry());
 
         mc.cleanUp();
         verify(iso).cleanup(user, workerId, port);
@@ -222,9 +223,9 @@ public class ContainerTest {
 
         protected MockContainer(ContainerType type, Map<String, Object> conf, String supervisorId, int supervisorPort,
                                 int port, LocalAssignment assignment, ResourceIsolationInterface resourceIsolationManager,
-                                String workerId, Map<String, Object> topoConf, AdvancedFSOps ops, StormMetricsRegistry metricsRegistry) throws IOException {
+                                String workerId, Map<String, Object> topoConf, AdvancedFSOps ops, StormCustomMetricsRegistry metricsRegistry) throws IOException {
             super(type, conf, supervisorId, supervisorPort, port, assignment, resourceIsolationManager, workerId,
-                  topoConf, ops, metricsRegistry, new ContainerMemoryTracker(new StormMetricsRegistry()));
+                  topoConf, ops, metricsRegistry, new ContainerMemoryTracker(new StormCustomMetricsRegistry()));
         }
 
         @Override

@@ -23,7 +23,7 @@ import org.apache.logging.log4j.core.config.Configurator;
 import org.apache.storm.Config;
 import org.apache.storm.DaemonConfig;
 import org.apache.storm.generated.StormTopology;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.scheduler.Cluster;
 import org.apache.storm.scheduler.ExecutorDetails;
 import org.apache.storm.scheduler.INimbus;
@@ -408,7 +408,7 @@ public class TestLargeCluster {
                         TestUtilsForResourceAwareScheduler.GenSupervisorsDnsToSwitchMapping.class.getName());
 
                 INimbus iNimbus = new INimbusTest();
-                Cluster cluster = new Cluster(iNimbus, new ResourceMetrics(new StormMetricsRegistry()), supervisors, new HashMap<>(),
+                Cluster cluster = new Cluster(iNimbus, new ResourceMetrics(new StormCustomMetricsRegistry()), supervisors, new HashMap<>(),
                         topologies, confWithDefaultStrategy);
 
                 scheduler = new ResourceAwareScheduler();
@@ -420,7 +420,7 @@ public class TestLargeCluster {
                 Level logLevel = Level.INFO; // switch to Level.DEBUG for verbose otherwise Level.INFO
                 classesToDebug.forEach(x -> Configurator.setLevel(x.getName(), logLevel));
                 long startTime = System.currentTimeMillis();
-                scheduler.prepare(confWithDefaultStrategy, new StormMetricsRegistry());
+                scheduler.prepare(confWithDefaultStrategy, new StormCustomMetricsRegistry());
                 scheduler.schedule(topologies, cluster);
                 long endTime = System.currentTimeMillis();
                 LOG.info("Cluster={} Scheduling Time: {} topologies in {} seconds",
@@ -437,7 +437,7 @@ public class TestLargeCluster {
                     cluster.unassign(topoDetails.getId());
                     LOG.info("Cluster={},  ({}) Removed topology {}", testClusterName.getClusterName(), i, topoDetails.getName());
                     IScheduler rescheduler = new ResourceAwareScheduler();
-                    rescheduler.prepare(confWithDefaultStrategy, new StormMetricsRegistry());
+                    rescheduler.prepare(confWithDefaultStrategy, new StormCustomMetricsRegistry());
                     rescheduler.schedule(topologies, cluster);
                     TestUtilsForResourceAwareScheduler.assertTopologiesFullyScheduled(cluster, strategyClass, topoDetails.getName());
                     endTime = System.currentTimeMillis();

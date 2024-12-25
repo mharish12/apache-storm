@@ -21,11 +21,18 @@ package org.apache.storm.metric.micrometer;
 import io.micrometer.core.instrument.Timer;
 import org.apache.storm.metric.ITimer;
 
+import java.time.Clock;
+import java.time.temporal.ChronoField;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
+
 public class StormTimer implements ITimer {
     private final Timer timer;
+    private final Clock clock;
 
     public StormTimer(Timer timer) {
         this.timer = timer;
+        this.clock = Clock.systemUTC();
     }
 
     @Override
@@ -36,5 +43,47 @@ public class StormTimer implements ITimer {
     @Override
     public long getCount() {
         return timer.count();
+    }
+
+    @Override
+    public IContext time() {
+        return new Context(this.timer, Clock.systemUTC());
+    }
+
+    @Override
+    public <T> T time(Callable<T> event) throws Exception {
+        long startTime = this.clock.millis();
+
+        T result;
+        try {
+            result = event.call();
+        } finally {
+            this.update(this.clock.millis() - startTime, TimeUnit.MILLISECONDS);
+        }
+
+        return result;
+    }
+
+    public static class Context implements IContext, AutoCloseable {
+        private final Timer timer;
+        private final Clock clock;
+        private final long startTime;
+
+        Context(Timer timer, Clock clock) {
+            this.timer = timer;
+            this.clock = clock;
+            this.startTime = clock.instant().getLong(ChronoField.NANO_OF_SECOND);
+        }
+
+        @Override
+        public long stop() {
+            long elapsed = this.clock.instant().getLong(ChronoField.NANO_OF_SECOND) - this.startTime;
+            this.timer.record(elapsed, TimeUnit.NANOSECONDS);
+            return elapsed;
+        }
+
+        public void close() {
+            this.stop();
+        }
     }
 }

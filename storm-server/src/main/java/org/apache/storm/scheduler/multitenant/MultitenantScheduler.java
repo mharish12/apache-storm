@@ -16,7 +16,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.storm.DaemonConfig;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.scheduler.Cluster;
 import org.apache.storm.scheduler.IScheduler;
 import org.apache.storm.scheduler.Topologies;
@@ -35,7 +35,7 @@ public class MultitenantScheduler implements IScheduler {
     private SchedulerConfigCache<Map<String, Number>> schedulerConfigCache;
 
     @Override
-    public void prepare(Map<String, Object> conf, StormMetricsRegistry metricsRegistry) {
+    public void prepare(Map<String, Object> conf, StormCustomMetricsRegistry metricsRegistry) {
         this.conf = conf;
         configLoader = ConfigLoaderFactoryService.createConfigLoader(conf);
         schedulerConfigCache = new SchedulerConfigCache<>(conf, this::loadConfig);

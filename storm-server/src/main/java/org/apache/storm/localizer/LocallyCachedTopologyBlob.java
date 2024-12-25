@@ -34,7 +34,7 @@ import org.apache.storm.blobstore.ClientBlobStore;
 import org.apache.storm.daemon.supervisor.AdvancedFSOps;
 import org.apache.storm.generated.AuthorizationException;
 import org.apache.storm.generated.KeyNotFoundException;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.utils.ConfigUtils;
 import org.apache.storm.utils.ServerConfigUtils;
 import org.apache.storm.utils.ServerUtils;
@@ -67,7 +67,7 @@ public class LocallyCachedTopologyBlob extends LocallyCachedBlob {
      */
     protected LocallyCachedTopologyBlob(final String topologyId, final boolean isLocalMode, final Map<String, Object> conf,
                                         final AdvancedFSOps fsOps, final TopologyBlobType type,
-                                        String owner, StormMetricsRegistry metricsRegistry) throws IOException {
+                                        String owner, StormCustomMetricsRegistry metricsRegistry) throws IOException {
         super(topologyId + " " + type.getFileName(), type.getKey(topologyId), metricsRegistry);
         this.topologyId = topologyId;
         this.type = type;

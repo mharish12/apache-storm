@@ -20,6 +20,8 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ThreadLocalRandom;
+
+import org.apache.storm.metric.IMeter;
 import org.apache.storm.metricstore.AggLevel;
 import org.apache.storm.metricstore.Metric;
 import org.apache.storm.metricstore.MetricException;
@@ -59,7 +61,7 @@ public class RocksDbMetricsWriter implements Runnable, AutoCloseable {
     private TreeMap<RocksDbKey, RocksDbValue> insertBatch = new TreeMap<>(); // RocksDB should insert in sorted key order
     private WriteOptions writeOpts = new WriteOptions();
     private volatile boolean shutdown = false;
-    private Meter failureMeter;
+    private IMeter failureMeter;
     private ArrayList<AggLevel> aggBuckets = new ArrayList<>();
 
     /**
@@ -68,7 +70,7 @@ public class RocksDbMetricsWriter implements Runnable, AutoCloseable {
      * @param store   The RocksDB store
      * @param queue   The queue to receive metrics for insertion
      */
-    RocksDbMetricsWriter(RocksDbStore store, BlockingQueue queue, Meter failureMeter) {
+    RocksDbMetricsWriter(RocksDbStore store, BlockingQueue queue, IMeter failureMeter) {
         this.store = store;
         this.queue = queue;
         this.failureMeter = failureMeter;

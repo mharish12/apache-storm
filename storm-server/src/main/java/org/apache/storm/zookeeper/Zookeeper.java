@@ -27,7 +27,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.storm.blobstore.BlobStore;
 import org.apache.storm.cluster.IStormClusterState;
 import org.apache.storm.daemon.nimbus.TopoCache;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.nimbus.ILeaderElector;
 import org.apache.storm.nimbus.NimbusInfo;
 import org.apache.storm.shade.org.apache.curator.framework.CuratorFramework;
@@ -118,13 +118,13 @@ public class Zookeeper {
      */
     public static ILeaderElector zkLeaderElector(Map<String, Object> conf, CuratorFramework zkClient, BlobStore blobStore,
                                                  final TopoCache tc, IStormClusterState clusterState, List<ACL> acls,
-                                                 StormMetricsRegistry metricsRegistry, Object submitLock) {
+                                                 StormCustomMetricsRegistry metricsRegistry, Object submitLock) {
         return instance.zkLeaderElectorImpl(conf, zkClient, blobStore, tc, clusterState, acls, metricsRegistry, submitLock);
     }
 
     protected ILeaderElector zkLeaderElectorImpl(Map<String, Object> conf, CuratorFramework zk, BlobStore blobStore,
                                                  final TopoCache tc, IStormClusterState clusterState, List<ACL> acls,
-                                                 StormMetricsRegistry metricsRegistry, Object submitLock) {
+                                                 StormCustomMetricsRegistry metricsRegistry, Object submitLock) {
         String id = NimbusInfo.fromConf(conf).toHostPortString();
         return new LeaderElectorImp(zk, id,
             new LeaderListenerCallbackFactory(conf, zk, blobStore, tc, clusterState, acls, metricsRegistry, submitLock));

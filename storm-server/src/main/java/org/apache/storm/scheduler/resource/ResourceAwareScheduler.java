@@ -12,7 +12,6 @@
 
 package org.apache.storm.scheduler.resource;
 
-import com.codahale.metrics.Meter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -29,7 +28,8 @@ import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 import org.apache.storm.Config;
 import org.apache.storm.DaemonConfig;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.IMeter;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.scheduler.Cluster;
 import org.apache.storm.scheduler.IScheduler;
 import org.apache.storm.scheduler.SchedulerAssignment;
@@ -61,8 +61,8 @@ public class ResourceAwareScheduler implements IScheduler {
     private int schedulingTimeoutSeconds;
     private ExecutorService backgroundScheduling;
     private Map<String, Set<String>> evictedTopologiesMap;   // topoId : toposEvicted
-    private Meter schedulingTimeoutMeter;
-    private Meter internalErrorMeter;
+    private IMeter schedulingTimeoutMeter;
+    private IMeter internalErrorMeter;
     private SchedulerConfigCache<Map<String, Map<String, Double>>> schedulerConfigCache;
 
     private static void markFailedTopology(User u, Cluster c, TopologyDetails td, String message) {
@@ -81,7 +81,7 @@ public class ResourceAwareScheduler implements IScheduler {
     }
 
     @Override
-    public void prepare(Map<String, Object> conf, StormMetricsRegistry metricsRegistry) {
+    public void prepare(Map<String, Object> conf, StormCustomMetricsRegistry metricsRegistry) {
         this.conf = conf;
         schedulingTimeoutMeter = metricsRegistry.registerMeter("nimbus:num-scheduling-timeouts");
         internalErrorMeter = metricsRegistry.registerMeter("nimbus:scheduler-internal-errors");

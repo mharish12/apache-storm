@@ -18,9 +18,6 @@
 
 package org.apache.storm.daemon.drpc.webapp;
 
-import com.codahale.metrics.Meter;
-import com.codahale.metrics.Timer;
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -29,16 +26,18 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.core.Context;
 
 import org.apache.storm.daemon.drpc.DRPC;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.IMeter;
+import org.apache.storm.metric.ITimer;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 
 @Path("/drpc/")
 @SuppressWarnings("checkstyle:AbbreviationAsWordInName")
 public class DRPCResource {
-    private final Meter meterHttpRequests;
-    private final Timer responseDuration;
+    private final IMeter meterHttpRequests;
+    private final ITimer responseDuration;
     private final DRPC drpc;
 
-    public DRPCResource(DRPC drpc, StormMetricsRegistry metricsRegistry) {
+    public DRPCResource(DRPC drpc, StormCustomMetricsRegistry metricsRegistry) {
         this.drpc = drpc;
         this.meterHttpRequests = metricsRegistry.registerMeter("drpc:num-execute-http-requests");
         this.responseDuration = metricsRegistry.registerTimer("drpc:HTTP-request-response-duration");

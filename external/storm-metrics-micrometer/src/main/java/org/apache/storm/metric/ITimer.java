@@ -18,8 +18,25 @@
 
 package org.apache.storm.metric;
 
+
+import java.util.concurrent.Callable;
+
 public interface ITimer extends IStormMetric {
+
+    default void update(long duration, java.util.concurrent.TimeUnit unit) {
+        this.record(duration, unit);
+    }
+
     void record(long duration, java.util.concurrent.TimeUnit unit);
 
     long getCount();
+
+    IContext time();
+
+    <T> T time(Callable<T> event) throws Exception;
+
+    interface IContext extends AutoCloseable{
+        long stop();
+    }
+
 }

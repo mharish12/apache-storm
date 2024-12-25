@@ -62,7 +62,7 @@ import org.slf4j.LoggerFactory;
 import static org.apache.storm.scheduler.resource.TestUtilsForResourceAwareScheduler.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.scheduler.resource.normalization.ResourceMetrics;
 
 public class TestGenericResourceAwareStrategy {
@@ -133,11 +133,11 @@ public class TestGenericResourceAwareStrategy {
 
             Topologies topologies = new Topologies(topo);
 
-            Cluster cluster = new Cluster(iNimbus, new ResourceMetrics(new StormMetricsRegistry()), supMap, new HashMap<>(), topologies, conf);
+            Cluster cluster = new Cluster(iNimbus, new ResourceMetrics(new StormCustomMetricsRegistry()), supMap, new HashMap<>(), topologies, conf);
 
             scheduler = new ResourceAwareScheduler();
 
-            scheduler.prepare(conf, new StormMetricsRegistry());
+            scheduler.prepare(conf, new StormCustomMetricsRegistry());
             scheduler.schedule(topologies, cluster);
 
             for (Entry<String, SupervisorResources> entry : cluster.getSupervisorsResourcesMap().entrySet()) {
@@ -245,11 +245,11 @@ public class TestGenericResourceAwareStrategy {
                     genExecsAndComps(StormCommon.systemTopology(conf, stormTopology)), currentTime, "user");
 
             Topologies topologies = new Topologies(topo);
-            Cluster cluster = new Cluster(iNimbus, new ResourceMetrics(new StormMetricsRegistry()), supMap, new HashMap<>(), topologies, conf);
+            Cluster cluster = new Cluster(iNimbus, new ResourceMetrics(new StormCustomMetricsRegistry()), supMap, new HashMap<>(), topologies, conf);
 
             scheduler = new ResourceAwareScheduler();
 
-            scheduler.prepare(conf, new StormMetricsRegistry());
+            scheduler.prepare(conf, new StormCustomMetricsRegistry());
             scheduler.schedule(topologies, cluster);
 
             // We need to have 3 slots on 3 separate hosts. The topology needs 6 GPUs 3500 MB memory and 350% CPU
@@ -378,11 +378,11 @@ public class TestGenericResourceAwareStrategy {
                     genExecsAndComps(StormCommon.systemTopology(conf, stormTopology)), currentTime, "user");
 
             Topologies topologies = new Topologies(topo);
-            Cluster cluster = new Cluster(iNimbus, new ResourceMetrics(new StormMetricsRegistry()), supMap, new HashMap<>(), topologies, conf);
+            Cluster cluster = new Cluster(iNimbus, new ResourceMetrics(new StormCustomMetricsRegistry()), supMap, new HashMap<>(), topologies, conf);
 
             scheduler = new ResourceAwareScheduler();
 
-            scheduler.prepare(conf, new StormMetricsRegistry());
+            scheduler.prepare(conf, new StormCustomMetricsRegistry());
             scheduler.schedule(topologies, cluster);
 
             // We need to have 3 slots on 3 separate hosts. The topology needs 6 GPUs 3500 MB memory and 350% CPU
@@ -469,11 +469,11 @@ public class TestGenericResourceAwareStrategy {
             Map<String, Double> genericResourcesMap = new HashMap<>();
             genericResourcesMap.put("gpu.count", 1.0);
             Map<String, SupervisorDetails> supMap = genSupervisors(4, 4, 500, 2000, genericResourcesMap);
-            Cluster cluster = new Cluster(new INimbusTest(), new ResourceMetrics(new StormMetricsRegistry()), supMap, new HashMap<>(), topologies, conf);
+            Cluster cluster = new Cluster(new INimbusTest(), new ResourceMetrics(new StormCustomMetricsRegistry()), supMap, new HashMap<>(), topologies, conf);
 
             // should schedule gpu1 and noGpu successfully
             scheduler = new ResourceAwareScheduler();
-            scheduler.prepare(conf, new StormMetricsRegistry());
+            scheduler.prepare(conf, new StormCustomMetricsRegistry());
             scheduler.schedule(topologies, cluster);
             assertTopologiesFullyScheduled(cluster, strategyClass, gpu1);
             assertTopologiesFullyScheduled(cluster, strategyClass, noGpu);
@@ -529,11 +529,11 @@ public class TestGenericResourceAwareStrategy {
                     genExecsAndComps(StormCommon.systemTopology(conf, stormTopology)), currentTime, "user");
 
             Topologies topologies = new Topologies(topo);
-            Cluster cluster = new Cluster(iNimbus, new ResourceMetrics(new StormMetricsRegistry()), supMap, new HashMap<>(), topologies, conf);
+            Cluster cluster = new Cluster(iNimbus, new ResourceMetrics(new StormCustomMetricsRegistry()), supMap, new HashMap<>(), topologies, conf);
 
             ResourceAwareScheduler rs = new ResourceAwareScheduler();
 
-            rs.prepare(conf, new StormMetricsRegistry());
+            rs.prepare(conf, new StormCustomMetricsRegistry());
             rs.schedule(topologies, cluster);
             // Sorted execs: [[0, 0], [2, 2], [6, 6], [4, 4], [1, 1], [5, 5], [3, 3], [7, 7]]
             // Ackers: [[7, 7]]]
@@ -571,14 +571,14 @@ public class TestGenericResourceAwareStrategy {
             config.putAll(createGrasClusterConfig(strategyClass, 88, 775, 25, null, null));
 
             scheduler = new ResourceAwareScheduler();
-            scheduler.prepare(config, new StormMetricsRegistry());
+            scheduler.prepare(config, new StormCustomMetricsRegistry());
 
             TopologyDetails tdSimple = genTopology("topology-simple", config, 1,
                     5, 100, 300, 0, 0, "user", 8192);
 
             //Schedule the simple topology first
             Topologies topologies = new Topologies(tdSimple);
-            Cluster cluster = new Cluster(iNimbus, new ResourceMetrics(new StormMetricsRegistry()), supMap, new HashMap<>(), topologies, config);
+            Cluster cluster = new Cluster(iNimbus, new ResourceMetrics(new StormCustomMetricsRegistry()), supMap, new HashMap<>(), topologies, config);
             scheduler.schedule(topologies, cluster);
 
             TopologyBuilder builder = topologyBuilder(1, 5, 100, 300);
@@ -652,11 +652,11 @@ public class TestGenericResourceAwareStrategy {
                     genExecsAndComps(StormCommon.systemTopology(conf, stormToplogy)), currentTime, "user");
 
             Topologies topologies = new Topologies(topo);
-            Cluster cluster = new Cluster(iNimbus, new ResourceMetrics(new StormMetricsRegistry()), supMap, new HashMap<>(), topologies, conf);
+            Cluster cluster = new Cluster(iNimbus, new ResourceMetrics(new StormCustomMetricsRegistry()), supMap, new HashMap<>(), topologies, conf);
 
             scheduler = new ResourceAwareScheduler();
 
-            scheduler.prepare(conf, new StormMetricsRegistry());
+            scheduler.prepare(conf, new StormCustomMetricsRegistry());
             scheduler.schedule(topologies, cluster);
 
             // First it tries to schedule spout [0, 0] with a bound acker [1, 1] to sup1 r000s000.

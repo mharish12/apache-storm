@@ -33,7 +33,8 @@ import org.apache.storm.daemon.ui.FilterConfiguration;
 import org.apache.storm.daemon.ui.UIHelpers;
 import org.apache.storm.generated.DistributedRPC;
 import org.apache.storm.generated.DistributedRPCInvocations;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.IMeter;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.security.auth.IHttpCredentialsPlugin;
 import org.apache.storm.security.auth.ServerAuthUtils;
 import org.apache.storm.security.auth.ThriftConnectionType;
@@ -53,7 +54,7 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings("checkstyle:AbbreviationAsWordInName")
 public class DRPCServer implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(DRPCServer.class);
-    private final Meter meterShutdownCalls;
+    private final IMeter meterShutdownCalls;
    
     //TODO in the future this might be better in a common webapp location
 
@@ -83,7 +84,7 @@ public class DRPCServer implements AutoCloseable {
                 ThriftConnectionType.DRPC_INVOCATIONS);
     }
     
-    private static Server mkHttpServer(StormMetricsRegistry metricsRegistry, Map<String, Object> conf, DRPC drpc) {
+    private static Server mkHttpServer(StormCustomMetricsRegistry metricsRegistry, Map<String, Object> conf, DRPC drpc) {
         Integer drpcHttpPort = (Integer) conf.get(DaemonConfig.DRPC_HTTP_PORT);
         Server ret = null;
         if (drpcHttpPort != null && drpcHttpPort >= 0) {
@@ -139,7 +140,7 @@ public class DRPCServer implements AutoCloseable {
      * @param conf Drpc conf for the servers
      * @param metricsRegistry The metrics registry
      */
-    public DRPCServer(Map<String, Object> conf, StormMetricsRegistry metricsRegistry) {
+    public DRPCServer(Map<String, Object> conf, StormCustomMetricsRegistry metricsRegistry) {
         meterShutdownCalls = metricsRegistry.registerMeter("drpc:num-shutdown-calls");
         drpc = new DRPC(metricsRegistry, conf);
         DRPCThrift thrift = new DRPCThrift(drpc);
@@ -224,7 +225,7 @@ public class DRPCServer implements AutoCloseable {
     public static void main(String [] args) throws Exception {
         Utils.setupDefaultUncaughtExceptionHandler();
         Map<String, Object> conf = ConfigUtils.readStormConfig();
-        StormMetricsRegistry metricsRegistry = new StormMetricsRegistry();
+        StormCustomMetricsRegistry metricsRegistry = new StormCustomMetricsRegistry();
         try (DRPCServer server = new DRPCServer(conf, metricsRegistry)) {
             metricsRegistry.startMetricsReporters(conf);
             Utils.addShutdownHookWithForceKillIn1Sec(() -> {

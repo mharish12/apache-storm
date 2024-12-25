@@ -35,7 +35,8 @@ import org.apache.storm.generated.DRPCExceptionType;
 import org.apache.storm.generated.DRPCExecutionException;
 import org.apache.storm.generated.DRPCRequest;
 import org.apache.storm.logging.ThriftAccessLogger;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.IMeter;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.security.auth.IAuthorizer;
 import org.apache.storm.security.auth.ReqContext;
 import org.apache.storm.security.auth.authorizer.DRPCAuthorizerBase;
@@ -54,11 +55,11 @@ public class DRPC implements AutoCloseable {
     private static final DRPCExecutionException SHUT_DOWN = new WrappedDRPCExecutionException("Server Shutting Down");
     private static final DRPCExecutionException DEFAULT_FAILED = new WrappedDRPCExecutionException("Request failed");
     
-    private final Meter meterServerTimedOut;
-    private final Meter meterExecuteCalls;
-    private final Meter meterResultCalls;
-    private final Meter meterFailRequestCalls;
-    private final Meter meterFetchRequestCalls;
+    private final IMeter meterServerTimedOut;
+    private final IMeter meterExecuteCalls;
+    private final IMeter meterResultCalls;
+    private final IMeter meterFailRequestCalls;
+    private final IMeter meterFetchRequestCalls;
 
     static {
         TIMED_OUT.set_type(DRPCExceptionType.SERVER_TIMEOUT);
@@ -76,12 +77,12 @@ public class DRPC implements AutoCloseable {
     private final AtomicLong ctr = new AtomicLong(0);
     private final IAuthorizer auth;
 
-    public DRPC(StormMetricsRegistry metricsRegistry, Map<String, Object> conf) {
+    public DRPC(StormCustomMetricsRegistry metricsRegistry, Map<String, Object> conf) {
         this(metricsRegistry, mkAuthorizationHandler((String) conf.get(DaemonConfig.DRPC_AUTHORIZER), conf),
              ObjectReader.getInt(conf.get(DaemonConfig.DRPC_REQUEST_TIMEOUT_SECS), 600) * 1000);
     }
 
-    public DRPC(StormMetricsRegistry metricsRegistry, IAuthorizer auth, long timeoutMs) {
+    public DRPC(StormCustomMetricsRegistry metricsRegistry, IAuthorizer auth, long timeoutMs) {
         this.auth = auth;
         this.meterServerTimedOut = metricsRegistry.registerMeter("drpc:num-server-timedout-requests");
         this.meterExecuteCalls = metricsRegistry.registerMeter("drpc:num-execute-calls");
