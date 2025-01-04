@@ -51,7 +51,7 @@ import org.apache.storm.DaemonConfig;
 import org.apache.storm.daemon.logviewer.LogviewerConstant;
 import org.apache.storm.daemon.logviewer.utils.ResourceAuthorizer;
 import org.apache.storm.daemon.ui.InvalidRequestException;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.streams.tuple.Tuple3;
 import org.apache.storm.utils.Utils;
 import org.junit.jupiter.api.AfterEach;
@@ -847,7 +847,7 @@ public class LogviewerLogSearchHandlerTest {
         private LogviewerLogSearchHandler getStubbedSearchHandler() {
             Map<String, Object> stormConf = Utils.readStormConfig();
             LogviewerLogSearchHandler handler = new LogviewerLogSearchHandler(stormConf, topoPath, Paths.get(""),
-                new ResourceAuthorizer(stormConf), new StormMetricsRegistry());
+                new ResourceAuthorizer(stormConf), new StormCustomMetricsRegistry());
             handler = spy(handler);
 
             doReturn(logFiles).when(handler).logsForPort(any(), any());
@@ -866,14 +866,14 @@ public class LogviewerLogSearchHandlerTest {
     private static LogviewerLogSearchHandler getSearchHandler() {
         Map<String, Object> stormConf = Utils.readStormConfig();
         return new LogviewerLogSearchHandler(stormConf, Paths.get(""), Paths.get(""),
-            new ResourceAuthorizer(stormConf), new StormMetricsRegistry());
+            new ResourceAuthorizer(stormConf), new StormCustomMetricsRegistry());
     }
 
     private static LogviewerLogSearchHandler getSearchHandlerWithPort(int port) {
         Map<String, Object> stormConf = Utils.readStormConfig();
         stormConf.put(DaemonConfig.LOGVIEWER_PORT, port);
         return new LogviewerLogSearchHandler(stormConf, Paths.get(""), Paths.get(""),
-            new ResourceAuthorizer(stormConf), new StormMetricsRegistry());
+            new ResourceAuthorizer(stormConf), new StormCustomMetricsRegistry());
     }
 
 }

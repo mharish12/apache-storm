@@ -12,13 +12,9 @@
 
 package org.apache.storm.executor;
 
-import com.codahale.metrics.Counter;
-import com.codahale.metrics.Gauge;
-import com.codahale.metrics.Histogram;
-import com.codahale.metrics.Meter;
 import com.codahale.metrics.Metered;
 import com.codahale.metrics.Snapshot;
-import com.codahale.metrics.Timer;
+
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.UnknownHostException;
@@ -63,10 +59,15 @@ import org.apache.storm.generated.SpoutSpec;
 import org.apache.storm.generated.StormTopology;
 import org.apache.storm.grouping.LoadAwareCustomStreamGrouping;
 import org.apache.storm.grouping.LoadMapping;
+import org.apache.storm.metric.ICounter;
+import org.apache.storm.metric.IGauge;
+import org.apache.storm.metric.IHistogram;
+import org.apache.storm.metric.IMeter;
+import org.apache.storm.metric.ITimer;
 import org.apache.storm.metric.api.IMetric;
 import org.apache.storm.metric.api.IMetricsConsumer;
+import org.apache.storm.metric.micrometer.RateCounter;
 import org.apache.storm.metrics2.PerReporterGauge;
-import org.apache.storm.metrics2.RateCounter;
 import org.apache.storm.shade.com.google.common.annotations.VisibleForTesting;
 import org.apache.storm.shade.com.google.common.collect.Lists;
 import org.apache.storm.shade.net.minidev.json.JSONValue;
@@ -184,8 +185,8 @@ public abstract class Executor implements Callable, JCQueue.Consumer {
             this.hostname = "";
         }
         flushTuple = AddressedTuple.createFlushTuple(workerTopologyContext);
-        this.reportedErrorCount = workerData.getMetricRegistry().rateCounter("__reported-error-count", componentId,
-                taskIds.get(0));
+        this.reportedErrorCount = workerData.getMetricRegistry().rateCounter("__reported-error-count", "componentId", componentId,
+                "taskId", String.valueOf(taskIds.get(0)));
 
         enableV2MetricsDataPoints = ObjectReader.getBoolean(topoConf.get(Config.TOPOLOGY_ENABLE_V2_METRICS_TICK), false);
         v2MetricsTickInterval = ObjectReader.getInt(topoConf.get(Config.TOPOLOGY_V2_METRICS_TICK_INTERVAL_SECONDS), 60);
@@ -379,9 +380,9 @@ public abstract class Executor implements Callable, JCQueue.Consumer {
     }
 
     private void processGauges(int taskId, List<IMetricsConsumer.DataPoint> dataPoints) {
-        Map<String, Gauge> gauges = workerData.getMetricRegistry().getTaskGauges(taskId);
-        for (Map.Entry<String, Gauge> entry : gauges.entrySet()) {
-            Gauge gauge = entry.getValue();
+        Map<String, IGauge> gauges = workerData.getMetricRegistry().getTaskGauges(taskId);
+        for (Map.Entry<String, IGauge> entry : gauges.entrySet()) {
+            IGauge gauge = entry.getValue();
             Object v;
             if (gauge instanceof PerReporterGauge) {
                 v = ((PerReporterGauge) gauge).getValueForReporter(this);
@@ -396,8 +397,8 @@ public abstract class Executor implements Callable, JCQueue.Consumer {
     }
 
     private void processCounters(int taskId, List<IMetricsConsumer.DataPoint> dataPoints) {
-        Map<String, Counter> counters = workerData.getMetricRegistry().getTaskCounters(taskId);
-        for (Map.Entry<String, Counter> entry : counters.entrySet()) {
+        Map<String, ICounter> counters = workerData.getMetricRegistry().getTaskCounters(taskId);
+        for (Map.Entry<String, ICounter> entry : counters.entrySet()) {
             Object value = entry.getValue().getCount();
             IMetricsConsumer.DataPoint dataPoint = new IMetricsConsumer.DataPoint(entry.getKey(), value);
             dataPoints.add(dataPoint);
@@ -405,28 +406,28 @@ public abstract class Executor implements Callable, JCQueue.Consumer {
     }
 
     private void processHistograms(int taskId, List<IMetricsConsumer.DataPoint> dataPoints) {
-        Map<String, Histogram> histograms = workerData.getMetricRegistry().getTaskHistograms(taskId);
-        for (Map.Entry<String, Histogram> entry : histograms.entrySet()) {
-            Snapshot snapshot =  entry.getValue().getSnapshot();
-            addSnapshotDatapoints(entry.getKey(), snapshot, dataPoints);
-            IMetricsConsumer.DataPoint dataPoint = new IMetricsConsumer.DataPoint(entry.getKey() + ".count", entry.getValue().getCount());
-            dataPoints.add(dataPoint);
+        Map<String, IHistogram> histograms = workerData.getMetricRegistry().getTaskHistograms(taskId);
+        for (Map.Entry<String, IHistogram> entry : histograms.entrySet()) {
+//            Snapshot snapshot =  entry.getValue().getSnapshot();
+//            addSnapshotDatapoints(entry.getKey(), snapshot, dataPoints);
+//            IMetricsConsumer.DataPoint dataPoint = new IMetricsConsumer.DataPoint(entry.getKey() + ".count", entry.getValue().getCount());
+//            dataPoints.add(dataPoint);
         }
     }
 
     private void processMeters(int taskId, List<IMetricsConsumer.DataPoint> dataPoints) {
-        Map<String, Meter> meters = workerData.getMetricRegistry().getTaskMeters(taskId);
-        for (Map.Entry<String, Meter> entry : meters.entrySet()) {
-            addMeteredDatapoints(entry.getKey(), entry.getValue(), dataPoints);
+        Map<String, IMeter> meters = workerData.getMetricRegistry().getTaskMeters(taskId);
+        for (Map.Entry<String, IMeter> entry : meters.entrySet()) {
+//            addMeteredDatapoints(entry.getKey(), entry.getValue(), dataPoints);
         }
     }
 
     private void processTimers(int taskId, List<IMetricsConsumer.DataPoint> dataPoints) {
-        Map<String, Timer> timers = workerData.getMetricRegistry().getTaskTimers(taskId);
-        for (Map.Entry<String, Timer> entry : timers.entrySet()) {
-            Snapshot snapshot =  entry.getValue().getSnapshot();
-            addSnapshotDatapoints(entry.getKey(), snapshot, dataPoints);
-            addMeteredDatapoints(entry.getKey(), entry.getValue(), dataPoints);
+        Map<String, ITimer> timers = workerData.getMetricRegistry().getTaskTimers(taskId);
+        for (Map.Entry<String, ITimer> entry : timers.entrySet()) {
+//            Snapshot snapshot =  entry.getValue().getSnapshot();
+//            addSnapshotDatapoints(entry.getKey(), snapshot, dataPoints);
+//            addMeteredDatapoints(entry.getKey(), entry.getValue(), dataPoints);
         }
     }
 

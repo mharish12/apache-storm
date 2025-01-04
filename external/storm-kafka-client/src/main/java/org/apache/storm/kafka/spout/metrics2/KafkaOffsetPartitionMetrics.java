@@ -18,9 +18,6 @@
 
 package org.apache.storm.kafka.spout.metrics2;
 
-import com.codahale.metrics.Gauge;
-import com.codahale.metrics.Metric;
-import com.codahale.metrics.MetricSet;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -36,6 +33,9 @@ import org.apache.kafka.common.KafkaFuture;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.RetriableException;
 import org.apache.storm.kafka.spout.internal.OffsetManager;
+import org.apache.storm.metric.IGauge;
+import org.apache.storm.metric.IMetricSet;
+import org.apache.storm.metric.IStormMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +50,7 @@ import org.slf4j.LoggerFactory;
  * topicName/partition_{number}/recordsInPartition // total number of records in the partition
  * </p>
  */
-public class KafkaOffsetPartitionMetrics<K, V> implements MetricSet {
+public class KafkaOffsetPartitionMetrics<K, V> implements IMetricSet {
     private static final Logger LOG = LoggerFactory.getLogger(KafkaOffsetPartitionMetrics.class);
     private final Supplier<Map<TopicPartition, OffsetManager>> offsetManagerSupplier;
     private final Supplier<Admin> adminSupplier;
@@ -71,11 +71,11 @@ public class KafkaOffsetPartitionMetrics<K, V> implements MetricSet {
     }
 
     @Override
-    public Map<String, Metric> getMetrics() {
-        Map<String, Metric> metrics = new HashMap();
+    public Map<String, IStormMetric> getMetrics() {
+        Map<String, IStormMetric> metrics = new HashMap<>();
 
         String metricPath = topicPartition.topic()  + "/partition_" + topicPartition.partition();
-        Gauge<Long> spoutLagGauge = new Gauge<Long>() {
+        IGauge<Long> spoutLagGauge = new IGauge<Long>() {
             @Override
             public Long getValue() {
                 Map<TopicPartition, Long> endOffsets = getEndOffsets(Collections.singleton(topicPartition));
@@ -91,7 +91,7 @@ public class KafkaOffsetPartitionMetrics<K, V> implements MetricSet {
             }
         };
 
-        Gauge<Long> earliestTimeOffsetGauge = new Gauge<Long>() {
+        IGauge<Long> earliestTimeOffsetGauge = new IGauge<Long>() {
             @Override
             public Long getValue() {
                 Map<TopicPartition, Long> beginningOffsets = getBeginningOffsets(Collections.singleton(topicPartition));
@@ -106,7 +106,7 @@ public class KafkaOffsetPartitionMetrics<K, V> implements MetricSet {
             }
         };
 
-        Gauge<Long> latestTimeOffsetGauge = new Gauge<Long>() {
+        IGauge<Long> latestTimeOffsetGauge = new IGauge<Long>() {
             @Override
             public Long getValue() {
                 Map<TopicPartition, Long> endOffsets = getEndOffsets(Collections.singleton(topicPartition));
@@ -121,7 +121,7 @@ public class KafkaOffsetPartitionMetrics<K, V> implements MetricSet {
             }
         };
 
-        Gauge<Long> latestEmittedOffsetGauge = new Gauge<Long>() {
+        IGauge<Long> latestEmittedOffsetGauge = new IGauge<Long>() {
             @Override
             public Long getValue() {
                 // add value to topic level metric
@@ -132,7 +132,7 @@ public class KafkaOffsetPartitionMetrics<K, V> implements MetricSet {
             }
         };
 
-        Gauge<Long> latestCompletedOffsetGauge = new Gauge<Long>() {
+        IGauge<Long> latestCompletedOffsetGauge = new IGauge<Long>() {
             @Override
             public Long getValue() {
                 // add value to topic level metric
@@ -143,7 +143,7 @@ public class KafkaOffsetPartitionMetrics<K, V> implements MetricSet {
             }
         };
 
-        Gauge<Long> recordsInPartitionGauge = new Gauge<Long>() {
+        IGauge<Long> recordsInPartitionGauge = new IGauge<Long>() {
             @Override
             public Long getValue() {
                 Map<TopicPartition, Long> endOffsets = getEndOffsets(Collections.singleton(topicPartition));

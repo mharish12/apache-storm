@@ -12,7 +12,7 @@
 package org.apache.storm.metricstore;
 
 import java.util.Map;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 
 public interface MetricStore extends AutoCloseable {
 
@@ -23,7 +23,7 @@ public interface MetricStore extends AutoCloseable {
      * @param metricsRegistry The Nimbus daemon metrics registry
      * @throws MetricException on preparation error
      */
-    void prepare(Map<String, Object> config, StormMetricsRegistry metricsRegistry) throws MetricException;
+    void prepare(Map<String, Object> config, StormCustomMetricsRegistry metricsRegistry) throws MetricException;
 
     /**
      * Stores a metric in the store.

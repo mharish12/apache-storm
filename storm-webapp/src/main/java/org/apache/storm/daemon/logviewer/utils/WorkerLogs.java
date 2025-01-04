@@ -46,7 +46,8 @@ import org.apache.storm.daemon.supervisor.ClientSupervisorUtils;
 import org.apache.storm.daemon.supervisor.SupervisorUtils;
 import org.apache.storm.daemon.utils.PathUtil;
 import org.apache.storm.generated.LSWorkerHeartbeat;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.IMeter;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.utils.LruMap;
 import org.apache.storm.utils.ObjectReader;
 import org.apache.storm.utils.ServerConfigUtils;
@@ -63,7 +64,7 @@ public class WorkerLogs {
 
     public static final String WORKER_YAML = "worker.yaml";
     
-    private final Meter numSetPermissionsExceptions;
+    private final IMeter numSetPermissionsExceptions;
     
     private final Map<String, Object> stormConf;
     private final Path logRootDir;
@@ -77,7 +78,7 @@ public class WorkerLogs {
      * @param logRootDir the log root directory
      * @param metricsRegistry The logviewer metrics registry
      */
-    public WorkerLogs(Map<String, Object> stormConf, Path logRootDir, StormMetricsRegistry metricsRegistry) {
+    public WorkerLogs(Map<String, Object> stormConf, Path logRootDir, StormCustomMetricsRegistry metricsRegistry) {
         this.stormConf = stormConf;
         this.logRootDir = logRootDir.toAbsolutePath().normalize();
         this.numSetPermissionsExceptions = metricsRegistry.registerMeter(ExceptionMeterNames.NUM_SET_PERMISSION_EXCEPTIONS);

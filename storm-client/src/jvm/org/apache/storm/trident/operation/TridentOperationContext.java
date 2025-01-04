@@ -18,6 +18,12 @@ import com.codahale.metrics.Histogram;
 import com.codahale.metrics.Meter;
 import com.codahale.metrics.MetricSet;
 import com.codahale.metrics.Timer;
+import org.apache.storm.metric.ICounter;
+import org.apache.storm.metric.IGauge;
+import org.apache.storm.metric.IHistogram;
+import org.apache.storm.metric.IMeter;
+import org.apache.storm.metric.IMetricSet;
+import org.apache.storm.metric.ITimer;
 import org.apache.storm.metric.api.CombinedMetric;
 import org.apache.storm.metric.api.ICombiner;
 import org.apache.storm.metric.api.IMetric;
@@ -70,32 +76,32 @@ public class TridentOperationContext implements IMetricsContext {
     }
     
     @Override
-    public Timer registerTimer(String name) {
+    public ITimer registerTimer(String name) {
         return topoContext.registerTimer(name);
     }
 
     @Override
-    public Histogram registerHistogram(String name) {
+    public IHistogram registerHistogram(String name) {
         return topoContext.registerHistogram(name);
     }
 
     @Override
-    public Meter registerMeter(String name) {
+    public IMeter registerMeter(String name) {
         return topoContext.registerMeter(name);
     }
 
     @Override
-    public Counter registerCounter(String name) {
+    public ICounter registerCounter(String name) {
         return topoContext.registerCounter(name);
     }
 
     @Override
-    public <T> Gauge<T> registerGauge(String name, Gauge<T> gauge) {
+    public <T extends Number> IGauge<T> registerGauge(String name, IGauge<T> gauge) {
         return topoContext.registerGauge(name, gauge);
     }
 
     @Override
-    public void registerMetricSet(String prefix, MetricSet set) {
+    public void registerMetricSet(String prefix, IMetricSet set) {
         topoContext.registerMetricSet(prefix, set);
     }
 }

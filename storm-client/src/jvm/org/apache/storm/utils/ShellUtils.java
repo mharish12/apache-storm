@@ -24,6 +24,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.storm.Config;
+import org.apache.storm.metric.IMeter;
+import org.apache.storm.metric.micrometer.StormMeter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +41,7 @@ public abstract class ShellUtils {
     public static final boolean OTHER = (osType == OSType.OS_TYPE_OTHER);
 
     //Meter declared here can be registered by any daemon, and is currently used by Supervisor
-    public static final Meter numShellExceptions = new Meter();
+    public static final IMeter numShellExceptions = new StormMeter("shell.exceptions");
 
     /**
      * Token separator regex used to parse Shell tool outputs.

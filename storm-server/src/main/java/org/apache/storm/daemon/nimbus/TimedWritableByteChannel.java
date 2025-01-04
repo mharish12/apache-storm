@@ -14,7 +14,7 @@
 
 package org.apache.storm.daemon.nimbus;
 
-import com.codahale.metrics.Timer;
+import org.apache.storm.metric.ITimer;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
@@ -23,7 +23,7 @@ import org.apache.storm.metric.timed.TimedResource;
 
 public class TimedWritableByteChannel extends TimedResource<WritableByteChannel> implements WritableByteChannel {
 
-    public TimedWritableByteChannel(WritableByteChannel measured, Timer timer) {
+    public TimedWritableByteChannel(WritableByteChannel measured, ITimer timer) {
         super(measured, timer);
     }
 

@@ -26,7 +26,7 @@ import org.apache.storm.Constants;
 import org.apache.storm.DaemonConfig;
 import org.apache.storm.daemon.supervisor.Supervisor;
 import org.apache.storm.generated.SupervisorAssignments;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.scheduler.INodeAssignmentSentCallBack;
 import org.apache.storm.utils.ConfigUtils;
 import org.apache.storm.utils.ObjectReader;
@@ -154,7 +154,7 @@ public class AssignmentDistributionService implements Closeable {
      * @param assignments the {@link org.apache.storm.generated.SupervisorAssignments}
      */
     public void addAssignmentsForNode(String node, String host, Integer serverPort, SupervisorAssignments assignments,
-                                      StormMetricsRegistry metricsRegistry) {
+                                      StormCustomMetricsRegistry metricsRegistry) {
         try {
             //For some reasons, we can not get supervisor port info, eg: supervisor shutdown,
             //Just skip for this scheduling round.
@@ -220,10 +220,10 @@ public class AssignmentDistributionService implements Closeable {
         private String host;
         private Integer serverPort;
         private SupervisorAssignments assignments;
-        private StormMetricsRegistry metricsRegistry;
+        private StormCustomMetricsRegistry metricsRegistry;
 
         private NodeAssignments(String node, String host, Integer serverPort, SupervisorAssignments assignments,
-                                StormMetricsRegistry metricsRegistry) {
+                                StormCustomMetricsRegistry metricsRegistry) {
             this.node = node;
             this.host = host;
             this.serverPort = serverPort;
@@ -232,7 +232,7 @@ public class AssignmentDistributionService implements Closeable {
         }
 
         public static NodeAssignments getInstance(String node, String host, Integer serverPort,
-                                                  SupervisorAssignments assignments, StormMetricsRegistry metricsRegistry) {
+                                                  SupervisorAssignments assignments, StormCustomMetricsRegistry metricsRegistry) {
             return new NodeAssignments(node, host, serverPort, assignments, metricsRegistry);
         }
 
@@ -253,7 +253,7 @@ public class AssignmentDistributionService implements Closeable {
             return this.assignments;
         }
 
-        public StormMetricsRegistry getMetricsRegistry() {
+        public StormCustomMetricsRegistry getMetricsRegistry() {
             return metricsRegistry;
         }
     }

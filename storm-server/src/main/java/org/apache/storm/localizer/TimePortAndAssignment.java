@@ -14,13 +14,13 @@
 
 package org.apache.storm.localizer;
 
-import com.codahale.metrics.Timer;
 import org.apache.storm.generated.LocalAssignment;
+import org.apache.storm.metric.ITimer;
 import org.apache.storm.metric.timed.Timed;
 
 public class TimePortAndAssignment extends Timed<PortAndAssignment> implements PortAndAssignment {
 
-    public TimePortAndAssignment(PortAndAssignment measured, Timer timer) {
+    public TimePortAndAssignment(PortAndAssignment measured, ITimer timer) {
         super(measured, timer);
     }
 

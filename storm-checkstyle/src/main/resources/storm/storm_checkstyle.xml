@@ -63,6 +63,10 @@
             <property name="eachLine" value="true"/>
         </module>
 
+    <module name="SuppressionFilter">
+        <property name="file" value="checkstyle/storm_suppressions.xml" />
+    </module>
+
     <module name="TreeWalker">
         <!-- Make the @SuppressWarnings annotations available to Checkstyle -->
         <module name="SuppressWarningsHolder" />

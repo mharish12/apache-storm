@@ -13,7 +13,7 @@ package org.apache.storm.metricstore;
 
 import java.util.Map;
 import org.apache.storm.DaemonConfig;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 
 
 public class MetricStoreConfig {
@@ -25,7 +25,7 @@ public class MetricStoreConfig {
      * @return MetricStore prepared store
      * @throws MetricException  on misconfiguration
      */
-    public static MetricStore configure(Map<String, Object> conf, StormMetricsRegistry metricsRegistry) throws MetricException {
+    public static MetricStore configure(Map<String, Object> conf, StormCustomMetricsRegistry metricsRegistry) throws MetricException {
 
         String storeClass = "None";
         try {

@@ -44,13 +44,14 @@ import org.apache.storm.daemon.logviewer.utils.DirectoryCleaner;
 import org.apache.storm.daemon.logviewer.utils.ExceptionMeterNames;
 import org.apache.storm.daemon.logviewer.utils.LogviewerResponseBuilder;
 import org.apache.storm.daemon.logviewer.utils.ResourceAuthorizer;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.IMeter;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 
 public class LogviewerProfileHandler {
 
     public static final String WORKER_LOG_FILENAME = "worker.log";
 
-    private final Meter numFileDownloadExceptions;
+    private final IMeter numFileDownloadExceptions;
 
     private final Path logRoot;
     private final ResourceAuthorizer resourceAuthorizer;
@@ -63,7 +64,7 @@ public class LogviewerProfileHandler {
      * @param resourceAuthorizer {@link ResourceAuthorizer}
      * @param metricsRegistry The logviewer metrisc registry
      */
-    public LogviewerProfileHandler(String logRoot, ResourceAuthorizer resourceAuthorizer, StormMetricsRegistry metricsRegistry) {
+    public LogviewerProfileHandler(String logRoot, ResourceAuthorizer resourceAuthorizer, StormCustomMetricsRegistry metricsRegistry) {
         this.logRoot = Paths.get(logRoot).toAbsolutePath().normalize();
         this.resourceAuthorizer = resourceAuthorizer;
         this.numFileDownloadExceptions = metricsRegistry.registerMeter(ExceptionMeterNames.NUM_FILE_DOWNLOAD_EXCEPTIONS);

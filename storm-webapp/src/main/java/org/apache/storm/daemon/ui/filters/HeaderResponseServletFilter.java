@@ -28,18 +28,20 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import org.apache.storm.metric.StormMetricsRegistry;
+
+import org.apache.storm.metric.IMeter;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class HeaderResponseServletFilter implements Filter {
     public static final Logger LOG = LoggerFactory.getLogger(HeaderResponseServletFilter.class);
 
-    private final Meter webRequestMeter;
+    private final IMeter webRequestMeter;
 
-    private final Meter mainPageRequestMeter;
+    private final IMeter mainPageRequestMeter;
     
-    public HeaderResponseServletFilter(StormMetricsRegistry metricsRegistry) {
+    public HeaderResponseServletFilter(StormCustomMetricsRegistry metricsRegistry) {
         this.webRequestMeter = metricsRegistry.registerMeter("num-web-requests");
         this.mainPageRequestMeter = metricsRegistry.registerMeter("ui:num-main-page-http-requests");
     }

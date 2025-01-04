@@ -15,14 +15,14 @@ package org.apache.storm.messaging;
 import java.lang.reflect.Method;
 import java.util.Map;
 import org.apache.storm.Config;
-import org.apache.storm.metrics2.StormMetricRegistry;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class TransportFactory {
     public static final Logger LOG = LoggerFactory.getLogger(TransportFactory.class);
 
-    public static IContext makeContext(Map<String, Object> topoConf, StormMetricRegistry metricRegistry) {
+    public static IContext makeContext(Map<String, Object> topoConf, StormCustomMetricsRegistry metricRegistry) {
 
         //get factory class name
         String transportPluginClassName = (String) topoConf.get(Config.STORM_MESSAGING_TRANSPORT);
@@ -41,7 +41,7 @@ public class TransportFactory {
                 transport.prepare(topoConf, metricRegistry);
             } else {
                 //case 2: Non-IContext plugin must have a makeContext(topoConf) method that returns IContext object
-                // StormMetricRegistry is ignored if IContext is created this way
+                // StormCustomMetricsRegistry is ignored if IContext is created this way
                 Method method = klass.getMethod("makeContext", Map.class);
                 LOG.debug("object:" + obj + " method:" + method);
                 transport = (IContext) method.invoke(obj, topoConf);

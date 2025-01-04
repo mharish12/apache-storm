@@ -64,7 +64,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.scheduler.resource.normalization.ResourceMetrics;
 
 public class TestConstraintSolverStrategy {
@@ -204,7 +204,7 @@ public class TestConstraintSolverStrategy {
             supMap = genSupervisors(4, 2, 120, 1200);
         }
         Map<String, Object> config = Utils.readDefaultConfig();
-        return new Cluster(new INimbusTest(), new ResourceMetrics(new StormMetricsRegistry()), supMap, new HashMap<>(), topologies, config);
+        return new Cluster(new INimbusTest(), new ResourceMetrics(new StormCustomMetricsRegistry()), supMap, new HashMap<>(), topologies, config);
     }
 
     public void basicUnitTestWithKillAndRecover(ConstraintSolverStrategy cs, int boltParallel, int coLocationCnt, boolean consolidatedConfigFlag) {
@@ -492,7 +492,7 @@ public class TestConstraintSolverStrategy {
         Cluster cluster = makeCluster(topologies, supMap);
 
         ResourceAwareScheduler scheduler = new ResourceAwareScheduler();
-        scheduler.prepare(config, new StormMetricsRegistry());
+        scheduler.prepare(config, new StormCustomMetricsRegistry());
         scheduler.schedule(topologies, cluster);
 
         boolean scheduleSuccess = isStatusSuccess(cluster.getStatus(topo.getId()));
@@ -537,7 +537,7 @@ public class TestConstraintSolverStrategy {
         Map<String, SupervisorDetails> supMap = genSupervisors(37, 16, 400, 1024 * 4);
         Cluster cluster = makeCluster(topologies, supMap);
         ResourceAwareScheduler rs = new ResourceAwareScheduler();
-        rs.prepare(config, new StormMetricsRegistry());
+        rs.prepare(config, new StormCustomMetricsRegistry());
         try {
             rs.schedule(topologies, cluster);
             assertStatusSuccess(cluster, topo.getId());
@@ -559,7 +559,7 @@ public class TestConstraintSolverStrategy {
         newAssignments.put(topo.getId(), new SchedulerAssignmentImpl(topo.getId(), newExecToSlot, null, null));
         cluster.setAssignments(newAssignments, false);
 
-        rs.prepare(config, new StormMetricsRegistry());
+        rs.prepare(config, new StormCustomMetricsRegistry());
         try {
             rs.schedule(topologies, cluster);
             assertStatusSuccess(cluster, topo.getId());

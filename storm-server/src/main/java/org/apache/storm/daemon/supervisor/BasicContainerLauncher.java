@@ -17,7 +17,7 @@ import java.util.Map;
 import org.apache.storm.container.ResourceIsolationInterface;
 import org.apache.storm.daemon.supervisor.Container.ContainerType;
 import org.apache.storm.generated.LocalAssignment;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.utils.LocalState;
 
 /**
@@ -28,11 +28,11 @@ public class BasicContainerLauncher extends ContainerLauncher {
     private final Map<String, Object> conf;
     private final String supervisorId;
     private final int supervisorPort;
-    private final StormMetricsRegistry metricsRegistry;
+    private final StormCustomMetricsRegistry metricsRegistry;
     private final ContainerMemoryTracker containerMemoryTracker;
 
     public BasicContainerLauncher(Map<String, Object> conf, String supervisorId, int supervisorPort,
-                                  ResourceIsolationInterface resourceIsolationManager, StormMetricsRegistry metricsRegistry,
+                                  ResourceIsolationInterface resourceIsolationManager, StormCustomMetricsRegistry metricsRegistry,
                                   ContainerMemoryTracker containerMemoryTracker) throws IOException {
         this.conf = conf;
         this.supervisorId = supervisorId;

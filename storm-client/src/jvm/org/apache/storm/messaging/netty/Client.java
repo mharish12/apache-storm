@@ -36,7 +36,9 @@ import org.apache.storm.Constants;
 import org.apache.storm.grouping.Load;
 import org.apache.storm.messaging.ConnectionWithStatus;
 import org.apache.storm.messaging.TaskMessage;
-import org.apache.storm.metrics2.StormMetricRegistry;
+import org.apache.storm.metric.IGauge;
+import org.apache.storm.metric.IStormMetric;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.policy.IWaitStrategy;
 import org.apache.storm.policy.IWaitStrategy.WaitSituation;
 import org.apache.storm.policy.WaitStrategyProgressive;
@@ -126,12 +128,12 @@ public class Client extends ConnectionWithStatus implements ISaslClient {
      * This flag is set to true if and only if a client instance is being closed.
      */
     private volatile boolean closing = false;
-    StormMetricRegistry metricRegistry;
-    private Set<Metric> metrics = new HashSet<>();
+    StormCustomMetricsRegistry metricRegistry;
+    private Set<IStormMetric> metrics = new HashSet<>();
 
     Client(Map<String, Object> topoConf, AtomicBoolean[] remoteBpStatus,
         EventLoopGroup eventLoopGroup, HashedWheelTimer scheduler, String host,
-           int port, StormMetricRegistry metricRegistry) {
+           int port, StormCustomMetricsRegistry metricRegistry) {
         this.topoConf = topoConf;
         closing = false;
         this.scheduler = scheduler;
@@ -183,44 +185,44 @@ public class Client extends ConnectionWithStatus implements ISaslClient {
                 && ObjectReader.getBoolean(topoConf.get(Config.TOPOLOGY_ENABLE_SEND_ICONNECTION_METRICS), true);
 
         if (reportMetrics) {
-            Gauge<Integer> reconnects = new Gauge<Integer>() {
+            IGauge<Integer> reconnects = new IGauge<Integer>() {
                 @Override
                 public Integer getValue() {
                     return totalConnectionAttempts.get();
                 }
             };
             metricRegistry.gauge("__send-iconnection-reconnects-" + host + ":" + port, reconnects,
-                    Constants.SYSTEM_COMPONENT_ID, (int) Constants.SYSTEM_TASK_ID);
+                    "componentId", Constants.SYSTEM_COMPONENT_ID, "taskId", String.valueOf(Constants.SYSTEM_TASK_ID));
             metrics.add(reconnects);
 
-            Gauge<Integer> sent = new Gauge<Integer>() {
+            IGauge<Integer> sent = new IGauge<Integer>() {
                 @Override
                 public Integer getValue() {
                     return messagesSent.get();
                 }
             };
             metricRegistry.gauge("__send-iconnection-sent-" + host + ":" + port, sent,
-                    Constants.SYSTEM_COMPONENT_ID, (int) Constants.SYSTEM_TASK_ID);
+                    "componentId", Constants.SYSTEM_COMPONENT_ID, "taskId", String.valueOf(Constants.SYSTEM_TASK_ID));
             metrics.add(sent);
 
-            Gauge<Long> pending = new Gauge<Long>() {
+            IGauge<Long> pending = new IGauge<Long>() {
                 @Override
                 public Long getValue() {
                     return pendingMessages.get();
                 }
             };
             metricRegistry.gauge("__send-iconnection-pending-" + host + ":" + port, pending,
-                    Constants.SYSTEM_COMPONENT_ID, (int) Constants.SYSTEM_TASK_ID);
+                    "componentId", Constants.SYSTEM_COMPONENT_ID, "taskId", String.valueOf(Constants.SYSTEM_TASK_ID));
             metrics.add(pending);
 
-            Gauge<Integer> lostOnSend = new Gauge<Integer>() {
+            IGauge<Integer> lostOnSend = new IGauge<Integer>() {
                 @Override
                 public Integer getValue() {
                     return messagesLost.get();
                 }
             };
             metricRegistry.gauge("__send-iconnection-lostOnSend-" + host + ":" + port, lostOnSend,
-                    Constants.SYSTEM_COMPONENT_ID, (int) Constants.SYSTEM_TASK_ID);
+                    "componentId", Constants.SYSTEM_COMPONENT_ID, "taskId", String.valueOf(Constants.SYSTEM_TASK_ID));
             metrics.add(lostOnSend);
         }
     }

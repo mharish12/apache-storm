@@ -50,7 +50,7 @@ import java.util.stream.IntStream;
 
 import org.apache.storm.daemon.supervisor.SupervisorUtils;
 import org.apache.storm.generated.LSWorkerHeartbeat;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.shade.io.netty.util.internal.ThreadLocalRandom;
 import org.apache.storm.testing.TmpPath;
 import org.apache.storm.utils.Time;
@@ -70,7 +70,7 @@ public class LogCleanerTest {
         conf.put(LOGVIEWER_CLEANUP_AGE_MINS, 60);
         conf.put(LOGVIEWER_CLEANUP_INTERVAL_SECS, 300);
 
-        StormMetricsRegistry metricRegistry = new StormMetricsRegistry();
+        StormCustomMetricsRegistry metricRegistry = new StormCustomMetricsRegistry();
         WorkerLogs workerLogs = new WorkerLogs(conf, Paths.get(""), metricRegistry);
 
         LogCleaner logCleaner = new LogCleaner(conf, workerLogs, new DirectoryCleaner(metricRegistry), null, metricRegistry);
@@ -161,7 +161,7 @@ public class LogCleanerTest {
                 .forEach(idx -> createFile(port3Dir, "C" + idx, nowMillis + 100L * idx, 200));
 
             Map<String, Object> conf = Utils.readStormConfig();
-            StormMetricsRegistry metricRegistry = new StormMetricsRegistry();
+            StormCustomMetricsRegistry metricRegistry = new StormCustomMetricsRegistry();
             WorkerLogs workerLogs = new WorkerLogs(conf, rootDir, metricRegistry);
             LogCleaner logCleaner = new LogCleaner(conf, workerLogs, new DirectoryCleaner(metricRegistry), rootDir, metricRegistry);
 
@@ -197,7 +197,7 @@ public class LogCleanerTest {
                 .forEach(idx -> createFile(port3Dir, "C" + idx, nowMillis + 100L * idx, 200));
 
             Map<String, Object> conf = Utils.readStormConfig();
-            StormMetricsRegistry metricRegistry = new StormMetricsRegistry();
+            StormCustomMetricsRegistry metricRegistry = new StormCustomMetricsRegistry();
             WorkerLogs stubbedWorkerLogs = new WorkerLogs(conf, rootDir, metricRegistry) {
                 @Override
                 public SortedSet<Path> getAliveWorkerDirs() {
@@ -233,7 +233,7 @@ public class LogCleanerTest {
             SupervisorUtils.setInstance(mockedSupervisorUtils);
 
             Map<String, Object> conf = Utils.readStormConfig();
-            StormMetricsRegistry metricRegistry = new StormMetricsRegistry();
+            StormCustomMetricsRegistry metricRegistry = new StormCustomMetricsRegistry();
             WorkerLogs stubbedWorkerLogs = new WorkerLogs(conf, Paths.get(""), metricRegistry) {
                 @Override
                 public SortedSet<Path> getLogDirs(Set<Path> logDirs, Predicate<String> predicate) {
@@ -271,7 +271,7 @@ public class LogCleanerTest {
             Files.createDirectory(dir2.getFile().toPath());
 
             Map<String, Object> conf = Utils.readStormConfig();
-            StormMetricsRegistry metricRegistry = new StormMetricsRegistry();
+            StormCustomMetricsRegistry metricRegistry = new StormCustomMetricsRegistry();
             WorkerLogs stubbedWorkerLogs = new WorkerLogs(conf, Paths.get(""), metricRegistry);
 
             LogCleaner logCleaner = new LogCleaner(conf, stubbedWorkerLogs, new DirectoryCleaner(metricRegistry), null, metricRegistry) {

@@ -20,7 +20,7 @@ package org.apache.storm.scheduler.resource.strategies.priority;
 
 import org.apache.storm.Config;
 import org.apache.storm.DaemonConfig;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.scheduler.Cluster;
 import org.apache.storm.scheduler.INimbus;
 import org.apache.storm.scheduler.IScheduler;
@@ -103,7 +103,7 @@ public class TestGenericResourceAwareSchedulingPriorityStrategy {
             Config config = mkClusterConfig(strategyClass, DefaultSchedulingPriorityStrategy.class.getName());
             Cluster cluster = mkTestCluster(topologies, config);
             scheduler = new ResourceAwareScheduler();
-            scheduler.prepare(config, new StormMetricsRegistry());
+            scheduler.prepare(config, new StormCustomMetricsRegistry());
 
             scheduler.schedule(topologies, cluster);
 
@@ -147,7 +147,7 @@ public class TestGenericResourceAwareSchedulingPriorityStrategy {
             Config config = mkClusterConfig(strategyClass, DefaultSchedulingPriorityStrategy.class.getName());
             Cluster cluster = mkTestCluster(topologies, config);
             scheduler = new ResourceAwareScheduler();
-            scheduler.prepare(config, new StormMetricsRegistry());
+            scheduler.prepare(config, new StormCustomMetricsRegistry());
             scheduler.schedule(topologies, cluster);
 
             assertTopologiesFullyScheduled(cluster, strategyClass, "ethan-topo-1", "ethan-topo-2", "ethan-topo-3", "ethan-topo-4");
@@ -189,7 +189,7 @@ public class TestGenericResourceAwareSchedulingPriorityStrategy {
             Config config = mkClusterConfig(strategyClass, GenericResourceAwareSchedulingPriorityStrategy.class.getName());
             Cluster cluster = mkTestCluster(topologies, config);
             scheduler = new ResourceAwareScheduler();
-            scheduler.prepare(config, new StormMetricsRegistry());
+            scheduler.prepare(config, new StormCustomMetricsRegistry());
             scheduler.schedule(topologies, cluster);
 
             assertTopologiesFullyScheduled(cluster, strategyClass, "ethan-topo-1", "ethan-topo-2", "ethan-topo-3", "ethan-topo-4");
@@ -230,7 +230,7 @@ public class TestGenericResourceAwareSchedulingPriorityStrategy {
         }
         Map<String, SupervisorDetails> supMap = genSupervisors(4, 4, 100, 1000, genericResourcesOfferedMap);
 
-        return new Cluster(iNimbus, new ResourceMetrics(new StormMetricsRegistry()), supMap, new HashMap<>(), topologies, config);
+        return new Cluster(iNimbus, new ResourceMetrics(new StormCustomMetricsRegistry()), supMap, new HashMap<>(), topologies, config);
     }
 
     private Set<String> collectMapValues(Map<String, Set<String>> map) {

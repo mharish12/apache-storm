@@ -19,7 +19,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import org.apache.storm.DaemonConfig;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.IGauge;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.scheduler.Cluster;
 import org.apache.storm.scheduler.IScheduler;
 import org.apache.storm.scheduler.SupervisorDetails;
@@ -43,7 +44,7 @@ public class BlacklistScheduler implements IScheduler {
     public static final int DEFAULT_BLACKLIST_SCHEDULER_TOLERANCE_TIME = 300;
     private static final Logger LOG = LoggerFactory.getLogger(BlacklistScheduler.class);
     private final IScheduler underlyingScheduler;
-    private StormMetricsRegistry metricsRegistry;
+    private StormCustomMetricsRegistry metricsRegistry;
     protected int toleranceTime;
     protected int toleranceCount;
     protected int resumeTime;
@@ -66,7 +67,7 @@ public class BlacklistScheduler implements IScheduler {
     }
 
     @Override
-    public void prepare(Map<String, Object> conf, StormMetricsRegistry metricsRegistry) {
+    public void prepare(Map<String, Object> conf, StormCustomMetricsRegistry metricsRegistry) {
         LOG.info("Preparing black list scheduler");
         underlyingScheduler.prepare(conf, metricsRegistry);
         this.conf = conf;
@@ -102,7 +103,7 @@ public class BlacklistScheduler implements IScheduler {
                 true);
 
         //nimbus:num-blacklisted-supervisor + non-blacklisted supervisor = nimbus:num-supervisors
-        metricsRegistry.registerGauge("nimbus:num-blacklisted-supervisor", () -> blacklistedSupervisorIds.size());
+        metricsRegistry.registerGauge("nimbus:num-blacklisted-supervisor", (IGauge<Integer>) () -> blacklistedSupervisorIds.size());
     }
 
     @Override

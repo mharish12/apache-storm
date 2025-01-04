@@ -49,7 +49,7 @@ public class Context implements IContext {
         LocalServer existing = registry.put(key, ret);
         if (existing != null) {
             //Can happen if worker is restarted in the same topology, e.g. due to blob update
-            LOG.info("Replacing existing server for key {}", existing, ret, key);
+            LOG.info("Replacing existing server for key {}, {}, {}", existing, ret, key);
         }
         return ret;
     }

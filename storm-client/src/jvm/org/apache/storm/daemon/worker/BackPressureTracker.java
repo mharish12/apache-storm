@@ -18,14 +18,14 @@
 
 package org.apache.storm.daemon.worker;
 
-import com.codahale.metrics.Gauge;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import org.apache.storm.messaging.netty.BackPressureStatus;
-import org.apache.storm.metrics2.StormMetricRegistry;
+import org.apache.storm.metric.IGauge;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.shade.org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.storm.shade.org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.storm.utils.JCQueue;
@@ -41,7 +41,7 @@ public class BackPressureTracker {
     private final String workerId;
 
     public BackPressureTracker(String workerId, Map<Integer, JCQueue> localTasksToQueues,
-                               StormMetricRegistry metricRegistry, Map<Integer, String> taskToComponent) {
+                               StormCustomMetricsRegistry metricRegistry, Map<Integer, String> taskToComponent) {
         this.workerId = workerId;
         this.tasks = localTasksToQueues.entrySet().stream()
             .collect(Collectors.toMap(
@@ -118,7 +118,7 @@ public class BackPressureTracker {
         private int lastOverflowCount = 0;
 
 
-        BackpressureState(JCQueue queue, Integer taskId, String componentId, StormMetricRegistry metricRegistry) {
+        BackpressureState(JCQueue queue, Integer taskId, String componentId, StormCustomMetricsRegistry metricRegistry) {
             this.queue = queue;
 
             // System bolt is not a part of backpressure.
@@ -127,7 +127,7 @@ public class BackPressureTracker {
                     throw new RuntimeException("Missing componentId for task " + taskId);
                 }
 
-                Gauge<Integer> bpOverflowCount = new Gauge<Integer>() {
+                IGauge<Integer> bpOverflowCount = new IGauge<Integer>() {
                     @Override
                     public Integer getValue() {
                         if (backpressure.get()) {
@@ -136,7 +136,7 @@ public class BackPressureTracker {
                         return 0;
                     }
                 };
-                metricRegistry.gauge("__backpressure-last-overflow-count", bpOverflowCount, componentId, taskId);
+                metricRegistry.gauge("__backpressure-last-overflow-count", bpOverflowCount, "componentId", componentId, "taskId", String.valueOf(taskId));
             }
         }
 

@@ -26,13 +26,13 @@ import java.util.Set;
 
 import org.apache.storm.daemon.common.AuthorizationExceptionMapper;
 import org.apache.storm.daemon.drpc.DRPC;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 
 @ApplicationPath("")
 @SuppressWarnings("checkstyle:AbbreviationAsWordInName")
 public class DRPCApplication extends Application {
     private static DRPC _drpc;
-    private static StormMetricsRegistry metricsRegistry;
+    private static StormCustomMetricsRegistry metricsRegistry;
     private final Set<Object> singletons = new HashSet<Object>();
 
     /**
@@ -51,7 +51,7 @@ public class DRPCApplication extends Application {
         return singletons;
     }
 
-    public static void setup(DRPC drpc, StormMetricsRegistry metricsRegistry) {
+    public static void setup(DRPC drpc, StormCustomMetricsRegistry metricsRegistry) {
         _drpc = drpc;
         DRPCApplication.metricsRegistry = metricsRegistry;
     }

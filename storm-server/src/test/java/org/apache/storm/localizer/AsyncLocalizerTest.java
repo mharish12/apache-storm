@@ -50,6 +50,8 @@ import org.apache.storm.generated.LocalAssignment;
 import org.apache.storm.generated.ReadableBlobMeta;
 import org.apache.storm.generated.SettableBlobMeta;
 import org.apache.storm.generated.StormTopology;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
+import org.apache.storm.metric.micrometer.StormTimerMetric;
 import org.apache.storm.security.auth.DefaultPrincipalToLocal;
 import org.apache.storm.testing.TmpPath;
 import org.apache.storm.utils.ConfigUtils;
@@ -80,7 +82,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 
 public class AsyncLocalizerTest {
     private static final Logger LOG = LoggerFactory.getLogger(AsyncLocalizerTest.class);
@@ -113,7 +115,7 @@ public class AsyncLocalizerTest {
 
             AdvancedFSOps ops = AdvancedFSOps.make(conf);
 
-            victim = spy(new AsyncLocalizer(conf, ops, localizerRoot.getPath(), new StormMetricsRegistry()));
+            victim = spy(new AsyncLocalizer(conf, ops, localizerRoot.getPath(), new StormCustomMetricsRegistry()));
 
             final String topoId = "TOPO";
 
@@ -176,7 +178,7 @@ public class AsyncLocalizerTest {
             conf.put(Config.STORM_LOCAL_DIR, stormLocal.getPath());
 
             AdvancedFSOps ops = AdvancedFSOps.make(conf);
-            StormMetricsRegistry metricsRegistry = new StormMetricsRegistry();
+            StormCustomMetricsRegistry metricsRegistry = new StormCustomMetricsRegistry();
 
             victim = spy(new AsyncLocalizer(conf, ops, localizerRoot.getPath(), metricsRegistry));
 
@@ -257,7 +259,7 @@ public class AsyncLocalizerTest {
             conf.put(Config.STORM_LOCAL_DIR, stormLocal.getPath());
             conf.put(Config.STORM_CLUSTER_MODE, "local");
 
-            StormMetricsRegistry metricsRegistry = new StormMetricsRegistry();
+            StormCustomMetricsRegistry metricsRegistry = new StormCustomMetricsRegistry();
 
             AdvancedFSOps ops = AdvancedFSOps.make(conf);
 
@@ -969,7 +971,7 @@ public class AsyncLocalizerTest {
     public void validatePNAImplementationsMatch() {
         LocalAssignment la = new LocalAssignment("Topology1", null);
         PortAndAssignment pna = new PortAndAssignmentImpl(1, la);
-        PortAndAssignment tpna = new TimePortAndAssignment(pna, new Timer());
+        PortAndAssignment tpna = new TimePortAndAssignment(pna, new StormTimerMetric("time-port-assignment"));
 
         assertEquals(pna, tpna);
         assertEquals(tpna, pna);
@@ -979,7 +981,7 @@ public class AsyncLocalizerTest {
     class TestLocalizer extends AsyncLocalizer {
 
         TestLocalizer(Map<String, Object> conf, String baseDir) throws IOException {
-            super(conf, AdvancedFSOps.make(conf), baseDir, new StormMetricsRegistry());
+            super(conf, AdvancedFSOps.make(conf), baseDir, new StormCustomMetricsRegistry());
         }
 
         @Override

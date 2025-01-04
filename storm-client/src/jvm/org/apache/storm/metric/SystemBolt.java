@@ -12,10 +12,6 @@
 
 package org.apache.storm.metric;
 
-import com.codahale.metrics.Gauge;
-import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
-import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
-import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.lang.management.ThreadMXBean;
@@ -50,20 +46,21 @@ public class SystemBolt implements IBolt {
         }
         prepareWasCalled = true;
 
-        context.registerMetricSet("GC", new GarbageCollectorMetricSet());
-        context.registerMetricSet("threads", new ThreadStatesGaugeSet());
-        context.registerMetricSet("memory", new MemoryUsageGaugeSet());
+        // All the below details are defaulted in registry.
+//        context.registerMetricSet("GC", new GarbageCollectorMetricSet());
+//        context.registerMetricSet("threads", new ThreadStatesGaugeSet());
+//        context.registerMetricSet("memory", new MemoryUsageGaugeSet());
 
         final RuntimeMXBean jvmRt = ManagementFactory.getRuntimeMXBean();
 
-        context.registerGauge("uptimeSecs", new Gauge<Long>() {
+        context.registerGauge("uptimeSecs", new IGauge<Long>() {
             @Override
             public Long getValue() {
                 return jvmRt.getUptime() / 1000L;
             }
         });
 
-        context.registerGauge("startTimeSecs", new Gauge<Long>() {
+        context.registerGauge("startTimeSecs", new IGauge<Long>() {
             @Override
             public Long getValue() {
                 return jvmRt.getStartTime() / 1000L;
@@ -79,7 +76,7 @@ public class SystemBolt implements IBolt {
         registerMetrics(context, (Map<String, String>) topoConf.get(Config.TOPOLOGY_WORKER_METRICS), bucketSize, topoConf);
     }
 
-    private class WorkerCpuMetric implements Gauge<Double> {
+    private class WorkerCpuMetric implements IGauge<Double> {
         private long lastCalculationTimeNsec;
         private long previousCpuTotal;
         private double cpuUsage;

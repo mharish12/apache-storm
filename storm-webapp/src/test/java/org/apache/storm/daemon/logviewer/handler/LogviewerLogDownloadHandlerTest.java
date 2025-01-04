@@ -33,7 +33,7 @@ import java.util.Map;
 import jakarta.ws.rs.core.Response;
 import org.apache.storm.daemon.logviewer.utils.ResourceAuthorizer;
 import org.apache.storm.daemon.logviewer.utils.WorkerLogs;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.testing.TmpPath;
 import org.apache.storm.utils.Utils;
 import org.junit.jupiter.api.Test;
@@ -141,7 +141,7 @@ public class LogviewerLogDownloadHandlerTest {
         Files.createFile(daemonFile);
 
         Map<String, Object> stormConf = Utils.readStormConfig();
-        StormMetricsRegistry metricsRegistry = new StormMetricsRegistry();
+        StormCustomMetricsRegistry metricsRegistry = new StormCustomMetricsRegistry();
         return new LogviewerLogDownloadHandler(workerLogRoot.toString(), daemonLogRoot.toString(),
             new WorkerLogs(stormConf, workerLogRoot, metricsRegistry), new ResourceAuthorizer(stormConf), metricsRegistry);
     }

@@ -18,14 +18,15 @@
 
 package org.apache.storm.daemon.ui.filters;
 
-import com.codahale.metrics.Meter;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerResponseContext;
 import jakarta.ws.rs.container.ContainerResponseFilter;
 import jakarta.ws.rs.ext.Provider;
 import java.io.IOException;
-import org.apache.storm.metric.StormMetricsRegistry;
+
+import org.apache.storm.metric.IMeter;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,10 +35,10 @@ import org.slf4j.LoggerFactory;
 public class HeaderResponseFilter implements ContainerResponseFilter {
     public static final Logger LOG = LoggerFactory.getLogger(HeaderResponseFilter.class);
 
-    private final Meter webRequestMeter;
+    private final IMeter webRequestMeter;
     
     @Inject
-    public HeaderResponseFilter(StormMetricsRegistry metricsRegistry) {
+    public HeaderResponseFilter(StormCustomMetricsRegistry metricsRegistry) {
         this.webRequestMeter = metricsRegistry.registerMeter("num-web-requests");
     }
 

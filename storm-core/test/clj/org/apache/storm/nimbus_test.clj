@@ -48,7 +48,7 @@
   (:import [org.apache.storm.daemon StormCommon])
   (:import [org.apache.storm.cluster IStormClusterState StormClusterStateImpl ClusterStateContext ClusterUtils]
            [org.apache.storm.assignments LocalAssignmentsBackendFactory])
-  (:import [org.apache.storm.metric StormMetricsRegistry])
+  (:import [org.apache.storm.metric StormCustomMetricsRegistry])
   (:use [org.apache.storm util daemon-config config log])
   (:require [conjure.core])
 
@@ -62,7 +62,7 @@
   ([conf inimbus blob-store leader-elector group-mapper cluster-state]
     ;blacklist scheduler requires nimbus-monitor-freq-secs as input parameter.
    (let [conf-with-nimbus-monitor-freq (merge {NIMBUS-MONITOR-FREQ-SECS 10} conf)]
-     (Nimbus. conf-with-nimbus-monitor-freq inimbus cluster-state nil blob-store nil leader-elector group-mapper (StormMetricsRegistry.)))))
+     (Nimbus. conf-with-nimbus-monitor-freq inimbus cluster-state nil blob-store nil leader-elector group-mapper (StormCustomMetricsRegistry.)))))
 
 (defn- from-json
        [^String str]
@@ -1881,7 +1881,7 @@
         conf {NIMBUS-MONITOR-FREQ-SECS 10 NIMBUS-TOPOLOGY-BLOBSTORE-DELETION-DELAY-MS 0 NIMBUS-THRIFT-TLS-PORT 0}]
     (with-open [_ (MockedZookeeper. (proxy [Zookeeper] []
                     (zkLeaderElectorImpl [conf zk blob-store tc cluster-state acls metrics-registry submitLock] (MockLeaderElector. ))))]
-      (let [nimbus (Mockito/spy (Nimbus. conf nil mock-state nil mock-blob-store nil nil (StormMetricsRegistry.)))]
+      (let [nimbus (Mockito/spy (Nimbus. conf nil mock-state nil mock-blob-store nil nil (StormCustomMetricsRegistry.)))]
         (.addEmptyTopoForTests (.getHeartbeatsCache nimbus) "topo2")
         (.addEmptyTopoForTests (.getHeartbeatsCache nimbus) "topo3")
         (.thenReturn (Mockito/when (.storedTopoIds mock-blob-store)) (HashSet. inactive-topos))
@@ -1919,7 +1919,7 @@
         conf {NIMBUS-MONITOR-FREQ-SECS 10 NIMBUS-THRIFT-TLS-PORT 0}]
     (with-open [_ (MockedZookeeper. (proxy [Zookeeper] []
                     (zkLeaderElectorImpl [conf zk blob-store tc cluster-state acls metrics-registry submitLock] (MockLeaderElector. ))))]
-      (let [nimbus (Mockito/spy (Nimbus. conf nil mock-state nil mock-blob-store nil nil (StormMetricsRegistry.)))]
+      (let [nimbus (Mockito/spy (Nimbus. conf nil mock-state nil mock-blob-store nil nil (StormCustomMetricsRegistry.)))]
         (.addEmptyTopoForTests (.getHeartbeatsCache nimbus) "topo1")
         (.addEmptyTopoForTests (.getHeartbeatsCache nimbus) "topo2")
         (.thenReturn (Mockito/when (.storedTopoIds mock-blob-store)) (set inactive-topos))
@@ -1948,7 +1948,7 @@
         mock-blob-store (Mockito/mock BlobStore)
         mock-tc (Mockito/mock TopoCache)
         nimbus (Nimbus. {NIMBUS-MONITOR-FREQ-SECS 10 NIMBUS-THRIFT-TLS-PORT 0}
-                        nil mock-state nil mock-blob-store mock-tc (MockLeaderElector. ) nil (StormMetricsRegistry.))]
+                        nil mock-state nil mock-blob-store mock-tc (MockLeaderElector. ) nil (StormCustomMetricsRegistry.))]
     (let [supervisor1-topologies (clojurify-structure (Nimbus/topologiesOnSupervisor assignments "super1"))
           user1-topologies (clojurify-structure (.filterAuthorized nimbus "getTopology" supervisor1-topologies))
           supervisor2-topologies (clojurify-structure (Nimbus/topologiesOnSupervisor assignments "super2"))
@@ -1970,7 +1970,7 @@
         mock-blob-store (Mockito/mock BlobStore)
         mock-tc (Mockito/mock TopoCache)
         nimbus (Nimbus. {NIMBUS-MONITOR-FREQ-SECS 10 NIMBUS-THRIFT-TLS-PORT 0}
-                         nil mock-state nil mock-blob-store mock-tc (MockLeaderElector. ) nil (StormMetricsRegistry.))]
+                         nil mock-state nil mock-blob-store mock-tc (MockLeaderElector. ) nil (StormCustomMetricsRegistry.))]
     (.thenReturn (Mockito/when (.readTopoConf mock-tc (Mockito/eq "authorized") (ArgumentMatchers/any))) {TOPOLOGY-NAME "authorized"})
     (.thenReturn (Mockito/when (.readTopoConf mock-tc (Mockito/eq "topo1") (ArgumentMatchers/any))) {TOPOLOGY-NAME "topo1"})
     (.setAuthorizationHandler nimbus (reify IAuthorizer (permit [this context operation topo-conf] (= "authorized" (get topo-conf TOPOLOGY-NAME)))))

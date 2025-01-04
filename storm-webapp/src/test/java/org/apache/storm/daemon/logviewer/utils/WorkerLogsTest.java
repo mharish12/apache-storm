@@ -23,7 +23,6 @@ import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
@@ -33,7 +32,7 @@ import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import org.apache.storm.daemon.supervisor.SupervisorUtils;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.testing.TmpPath;
 import org.apache.storm.utils.Utils;
 import org.junit.jupiter.api.Test;
@@ -56,7 +55,7 @@ public class WorkerLogsTest {
             SupervisorUtils.setInstance(mockedSupervisorUtils);
 
             Map<String, Object> stormConf = Utils.readStormConfig();
-            WorkerLogs workerLogs = new WorkerLogs(stormConf, port1Dir, new StormMetricsRegistry()) {
+            WorkerLogs workerLogs = new WorkerLogs(stormConf, port1Dir, new StormCustomMetricsRegistry()) {
                 @Override
                 public Optional<Path> getMetadataFileForWorkerLogDir(Path logDir) {
                     return Optional.of(metaFile);

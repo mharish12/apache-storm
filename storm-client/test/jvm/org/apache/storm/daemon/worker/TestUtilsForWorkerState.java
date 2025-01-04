@@ -24,7 +24,7 @@ import org.apache.storm.generated.Credentials;
 import org.apache.storm.generated.Supervisor;
 import org.apache.storm.hooks.BaseWorkerHook;
 import org.apache.storm.messaging.IContext;
-import org.apache.storm.metrics2.StormMetricRegistry;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.security.auth.IAutoCredentials;
 import org.apache.storm.task.WorkerUserContext;
 import org.apache.storm.thrift.TException;
@@ -81,7 +81,7 @@ public class TestUtilsForWorkerState {
         IStateStorage stateStorage = null;
         IStormClusterState stormClusterState = null;
         Collection<IAutoCredentials> autoCreds = null;
-        StormMetricRegistry metricRegistry = mock(StormMetricRegistry.class);
+        StormCustomMetricsRegistry metricRegistry = mock(StormCustomMetricsRegistry.class);
         Credentials initialCredentials = null;
 
         WorkerState workerState = new WorkerState(conf, context, topologyId, assignmentId, supervisorIfaceSupplier, port, workerId,

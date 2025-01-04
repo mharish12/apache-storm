@@ -18,14 +18,14 @@
 
 package org.apache.storm.daemon.nimbus;
 
-import com.codahale.metrics.CachedGauge;
-import com.codahale.metrics.DerivativeGauge;
-import com.codahale.metrics.Histogram;
-import com.codahale.metrics.Meter;
 import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.MetricSet;
-import com.codahale.metrics.SlidingTimeWindowReservoir;
-import com.codahale.metrics.Timer;
+import io.micrometer.core.instrument.DistributionSummary;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import org.apache.storm.metric.IGauge;
+import org.apache.storm.metric.IMetricSet;
+import org.apache.storm.metric.IStormMetric;
+
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -39,6 +39,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
 import java.security.Principal;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -83,7 +84,6 @@ import org.apache.storm.container.oci.OciUtils;
 import org.apache.storm.daemon.DaemonCommon;
 import org.apache.storm.daemon.Shutdownable;
 import org.apache.storm.daemon.StormCommon;
-import org.apache.storm.daemon.common.FileWatcher;
 import org.apache.storm.generated.AlreadyAliveException;
 import org.apache.storm.generated.Assignment;
 import org.apache.storm.generated.AuthorizationException;
@@ -149,10 +149,16 @@ import org.apache.storm.generated.WorkerResources;
 import org.apache.storm.generated.WorkerSummary;
 import org.apache.storm.logging.ThriftAccessLogger;
 import org.apache.storm.metric.ClusterMetricsConsumerExecutor;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.IHistogram;
+import org.apache.storm.metric.IMeter;
+import org.apache.storm.metric.ITimer;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.metric.api.DataPoint;
 import org.apache.storm.metric.api.IClusterMetricsConsumer;
 import org.apache.storm.metric.api.IClusterMetricsConsumer.ClusterInfo;
+import org.apache.storm.metric.micrometer.CachedGauge;
+import org.apache.storm.metric.micrometer.DerivativeGauge;
+import org.apache.storm.metric.micrometer.StormHistogram;
 import org.apache.storm.metricstore.AggLevel;
 import org.apache.storm.metricstore.Metric;
 import org.apache.storm.metricstore.MetricStore;
@@ -239,56 +245,56 @@ public class Nimbus implements Iface, Shutdownable, DaemonCommon {
     public static final SimpleVersion MIN_VERSION_SUPPORT_RPC_HEARTBEAT = new SimpleVersion("2.0.0");
     private static final Logger LOG = LoggerFactory.getLogger(Nimbus.class);
     //    Metrics
-    private final Meter submitTopologyWithOptsCalls;
-    private final Meter submitTopologyCalls;
-    private final Meter killTopologyWithOptsCalls;
-    private final Meter killTopologyCalls;
-    private final Meter rebalanceCalls;
-    private final Meter activateCalls;
-    private final Meter deactivateCalls;
-    private final Meter debugCalls;
-    private final Meter setWorkerProfilerCalls;
-    private final Meter getComponentPendingProfileActionsCalls;
-    private final Meter setLogConfigCalls;
-    private final Meter uploadNewCredentialsCalls;
-    private final Meter beginFileUploadCalls;
-    private final Meter uploadChunkCalls;
-    private final Meter finishFileUploadCalls;
-    private final Meter downloadChunkCalls;
-    private final Meter getNimbusConfCalls;
-    private final Meter getLogConfigCalls;
-    private final Meter getTopologyConfCalls;
-    private final Meter getTopologyCalls;
-    private final Meter getUserTopologyCalls;
-    private final Meter getClusterInfoCalls;
-    private final Meter getTopologySummariesCalls;
-    private final Meter getTopologySummaryCalls;
-    private final Meter getTopologySummaryByNameCalls;
-    private final Meter getLeaderCalls;
-    private final Meter isTopologyNameAllowedCalls;
-    private final Meter getTopologyInfoWithOptsCalls;
-    private final Meter getTopologyInfoCalls;
-    private final Meter getTopologyInfoByNameCalls;
-    private final Meter getTopologyInfoByNameWithOptsCalls;
-    private final Meter getTopologyPageInfoCalls;
-    private final Meter getSupervisorPageInfoCalls;
-    private final Meter getComponentPageInfoCalls;
-    private final Meter getOwnerResourceSummariesCalls;
-    private final Meter shutdownCalls;
-    private final Meter processWorkerMetricsCalls;
-    private final Meter mkAssignmentsErrors;
-    private final Meter sendAssignmentExceptions;   // used in AssignmentDistributionService.java
+    private final IMeter submitTopologyWithOptsCalls;
+    private final IMeter submitTopologyCalls;
+    private final IMeter killTopologyWithOptsCalls;
+    private final IMeter killTopologyCalls;
+    private final IMeter rebalanceCalls;
+    private final IMeter activateCalls;
+    private final IMeter deactivateCalls;
+    private final IMeter debugCalls;
+    private final IMeter setWorkerProfilerCalls;
+    private final IMeter getComponentPendingProfileActionsCalls;
+    private final IMeter setLogConfigCalls;
+    private final IMeter uploadNewCredentialsCalls;
+    private final IMeter beginFileUploadCalls;
+    private final IMeter uploadChunkCalls;
+    private final IMeter finishFileUploadCalls;
+    private final IMeter downloadChunkCalls;
+    private final IMeter getNimbusConfCalls;
+    private final IMeter getLogConfigCalls;
+    private final IMeter getTopologyConfCalls;
+    private final IMeter getTopologyCalls;
+    private final IMeter getUserTopologyCalls;
+    private final IMeter getClusterInfoCalls;
+    private final IMeter getTopologySummariesCalls;
+    private final IMeter getTopologySummaryCalls;
+    private final IMeter getTopologySummaryByNameCalls;
+    private final IMeter getLeaderCalls;
+    private final IMeter isTopologyNameAllowedCalls;
+    private final IMeter getTopologyInfoWithOptsCalls;
+    private final IMeter getTopologyInfoCalls;
+    private final IMeter getTopologyInfoByNameCalls;
+    private final IMeter getTopologyInfoByNameWithOptsCalls;
+    private final IMeter getTopologyPageInfoCalls;
+    private final IMeter getSupervisorPageInfoCalls;
+    private final IMeter getComponentPageInfoCalls;
+    private final IMeter getOwnerResourceSummariesCalls;
+    private final IMeter shutdownCalls;
+    private final IMeter processWorkerMetricsCalls;
+    private final IMeter mkAssignmentsErrors;
+    private final IMeter sendAssignmentExceptions;   // used in AssignmentDistributionService.java
 
     //Timer
-    private final Timer fileUploadDuration;
-    private final Timer schedulingDuration;
+    private final ITimer fileUploadDuration;
+    private final ITimer schedulingDuration;
     //Scheduler histogram
-    private final Histogram numAddedExecPerScheduling;
-    private final Histogram numAddedSlotPerScheduling;
-    private final Histogram numRemovedExecPerScheduling;
-    private final Histogram numRemovedSlotPerScheduling;
-    private final Histogram numNetExecIncreasePerScheduling;
-    private final Histogram numNetSlotIncreasePerScheduling;
+    private final IHistogram numAddedExecPerScheduling;
+    private final IHistogram numAddedSlotPerScheduling;
+    private final IHistogram numRemovedExecPerScheduling;
+    private final IHistogram numRemovedSlotPerScheduling;
+    private final IHistogram numNetExecIncreasePerScheduling;
+    private final IHistogram numNetSlotIncreasePerScheduling;
     // END Metrics
     private static final String STORM_VERSION = VersionInfo.getVersion();
 
@@ -461,7 +467,7 @@ public class Nimbus implements Iface, Shutdownable, DaemonCommon {
     private final List<ClusterMetricsConsumerExecutor> clusterConsumerExceutors;
     private final IGroupMappingServiceProvider groupMapper;
     private final IPrincipalToLocal principalToLocal;
-    private final StormMetricsRegistry metricsRegistry;
+    private final StormCustomMetricsRegistry metricsRegistry;
     private final ResourceMetrics resourceMetrics;
     private final ClusterSummaryMetricSet clusterMetricSet;
     private MetricStore metricsStore;
@@ -474,19 +480,19 @@ public class Nimbus implements Iface, Shutdownable, DaemonCommon {
     private WorkerTokenManager workerTokenManager;
     private boolean wasLeader = false;
 
-    public Nimbus(Map<String, Object> conf, INimbus inimbus, StormMetricsRegistry metricsRegistry) throws Exception {
+    public Nimbus(Map<String, Object> conf, INimbus inimbus, StormCustomMetricsRegistry metricsRegistry) throws Exception {
         this(conf, inimbus, null, null, null, null, null, metricsRegistry);
     }
 
     public Nimbus(Map<String, Object> conf, INimbus inimbus, IStormClusterState stormClusterState, NimbusInfo hostPortInfo,
                   BlobStore blobStore, ILeaderElector leaderElector, IGroupMappingServiceProvider groupMapper,
-                  StormMetricsRegistry metricsRegistry) throws Exception {
+                  StormCustomMetricsRegistry metricsRegistry) throws Exception {
         this(conf, inimbus, stormClusterState, hostPortInfo, blobStore, null, leaderElector, groupMapper, metricsRegistry);
     }
 
     public Nimbus(Map<String, Object> conf, INimbus inimbus, IStormClusterState stormClusterState, NimbusInfo hostPortInfo,
                   BlobStore blobStore, TopoCache topoCache, ILeaderElector leaderElector, IGroupMappingServiceProvider groupMapper,
-                  StormMetricsRegistry metricsRegistry)
+                  StormCustomMetricsRegistry metricsRegistry)
         throws Exception {
         this.conf = conf;
         this.metricsRegistry = metricsRegistry;
@@ -662,7 +668,7 @@ public class Nimbus implements Iface, Shutdownable, DaemonCommon {
     }
 
     private static IScheduler wrapAsBlacklistScheduler(Map<String, Object> conf, IScheduler scheduler,
-        StormMetricsRegistry metricsRegistry) {
+        StormCustomMetricsRegistry metricsRegistry) {
         BlacklistScheduler blacklistWrappedScheduler = new BlacklistScheduler(scheduler);
         blacklistWrappedScheduler.prepare(conf, metricsRegistry);
         return blacklistWrappedScheduler;
@@ -1514,23 +1520,23 @@ public class Nimbus implements Iface, Shutdownable, DaemonCommon {
                     }
                 });
 
-            metricsRegistry.registerGauge("nimbus:total-available-memory-non-negative", () -> nodeIdToResources.get().values()
+            metricsRegistry.registerGauge("nimbus:total-available-memory-non-negative", (IGauge<Double>) () -> nodeIdToResources.get().values()
                     .parallelStream()
                     .mapToDouble(supervisorResources -> Math.max(supervisorResources.getAvailableMem(), 0))
                     .sum());
-            metricsRegistry.registerGauge("nimbus:available-cpu-non-negative", () -> nodeIdToResources.get().values()
+            metricsRegistry.registerGauge("nimbus:available-cpu-non-negative", (IGauge<Double>) () -> nodeIdToResources.get().values()
                     .parallelStream()
                     .mapToDouble(supervisorResources -> Math.max(supervisorResources.getAvailableCpu(), 0))
                     .sum());
-            metricsRegistry.registerGauge("nimbus:total-memory", () -> nodeIdToResources.get().values()
+            metricsRegistry.registerGauge("nimbus:total-memory", (IGauge<Double>) () -> nodeIdToResources.get().values()
                     .parallelStream()
                     .mapToDouble(SupervisorResources::getTotalMem)
                     .sum());
-            metricsRegistry.registerGauge("nimbus:total-cpu", () -> nodeIdToResources.get().values()
+            metricsRegistry.registerGauge("nimbus:total-cpu", (IGauge<Double>) () -> nodeIdToResources.get().values()
                     .parallelStream()
                     .mapToDouble(SupervisorResources::getTotalCpu)
                     .sum());
-            metricsRegistry.registerGauge("nimbus:longest-scheduling-time-ms", () -> {
+            metricsRegistry.registerGauge("nimbus:longest-scheduling-time-ms", (IGauge<Long>) () -> {
                 //We want to update longest scheduling time in real time in case scheduler get stuck
                 // Get current time before startTime to avoid potential race with scheduler's Timer
                 Long currTime = Time.nanoTime();
@@ -1570,7 +1576,7 @@ public class Nimbus implements Iface, Shutdownable, DaemonCommon {
         StormCommon.validateDistributedMode(conf);
         validatePortAvailable(conf);
         OciUtils.validateImageInDaemonConf(conf);
-        StormMetricsRegistry metricsRegistry = new StormMetricsRegistry();
+        StormCustomMetricsRegistry metricsRegistry = new StormCustomMetricsRegistry();
         final Nimbus nimbus = new Nimbus(conf, inimbus, metricsRegistry);
         nimbus.launchServer();
 
@@ -1583,9 +1589,9 @@ public class Nimbus implements Iface, Shutdownable, DaemonCommon {
             multiThriftServer.add(new ThriftServer(conf, new Processor<>(nimbus), ThriftConnectionType.NIMBUS_TLS));
         }
 
-        metricsRegistry.startMetricsReporters(conf);
+        metricsRegistry.startMetricsComponents(conf);
         Utils.addShutdownHookWithDelayedForceKill(() -> {
-            metricsRegistry.stopMetricsReporters();
+            metricsRegistry.stopMetricsComponents();
             nimbus.shutdown();
             multiThriftServer.stop();
         }, 10);
@@ -1729,7 +1735,7 @@ public class Nimbus implements Iface, Shutdownable, DaemonCommon {
     private static void notifySupervisorsAssignments(Map<String, Assignment> assignments,
                                                      AssignmentDistributionService service, Map<String, String> nodeHost,
                                                      Map<String, SupervisorDetails> supervisorDetails,
-                                                     StormMetricsRegistry metricsRegistry) {
+                                                     StormCustomMetricsRegistry metricsRegistry) {
         for (Map.Entry<String, String> nodeEntry : nodeHost.entrySet()) {
             try {
                 String nodeId = nodeEntry.getKey();
@@ -1747,7 +1753,7 @@ public class Nimbus implements Iface, Shutdownable, DaemonCommon {
     }
 
     private static void notifySupervisorsAsKilled(IStormClusterState clusterState, Assignment oldAss,
-                                                  AssignmentDistributionService service, StormMetricsRegistry metricsRegistry) {
+                                                  AssignmentDistributionService service, StormCustomMetricsRegistry metricsRegistry) {
         Map<String, String> nodeHost = assignmentChangedNodes(oldAss, null);
         notifySupervisorsAssignments(clusterState.assignmentsInfo(), service, nodeHost,
                                      basicSupervisorDetailsMap(clusterState), metricsRegistry);
@@ -1770,7 +1776,7 @@ public class Nimbus implements Iface, Shutdownable, DaemonCommon {
         return assignmentsDistributer;
     }
 
-    private StormMetricsRegistry getMetricsRegistry() {
+    private StormCustomMetricsRegistry getMetricsRegistry() {
         return metricsRegistry;
     }
 
@@ -5307,16 +5313,16 @@ public class Nimbus implements Iface, Shutdownable, DaemonCommon {
 
     }
 
-    private static class ClusterSummaryMetrics implements MetricSet {
+    private static class ClusterSummaryMetrics implements IMetricSet {
         private static final String SUMMARY = "summary";
-        private final Map<String, com.codahale.metrics.Metric> metrics = new HashMap<>();
+        private final Map<String, IStormMetric> metrics = new HashMap<>();
         
-        public com.codahale.metrics.Metric put(String key, com.codahale.metrics.Metric value) {
+        public IStormMetric put(String key, IStormMetric value) {
             return metrics.put(MetricRegistry.name(SUMMARY, key), value);
         }
 
         @Override
-        public Map<String, com.codahale.metrics.Metric> getMetrics() {
+        public Map<String, IStormMetric> getMetrics() {
             return metrics;
         }
     }
@@ -5326,41 +5332,46 @@ public class Nimbus implements Iface, Shutdownable, DaemonCommon {
         
         private final ClusterSummaryMetrics clusterSummaryMetrics = new ClusterSummaryMetrics();
         
-        private final Function<String, Histogram> registerHistogram = (name) -> {
-            //This histogram reflects the data distribution across only one ClusterSummary, i.e.,
-            // data distribution across all entities of a type (e.g., data from all nimbus/topologies) at one moment.
-            // Hence we use half of the CACHING_WINDOW time to ensure it retains only data from the most recent update
-            final Histogram histogram = new Histogram(new SlidingTimeWindowReservoir(CACHING_WINDOW / 2, TimeUnit.SECONDS));
+        private final Function<String, IHistogram> registerHistogram = (name) -> {
+            MeterRegistry meterRegistry = new SimpleMeterRegistry();
+            DistributionSummary summary = DistributionSummary.builder(name)
+                    .description("A metric with a sliding time window") // Description for your metric
+                    .publishPercentileHistogram(true)                  // Enable histogram percentile
+                    .distributionStatisticExpiry(Duration.ofSeconds(30)) // Sliding window duration
+                    .distributionStatisticBufferLength(2)
+                    .register(meterRegistry);
+
+            final IHistogram histogram = new StormHistogram(summary);
             clusterSummaryMetrics.put(name, histogram);
             return histogram;
         };
         private volatile boolean active = false;
 
         //NImbus metrics distribution
-        private final Histogram nimbusUptime = registerHistogram.apply("nimbuses:uptime-secs");
+        private final IHistogram nimbusUptime = registerHistogram.apply("nimbuses:uptime-secs");
 
         //Supervisor metrics distribution
-        private final Histogram supervisorsUptime = registerHistogram.apply("supervisors:uptime-secs");
-        private final Histogram supervisorsNumWorkers = registerHistogram.apply("supervisors:num-workers");
-        private final Histogram supervisorsNumUsedWorkers = registerHistogram.apply("supervisors:num-used-workers");
-        private final Histogram supervisorsUsedMem = registerHistogram.apply("supervisors:used-mem");
-        private final Histogram supervisorsUsedCpu = registerHistogram.apply("supervisors:used-cpu");
-        private final Histogram supervisorsFragmentedMem = registerHistogram.apply("supervisors:fragmented-mem");
-        private final Histogram supervisorsFragmentedCpu = registerHistogram.apply("supervisors:fragmented-cpu");
+        private final IHistogram supervisorsUptime = registerHistogram.apply("supervisors:uptime-secs");
+        private final IHistogram supervisorsNumWorkers = registerHistogram.apply("supervisors:num-workers");
+        private final IHistogram supervisorsNumUsedWorkers = registerHistogram.apply("supervisors:num-used-workers");
+        private final IHistogram supervisorsUsedMem = registerHistogram.apply("supervisors:used-mem");
+        private final IHistogram supervisorsUsedCpu = registerHistogram.apply("supervisors:used-cpu");
+        private final IHistogram supervisorsFragmentedMem = registerHistogram.apply("supervisors:fragmented-mem");
+        private final IHistogram supervisorsFragmentedCpu = registerHistogram.apply("supervisors:fragmented-cpu");
 
         //Topology metrics distribution
-        private final Histogram topologiesNumTasks = registerHistogram.apply("topologies:num-tasks");
-        private final Histogram topologiesNumExecutors = registerHistogram.apply("topologies:num-executors");
-        private final Histogram topologiesNumWorker = registerHistogram.apply("topologies:num-workers");
-        private final Histogram topologiesUptime = registerHistogram.apply("topologies:uptime-secs");
-        private final Histogram topologiesReplicationCount = registerHistogram.apply("topologies:replication-count");
-        private final Histogram topologiesRequestedMemOnHeap = registerHistogram.apply("topologies:requested-mem-on-heap");
-        private final Histogram topologiesRequestedMemOffHeap = registerHistogram.apply("topologies:requested-mem-off-heap");
-        private final Histogram topologiesRequestedCpu = registerHistogram.apply("topologies:requested-cpu");
-        private final Histogram topologiesAssignedMemOnHeap = registerHistogram.apply("topologies:assigned-mem-on-heap");
-        private final Histogram topologiesAssignedMemOffHeap = registerHistogram.apply("topologies:assigned-mem-off-heap");
-        private final Histogram topologiesAssignedCpu = registerHistogram.apply("topologies:assigned-cpu");
-        private final StormMetricsRegistry metricsRegistry;
+        private final IHistogram topologiesNumTasks = registerHistogram.apply("topologies:num-tasks");
+        private final IHistogram topologiesNumExecutors = registerHistogram.apply("topologies:num-executors");
+        private final IHistogram topologiesNumWorker = registerHistogram.apply("topologies:num-workers");
+        private final IHistogram topologiesUptime = registerHistogram.apply("topologies:uptime-secs");
+        private final IHistogram topologiesReplicationCount = registerHistogram.apply("topologies:replication-count");
+        private final IHistogram topologiesRequestedMemOnHeap = registerHistogram.apply("topologies:requested-mem-on-heap");
+        private final IHistogram topologiesRequestedMemOffHeap = registerHistogram.apply("topologies:requested-mem-off-heap");
+        private final IHistogram topologiesRequestedCpu = registerHistogram.apply("topologies:requested-cpu");
+        private final IHistogram topologiesAssignedMemOnHeap = registerHistogram.apply("topologies:assigned-mem-on-heap");
+        private final IHistogram topologiesAssignedMemOffHeap = registerHistogram.apply("topologies:assigned-mem-off-heap");
+        private final IHistogram topologiesAssignedCpu = registerHistogram.apply("topologies:assigned-cpu");
+        private final StormCustomMetricsRegistry metricsRegistry;
 
         /**
          * Constructor to put all items in ClusterSummary in MetricSet as a metric.
@@ -5369,7 +5380,7 @@ public class Nimbus implements Iface, Shutdownable, DaemonCommon {
          * In case of {@link com.codahale.metrics.ScheduledReporter}, CACHING_WINDOW should be set shorter than
          * reporting interval to avoid outdated reporting.
          */
-        ClusterSummaryMetricSet(StormMetricsRegistry metricsRegistry) {
+        ClusterSummaryMetricSet(StormCustomMetricsRegistry metricsRegistry) {
             this.metricsRegistry = metricsRegistry;
             //Break the code if out of sync to thrift protocol
             if (ClusterSummary._Fields.values().length != 3

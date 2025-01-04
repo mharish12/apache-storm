@@ -15,7 +15,7 @@ package org.apache.storm.messaging;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
-import org.apache.storm.metrics2.StormMetricRegistry;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 
 /**
  * This interface needs to be implemented for messaging plugin.
@@ -40,7 +40,7 @@ public interface IContext {
      * @param topoConf storm configuration
      * @param metricRegistry storm metric registry
      */
-    default void prepare(Map<String, Object> topoConf, StormMetricRegistry metricRegistry) {
+    default void prepare(Map<String, Object> topoConf, StormCustomMetricsRegistry metricRegistry) {
         prepare(topoConf);
     }
 

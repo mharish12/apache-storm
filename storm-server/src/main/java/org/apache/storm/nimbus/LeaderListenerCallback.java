@@ -33,7 +33,8 @@ import org.apache.storm.daemon.nimbus.TopoCache;
 import org.apache.storm.generated.AuthorizationException;
 import org.apache.storm.generated.KeyNotFoundException;
 import org.apache.storm.generated.StormTopology;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.IMeter;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.security.auth.ReqContext;
 import org.apache.storm.shade.com.google.common.base.Joiner;
 import org.apache.storm.shade.com.google.common.collect.Sets;
@@ -56,8 +57,8 @@ public class LeaderListenerCallback {
     private static final String STORM_CODE_SUFFIX = "-stormcode.ser";
     private static final String STORM_CONF_SUFFIX = "-stormconf.ser";
     
-    private final Meter numGainedLeader;
-    private final Meter numLostLeader;
+    private final IMeter numGainedLeader;
+    private final IMeter numLostLeader;
     
     private final BlobStore blobStore;
     private final TopoCache tc;
@@ -80,7 +81,7 @@ public class LeaderListenerCallback {
      * @param acls zookeeper acls
      */
     public LeaderListenerCallback(Map conf, CuratorFramework zk, BlobStore blobStore, ILeaderElector leaderElector,
-                                  TopoCache tc, IStormClusterState clusterState, List<ACL> acls, StormMetricsRegistry metricsRegistry) {
+                                  TopoCache tc, IStormClusterState clusterState, List<ACL> acls, StormCustomMetricsRegistry metricsRegistry) {
         this.blobStore = blobStore;
         this.tc = tc;
         this.clusterState = clusterState;

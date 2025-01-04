@@ -40,7 +40,8 @@ import org.apache.storm.daemon.logviewer.handler.LogviewerLogSearchHandler;
 import org.apache.storm.daemon.logviewer.handler.LogviewerProfileHandler;
 import org.apache.storm.daemon.logviewer.utils.ResourceAuthorizer;
 import org.apache.storm.daemon.logviewer.utils.WorkerLogs;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.security.auth.IHttpCredentialsPlugin;
 import org.apache.storm.security.auth.ServerAuthUtils;
 import org.apache.storm.utils.ConfigUtils;
@@ -49,7 +50,7 @@ import org.apache.storm.utils.ObjectReader;
 @ApplicationPath("")
 public class LogviewerApplication extends Application {
     private static Map<String, Object> stormConf;
-    private static StormMetricsRegistry metricsRegistry;
+    private static StormCustomMetricsRegistry metricsRegistry;
     private final Set<Object> singletons = new HashSet<>();
 
     /**
@@ -87,7 +88,7 @@ public class LogviewerApplication extends Application {
      * @param stormConf storm configuration
      * @param metricRegistry The metrics registry
      */
-    public static void setup(Map<String, Object> stormConf, StormMetricsRegistry metricRegistry) {
+    public static void setup(Map<String, Object> stormConf, StormCustomMetricsRegistry metricRegistry) {
         LogviewerApplication.stormConf = stormConf;
         LogviewerApplication.metricsRegistry = metricRegistry;
     }

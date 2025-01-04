@@ -14,11 +14,11 @@
 
 package org.apache.storm.metric.timed;
 
-import com.codahale.metrics.Timer;
+import org.apache.storm.metric.ITimer;
 
 public class TimedResource<T extends AutoCloseable> extends Timed<T> {
 
-    public TimedResource(T measured, Timer timer) {
+    public TimedResource(T measured, ITimer timer) {
         super(measured, timer);
     }
 

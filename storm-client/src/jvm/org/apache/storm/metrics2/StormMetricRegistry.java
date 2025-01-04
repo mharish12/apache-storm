@@ -62,19 +62,22 @@ public class StormMetricRegistry implements MetricRegistryProvider {
     private StormTimer metricTimer;
     private Set<RateCounter> rateCounters = ConcurrentHashMap.newKeySet();
 
+    @Deprecated
     public RateCounter rateCounter(String metricName, String topologyId,
                                    String componentId, int taskId, int workerPort, String streamId) {
-        RateCounter rateCounter = new RateCounter(this, metricName, topologyId, componentId, taskId,
-                workerPort, streamId);
-        rateCounters.add(rateCounter);
-        return rateCounter;
+//        RateCounter rateCounter = new RateCounter(this, metricName, topologyId, componentId, taskId,
+//                workerPort, streamId);
+//        rateCounters.add(rateCounter);
+        return null;
     }
 
+    @Deprecated
     public RateCounter rateCounter(String metricName, String componentId, int taskId) {
-        RateCounter rateCounter = new RateCounter(this, metricName, topologyId, componentId, taskId,
-                port);
-        rateCounters.add(rateCounter);
-        return rateCounter;
+//        RateCounter rateCounter = new RateCounter(this, metricName, topologyId, componentId, taskId,
+//                port);
+//        rateCounters.add(rateCounter);
+//        return rateCounter;
+        return null;
     }
 
     public <T> SimpleGauge<T> gauge(
@@ -467,6 +470,7 @@ public class StormMetricRegistry implements MetricRegistryProvider {
         }
     }
 
+    @Deprecated
     private static class RemoveMetricFilter implements MetricFilter {
         private Set<Metric> metrics = new HashSet<>();
 
@@ -476,7 +480,7 @@ public class StormMetricRegistry implements MetricRegistryProvider {
                 // RateCounters are gauges, but also have internal Counters that should also be removed
                 if (metric instanceof RateCounter) {
                     RateCounter rateCounter = (RateCounter) metric;
-                    this.metrics.add(rateCounter.getCounter());
+//                    this.metrics.add(rateCounter.getCounter());
                 }
             }
         }

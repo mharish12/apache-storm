@@ -62,7 +62,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.List;
 import java.util.ArrayList;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.scheduler.resource.normalization.ResourceMetrics;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -110,7 +110,7 @@ public class TestBlacklistScheduler {
         config.put(Config.TOPOLOGY_NAME, "testTopology");
 
         INimbus iNimbus = new TestUtilsForBlacklistScheduler.INimbusTest();
-        StormMetricsRegistry metricsRegistry = new StormMetricsRegistry();
+        StormCustomMetricsRegistry metricsRegistry = new StormCustomMetricsRegistry();
         ResourceMetrics resourceMetrics = new ResourceMetrics(metricsRegistry);
         Map<String, SupervisorDetails> supMap = TestUtilsForBlacklistScheduler.genSupervisors(3, 4, 400.0d, 4096.0d);
         Topologies noTopologies = new Topologies();
@@ -214,7 +214,7 @@ public class TestBlacklistScheduler {
         topoMap.put(topo1.getId(), topo1);
 
         Topologies topologies = new Topologies(topoMap);
-        StormMetricsRegistry metricsRegistry = new StormMetricsRegistry();
+        StormCustomMetricsRegistry metricsRegistry = new StormCustomMetricsRegistry();
         ResourceMetrics resourceMetrics = new ResourceMetrics(metricsRegistry);
         Cluster cluster = new Cluster(iNimbus, resourceMetrics, supMap, new HashMap<>(), topologies, config);
         scheduler = new BlacklistScheduler(new DefaultScheduler());
@@ -249,7 +249,7 @@ public class TestBlacklistScheduler {
         topoMap.put(topo1.getId(), topo1);
 
         Topologies topologies = new Topologies(topoMap);
-        StormMetricsRegistry metricsRegistry = new StormMetricsRegistry();
+        StormCustomMetricsRegistry metricsRegistry = new StormCustomMetricsRegistry();
         ResourceMetrics resourceMetrics = new ResourceMetrics(metricsRegistry);
         Cluster cluster = new Cluster(iNimbus, resourceMetrics, supMap, new HashMap<String, SchedulerAssignmentImpl>(), topologies, config);
         scheduler = new BlacklistScheduler(new DefaultScheduler());
@@ -290,7 +290,7 @@ public class TestBlacklistScheduler {
         topoMap.put(topo1.getId(), topo1);
 
         Topologies topologies = new Topologies(topoMap);
-        StormMetricsRegistry metricsRegistry = new StormMetricsRegistry();
+        StormCustomMetricsRegistry metricsRegistry = new StormCustomMetricsRegistry();
         ResourceMetrics resourceMetrics = new ResourceMetrics(metricsRegistry);
         Cluster cluster = new Cluster(iNimbus, resourceMetrics, supMap, new HashMap<String, SchedulerAssignmentImpl>(), topologies, config);
         scheduler = new BlacklistScheduler(new DefaultScheduler());
@@ -332,7 +332,7 @@ public class TestBlacklistScheduler {
         topoMap.put(topo1.getId(), topo1);
 
         Topologies topologies = new Topologies(topoMap);
-        StormMetricsRegistry metricsRegistry = new StormMetricsRegistry();
+        StormCustomMetricsRegistry metricsRegistry = new StormCustomMetricsRegistry();
         ResourceMetrics resourceMetrics = new ResourceMetrics(metricsRegistry);
         Cluster cluster = new Cluster(iNimbus, resourceMetrics, supMap, new HashMap<String, SchedulerAssignmentImpl>(), topologies, config);
         scheduler = new BlacklistScheduler(new DefaultScheduler());
@@ -387,7 +387,7 @@ public class TestBlacklistScheduler {
                 TopologyDetails topo2 = TestUtilsForBlacklistScheduler.getTopology("topo-2", config, 1, 1, 1, 1, currentTime - 8, true);
                 Topologies topologies = new Topologies(topoMap);
 
-                StormMetricsRegistry metricsRegistry = new StormMetricsRegistry();
+                StormCustomMetricsRegistry metricsRegistry = new StormCustomMetricsRegistry();
                 ResourceMetrics resourceMetrics = new ResourceMetrics(metricsRegistry);
                 Cluster cluster = new Cluster(iNimbus, resourceMetrics, supMap, new HashMap<String, SchedulerAssignmentImpl>(), topologies, config);
                 scheduler = new BlacklistScheduler(new ResourceAwareScheduler());
@@ -436,7 +436,7 @@ public class TestBlacklistScheduler {
         topoMap.put(topo2.getId(), topo2);
         Topologies topologies = new Topologies(topoMap);
         scheduler = new BlacklistScheduler(new DefaultScheduler());
-        scheduler.prepare(config, new StormMetricsRegistry());
+        scheduler.prepare(config, new StormCustomMetricsRegistry());
 
         List<Map<Integer, List<Integer>>> faultList = new ArrayList<>();
 
@@ -521,7 +521,7 @@ public class TestBlacklistScheduler {
         topoMap.put(topo1.getId(), topo1);
 
         Topologies topologies = new Topologies(topoMap);
-        StormMetricsRegistry metricsRegistry = new StormMetricsRegistry();
+        StormCustomMetricsRegistry metricsRegistry = new StormCustomMetricsRegistry();
         ResourceMetrics resourceMetrics = new ResourceMetrics(metricsRegistry);
         Cluster cluster = new Cluster(iNimbus, resourceMetrics, supMap, new HashMap<String, SchedulerAssignmentImpl>(), topologies, config);
         BlacklistScheduler bs = new BlacklistScheduler(new DefaultScheduler());
@@ -556,7 +556,7 @@ public class TestBlacklistScheduler {
         config.put(DaemonConfig.BLACKLIST_SCHEDULER_TOLERANCE_COUNT,2);
         config.put(DaemonConfig.BLACKLIST_SCHEDULER_RESUME_TIME,300);
 
-        StormMetricsRegistry metricsRegistry = new StormMetricsRegistry();
+        StormCustomMetricsRegistry metricsRegistry = new StormCustomMetricsRegistry();
         scheduler = new BlacklistScheduler(new DefaultScheduler());
         scheduler.prepare(config, metricsRegistry);
 

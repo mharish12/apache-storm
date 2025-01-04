@@ -21,7 +21,7 @@ package org.apache.storm.utils;
 import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.storm.metrics2.StormMetricRegistry;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.policy.IWaitStrategy;
 import org.apache.storm.shade.org.jctools.queues.MessagePassingQueue;
 import org.apache.storm.shade.org.jctools.queues.MpscArrayQueue;
@@ -46,7 +46,7 @@ public class JCQueue implements Closeable {
 
     public JCQueue(String queueName, String metricNamePrefix, int size, int overflowLimit, int producerBatchSz,
                    IWaitStrategy backPressureWaitStrategy, String topologyId, String componentId, List<Integer> taskIds,
-                   int port, StormMetricRegistry metricRegistry) {
+                   int port, StormCustomMetricsRegistry metricRegistry) {
         this.queueName = queueName;
         this.overflowLimit = overflowLimit;
         this.recvQueue = new MpscArrayQueue<>(size);

@@ -12,7 +12,9 @@
 package org.apache.storm.metricstore.rocksdb;
 
 import com.codahale.metrics.Meter;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.IGauge;
+import org.apache.storm.metric.IMeter;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.metricstore.FilterOptions;
 import org.apache.storm.metricstore.MetricException;
 import org.slf4j.Logger;
@@ -26,12 +28,12 @@ public class MetricsCleaner implements Runnable, AutoCloseable {
     private static final long DEFAULT_SLEEP_MS = 4L * 60L * 60L * 1000L;
     private final RocksDbStore store;
     private final long retentionHours;
-    private final Meter failureMeter;
+    private final IMeter failureMeter;
     private volatile boolean shutdown = false;
     private long sleepMs = DEFAULT_SLEEP_MS;
     private long purgeTimestamp = 0L;
 
-    MetricsCleaner(RocksDbStore store, int retentionHours, int hourlyPeriod, Meter failureMeter, StormMetricsRegistry metricsRegistry) {
+    MetricsCleaner(RocksDbStore store, int retentionHours, int hourlyPeriod, IMeter failureMeter, StormCustomMetricsRegistry metricsRegistry) {
         this.store = store;
         this.retentionHours = retentionHours;
         if (hourlyPeriod > 0) {
@@ -39,7 +41,7 @@ public class MetricsCleaner implements Runnable, AutoCloseable {
         }
         this.failureMeter = failureMeter;
 
-        metricsRegistry.registerGauge("MetricsCleaner:purgeTimestamp", () -> purgeTimestamp);
+        metricsRegistry.registerGauge("MetricsCleaner:purgeTimestamp", (IGauge<Long>) () -> purgeTimestamp);
     }
 
     @Override

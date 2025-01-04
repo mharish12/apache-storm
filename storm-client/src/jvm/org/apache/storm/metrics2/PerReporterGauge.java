@@ -12,9 +12,9 @@
 
 package org.apache.storm.metrics2;
 
-import com.codahale.metrics.Gauge;
+import org.apache.storm.metric.IGauge;
 
-public abstract class PerReporterGauge<T> implements Gauge<T> {
+public abstract class PerReporterGauge<T> implements IGauge<T> {
 
     public abstract T getValueForReporter(Object reporter);
 }

@@ -18,6 +18,12 @@ import com.codahale.metrics.Histogram;
 import com.codahale.metrics.Meter;
 import com.codahale.metrics.MetricSet;
 import com.codahale.metrics.Timer;
+import org.apache.storm.metric.ICounter;
+import org.apache.storm.metric.IGauge;
+import org.apache.storm.metric.IHistogram;
+import org.apache.storm.metric.IMeter;
+import org.apache.storm.metric.IMetricSet;
+import org.apache.storm.metric.ITimer;
 import org.apache.storm.metric.api.CombinedMetric;
 import org.apache.storm.metric.api.ICombiner;
 import org.apache.storm.metric.api.IMetric;
@@ -47,15 +53,15 @@ public interface IMetricsContext {
     @Deprecated
     CombinedMetric registerMetric(String name, ICombiner combiner, int timeBucketSizeInSecs);
     
-    Timer registerTimer(String name);
+    ITimer registerTimer(String name);
 
-    Histogram registerHistogram(String name);
+    IHistogram registerHistogram(String name);
 
-    Meter registerMeter(String name);
+    IMeter registerMeter(String name);
 
-    Counter registerCounter(String name);
+    ICounter registerCounter(String name);
 
-    <T> Gauge<T> registerGauge(String name, Gauge<T> gauge);
+    <T extends Number> IGauge<T> registerGauge(String name, IGauge<T> gauge);
 
-    void registerMetricSet(String prefix, MetricSet set);
+    void registerMetricSet(String prefix, IMetricSet set);
 }

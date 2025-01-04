@@ -12,11 +12,11 @@
 
 package org.apache.storm.metrics2.cgroup;
 
-import com.codahale.metrics.Gauge;
 import java.io.IOException;
 import java.util.Map;
 import org.apache.storm.container.cgroup.SubSystemType;
 import org.apache.storm.container.cgroup.core.MemoryCore;
+import org.apache.storm.metric.IGauge;
 import org.apache.storm.metrics2.WorkerMetricRegistrant;
 import org.apache.storm.task.TopologyContext;
 
@@ -32,7 +32,7 @@ public class CGroupMemoryUsage extends CGroupMetricsBase implements WorkerMetric
     @Override
     public void registerMetrics(TopologyContext topologyContext) {
         if (enabled) {
-            topologyContext.registerGauge("CGroupMemoryUsage", new Gauge<Long>() {
+            topologyContext.registerGauge("CGroupMemoryUsage", new IGauge<Long>() {
                 @Override
                 public Long getValue() {
                     try {

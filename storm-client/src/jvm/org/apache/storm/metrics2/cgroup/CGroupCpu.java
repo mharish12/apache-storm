@@ -19,6 +19,7 @@ import java.io.InputStreamReader;
 import java.util.Map;
 import org.apache.storm.container.cgroup.SubSystemType;
 import org.apache.storm.container.cgroup.core.CpuacctCore;
+import org.apache.storm.metric.IGauge;
 import org.apache.storm.metrics2.WorkerMetricRegistrant;
 import org.apache.storm.task.TopologyContext;
 
@@ -35,7 +36,7 @@ public class CGroupCpu extends CGroupMetricsBase implements WorkerMetricRegistra
     @Override
     public void registerMetrics(TopologyContext topologyContext) {
         if (enabled) {
-            topologyContext.registerGauge("CGroupCpu.user-ms", new Gauge<Long>() {
+            topologyContext.registerGauge("CGroupCpu.user-ms", new IGauge<Long>() {
                 @Override
                 public Long getValue() {
                     CpuacctCore cpu = (CpuacctCore) core;
@@ -50,7 +51,7 @@ public class CGroupCpu extends CGroupMetricsBase implements WorkerMetricRegistra
                 }
             });
 
-            topologyContext.registerGauge("CGroupCpu.sys-ms", new Gauge<Long>() {
+            topologyContext.registerGauge("CGroupCpu.sys-ms", new IGauge<Long>() {
                 @Override
                 public Long getValue() {
                     CpuacctCore cpu = (CpuacctCore) core;

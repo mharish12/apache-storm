@@ -54,7 +54,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 import java.util.concurrent.ExecutionException;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 
 public class SlotTest {
 
@@ -131,7 +131,7 @@ public class SlotTest {
             BlobChangingCallback cb = mock(BlobChangingCallback.class);
             ContainerLauncher containerLauncher = mock(ContainerLauncher.class);
             ISupervisor iSuper = mock(ISupervisor.class);
-            SlotMetrics slotMetrics = new SlotMetrics(new StormMetricsRegistry());
+            SlotMetrics slotMetrics = new SlotMetrics(new StormCustomMetricsRegistry());
             StaticState staticState = new StaticState(localizer, 1000, 1000, 1000, 1000,
                 containerLauncher, "localhost", 8080, iSuper, state, cb, null, null,
                 slotMetrics);
@@ -165,7 +165,7 @@ public class SlotTest {
             when(localizer.requestDownloadTopologyBlobs(newAssignment, port, cb)).thenReturn(blobFuture);
 
             ISupervisor iSuper = mock(ISupervisor.class);
-            SlotMetrics slotMetrics = new SlotMetrics(new StormMetricsRegistry());
+            SlotMetrics slotMetrics = new SlotMetrics(new StormCustomMetricsRegistry());
             StaticState staticState = new StaticState(localizer, 5000, 120000, 1000, 1000,
                                                       containerLauncher, "localhost", port, iSuper, state, cb, null, null, slotMetrics);
             DynamicState dynamicState = new DynamicState(null, null, null, slotMetrics)
@@ -243,7 +243,7 @@ public class SlotTest {
                 .thenReturn(thirdBlobFuture);
 
             ISupervisor iSuper = mock(ISupervisor.class);
-            SlotMetrics slotMetrics = new SlotMetrics(new StormMetricsRegistry());
+            SlotMetrics slotMetrics = new SlotMetrics(new StormCustomMetricsRegistry());
             StaticState staticState = new StaticState(localizer, 5000, 120000, 1000, 1000,
                                                       containerLauncher, "localhost", port, iSuper, state, cb, null, null, slotMetrics);
             DynamicState dynamicState = new DynamicState(null, null, null, slotMetrics)
@@ -311,7 +311,7 @@ public class SlotTest {
 
             ISupervisor iSuper = mock(ISupervisor.class);
             LocalState state = mock(LocalState.class);
-            SlotMetrics slotMetrics = new SlotMetrics(new StormMetricsRegistry());
+            SlotMetrics slotMetrics = new SlotMetrics(new StormCustomMetricsRegistry());
             StaticState staticState = new StaticState(localizer, 5000, 120000, 1000, 1000,
                                                       containerLauncher, "localhost", port, iSuper, state, cb, null, null, slotMetrics);
             DynamicState dynamicState = new DynamicState(assignment, container, assignment, slotMetrics);
@@ -373,7 +373,7 @@ public class SlotTest {
             when(localizer.requestDownloadTopologyBlobs(nAssignment, port, cb)).thenReturn(blobFuture);
 
             ISupervisor iSuper = mock(ISupervisor.class);
-            SlotMetrics slotMetrics = new SlotMetrics(new StormMetricsRegistry());
+            SlotMetrics slotMetrics = new SlotMetrics(new StormCustomMetricsRegistry());
             StaticState staticState = new StaticState(localizer, 5000, 120000, 1000, 1000,
                                                       containerLauncher, "localhost", port, iSuper, state, cb, null, null, slotMetrics);
             DynamicState dynamicState = new DynamicState(cAssignment, cContainer, nAssignment, slotMetrics);
@@ -455,7 +455,7 @@ public class SlotTest {
 
             ISupervisor iSuper = mock(ISupervisor.class);
             LocalState state = mock(LocalState.class);
-            SlotMetrics slotMetrics = new SlotMetrics(new StormMetricsRegistry());
+            SlotMetrics slotMetrics = new SlotMetrics(new StormCustomMetricsRegistry());
             StaticState staticState = new StaticState(localizer, 5000, 120000, 1000, 1000,
                                                       containerLauncher, "localhost", port, iSuper, state, cb, null, null, slotMetrics);
             DynamicState dynamicState = new DynamicState(cAssignment, cContainer, null, slotMetrics);
@@ -518,7 +518,7 @@ public class SlotTest {
             ISupervisor iSuper = mock(ISupervisor.class);
             LocalState state = mock(LocalState.class);
             StaticState staticState = new StaticState(localizer, 5000, 120000, 1000, 1000,
-                                                      containerLauncher, "localhost", port, iSuper, state, cb, null, null, new SlotMetrics(new StormMetricsRegistry()));
+                                                      containerLauncher, "localhost", port, iSuper, state, cb, null, null, new SlotMetrics(new StormCustomMetricsRegistry()));
             Set<TopoProfileAction> profileActions = new HashSet<>();
             ProfileRequest request = new ProfileRequest();
             request.set_action(ProfileAction.JPROFILE_STOP);
@@ -533,7 +533,7 @@ public class SlotTest {
             Set<TopoProfileAction> expectedPending = new HashSet<>();
             expectedPending.add(profile);
 
-            SlotMetrics slotMetrics = new SlotMetrics(new StormMetricsRegistry());
+            SlotMetrics slotMetrics = new SlotMetrics(new StormCustomMetricsRegistry());
             DynamicState dynamicState = new DynamicState(cAssignment, cContainer, cAssignment, slotMetrics)
                 .withProfileActions(profileActions, Collections.emptySet());
 
@@ -600,7 +600,7 @@ public class SlotTest {
             ISupervisor iSuper = mock(ISupervisor.class);
             long heartbeatTimeoutMs = 5000;
             StaticState staticState = new StaticState(localizer, heartbeatTimeoutMs, 120_000, 1000, 1000,
-                                                      containerLauncher, "localhost", port, iSuper, state, cb, null, null, new SlotMetrics(new StormMetricsRegistry()));
+                                                      containerLauncher, "localhost", port, iSuper, state, cb, null, null, new SlotMetrics(new StormCustomMetricsRegistry()));
 
             Set<Slot.BlobChanging> changing = new HashSet<>();
 
@@ -615,7 +615,7 @@ public class SlotTest {
             GoodToGo.GoodToGoLatch otherJarLatch = mock(GoodToGo.GoodToGoLatch.class);
             changing.add(new Slot.BlobChanging(otherAssignment, otherJar, otherJarLatch));
 
-            SlotMetrics slotMetrics = new SlotMetrics(new StormMetricsRegistry());
+            SlotMetrics slotMetrics = new SlotMetrics(new StormCustomMetricsRegistry());
             DynamicState dynamicState = new DynamicState(cAssignment, cContainer, cAssignment, slotMetrics).withChangingBlobs(changing);
 
             DynamicState nextState = Slot.stateMachineStep(dynamicState, staticState);

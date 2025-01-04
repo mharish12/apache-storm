@@ -14,15 +14,14 @@
 
 package org.apache.storm.daemon.supervisor;
 
-import com.codahale.metrics.Timer;
-
 import org.apache.storm.generated.LocalAssignment;
+import org.apache.storm.metric.ITimer;
 import org.apache.storm.metric.timed.TimerDecorated;
 
 public class TimerDecoratedAssignment extends LocalAssignment implements TimerDecorated {
-    private final Timer.Context timing;
+    private final ITimer.IContext timing;
 
-    public TimerDecoratedAssignment(LocalAssignment other, Timer timer) {
+    public TimerDecoratedAssignment(LocalAssignment other, ITimer timer) {
         super(other);
         timing = timer.time();
     }

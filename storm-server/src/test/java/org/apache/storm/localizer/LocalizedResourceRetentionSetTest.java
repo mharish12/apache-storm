@@ -38,7 +38,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 
 public class LocalizedResourceRetentionSetTest {
 
@@ -51,7 +51,7 @@ public class LocalizedResourceRetentionSetTest {
         IAdvancedFSOps ops = mock(IAdvancedFSOps.class);
         LocalizedResourceRetentionSet lrretset = new LocalizedResourceRetentionSet(10);
         ConcurrentMap<String, LocalizedResource> lrset = new ConcurrentHashMap<>();
-        StormMetricsRegistry metricsRegistry = new StormMetricsRegistry();
+        StormCustomMetricsRegistry metricsRegistry = new StormCustomMetricsRegistry();
         LocalizedResource localresource1 = new LocalizedResource("key1", Paths.get("testfile1"), false, ops, conf, user, metricsRegistry);
         localresource1.addReference(pna1, null);
         LocalizedResource localresource2 = new LocalizedResource("key2", Paths.get("testfile2"), false, ops, conf, user, metricsRegistry);
@@ -112,7 +112,7 @@ public class LocalizedResourceRetentionSetTest {
         assertFalse(pnaOrig.isEquivalentTo(pnaDifferent));
 
         LocalizedResource localresource = new LocalizedResource("key1", Paths.get("testfile1"),
-                false, mock(IAdvancedFSOps.class), new HashMap<>(), "user", new StormMetricsRegistry());
+                false, mock(IAdvancedFSOps.class), new HashMap<>(), "user", new StormCustomMetricsRegistry());
         localresource.addReference(pnaOrig, null);
 
         assertFalse(localresource.removeReference(pnaDifferent));
@@ -130,7 +130,7 @@ public class LocalizedResourceRetentionSetTest {
         LocalizedResourceRetentionSet lrretset = spy(new LocalizedResourceRetentionSet(10));
         ConcurrentMap<String, LocalizedResource> lrFiles = new ConcurrentHashMap<>();
         ConcurrentMap<String, LocalizedResource> lrArchives = new ConcurrentHashMap<>();
-        StormMetricsRegistry metricsRegistry = new StormMetricsRegistry();
+        StormCustomMetricsRegistry metricsRegistry = new StormCustomMetricsRegistry();
         // no reference to key1
         LocalizedResource localresource1 = new LocalizedResource("key1", Paths.get("./target/TESTING/testfile1"), false, ops, conf,
                                                                  user, metricsRegistry);

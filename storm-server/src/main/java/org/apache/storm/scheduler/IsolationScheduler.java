@@ -25,7 +25,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import org.apache.commons.lang.Validate;
 import org.apache.storm.DaemonConfig;
-import org.apache.storm.metric.StormMetricsRegistry;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +46,7 @@ public class IsolationScheduler implements IScheduler {
     private Map<String, Number> isoMachines;
 
     @Override
-    public void prepare(Map<String, Object> conf, StormMetricsRegistry metricsRegistry) {
+    public void prepare(Map<String, Object> conf, StormCustomMetricsRegistry metricsRegistry) {
         this.isoMachines = (Map<String, Number>) conf.get(DaemonConfig.ISOLATION_SCHEDULER_MACHINES);
         Validate.notEmpty(isoMachines);
     }

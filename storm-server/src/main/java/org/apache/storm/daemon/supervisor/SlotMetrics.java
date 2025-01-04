@@ -16,24 +16,25 @@
 
 package org.apache.storm.daemon.supervisor;
 
-import com.codahale.metrics.Meter;
-import com.codahale.metrics.Timer;
 import java.util.Collections;
 import java.util.Map;
-import org.apache.storm.metric.StormMetricsRegistry;
+
+import org.apache.storm.metric.IMeter;
+import org.apache.storm.metric.ITimer;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.utils.EnumUtil;
 
 class SlotMetrics {
 
-    final Meter numWorkersLaunched;
-    final Meter numWorkerStartTimedOut;
-    final Map<Slot.KillReason, Meter> numWorkersKilledFor;
-    final Timer workerLaunchDuration;
-    final Map<Slot.MachineState, Meter> transitionIntoState;
+    final IMeter numWorkersLaunched;
+    final IMeter numWorkerStartTimedOut;
+    final Map<Slot.KillReason, IMeter> numWorkersKilledFor;
+    final ITimer workerLaunchDuration;
+    final Map<Slot.MachineState, IMeter> transitionIntoState;
     //This also tracks how many times worker transitioning out of a state
-    final Map<Slot.MachineState, Timer> timeSpentInState;
+    final Map<Slot.MachineState, ITimer> timeSpentInState;
 
-    SlotMetrics(StormMetricsRegistry metricsRegistry) {
+    SlotMetrics(StormCustomMetricsRegistry metricsRegistry) {
         numWorkersLaunched = metricsRegistry.registerMeter("supervisor:num-workers-launched");
         numWorkerStartTimedOut = metricsRegistry.registerMeter("supervisor:num-worker-start-timed-out");
         numWorkersKilledFor = Collections.unmodifiableMap(EnumUtil.toEnumMap(Slot.KillReason.class,

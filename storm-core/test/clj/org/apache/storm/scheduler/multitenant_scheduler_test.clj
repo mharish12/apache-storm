@@ -21,7 +21,7 @@
   (:import [org.apache.storm.scheduler Cluster SupervisorDetails WorkerSlot ExecutorDetails
             SchedulerAssignmentImpl Topologies TopologyDetails])
   (:import [org.apache.storm.scheduler.resource.normalization ResourceMetrics])
-  (:import [org.apache.storm.metric StormMetricsRegistry])
+  (:import [org.apache.storm.metric StormCustomMetricsRegistry])
   (:import [org.apache.storm.scheduler.multitenant Node NodePool FreePool DefaultPool
             IsolatedPool MultitenantScheduler]))
 
@@ -46,7 +46,7 @@
   (let [supers (gen-supervisors 5)
        topology1 (TopologyDetails. "topology1" {} nil 1, "user")
        topology2 (TopologyDetails. "topology2" {} nil 1, "user")
-       cluster (Cluster. (Nimbus$StandaloneINimbus.) (ResourceMetrics. (StormMetricsRegistry.)) supers {} (Topologies. {"topology1" topology1 "topology2" topology2}) {})
+       cluster (Cluster. (Nimbus$StandaloneINimbus.) (ResourceMetrics. (StormCustomMetricsRegistry.)) supers {} (Topologies. {"topology1" topology1 "topology2" topology2}) {})
        node-map (Node/getAllNodesFrom cluster)]
     (is (= 5 (.size node-map)))
     (let [node (.get node-map "super0")]
@@ -92,7 +92,7 @@
 (deftest test-free-pool
   (let [supers (gen-supervisors 5)
        topology1 (TopologyDetails. "topology1" {} nil 1, "user")
-       cluster (Cluster. (Nimbus$StandaloneINimbus.) (ResourceMetrics. (StormMetricsRegistry.)) supers {} (Topologies. {"topology1" topology1}) {})
+       cluster (Cluster. (Nimbus$StandaloneINimbus.) (ResourceMetrics. (StormCustomMetricsRegistry.)) supers {} (Topologies. {"topology1" topology1}) {})
        node-map (Node/getAllNodesFrom cluster)
        free-pool (FreePool. )]
     ;; assign one node so it is not in the pool
@@ -143,7 +143,7 @@
                     executor2 "bolt1"
                     executor3 "bolt2"} "user")
        topologies (Topologies. {"topology1" topology1})
-       cluster (Cluster. (Nimbus$StandaloneINimbus.) (ResourceMetrics. (StormMetricsRegistry.)) supers {} topologies {})
+       cluster (Cluster. (Nimbus$StandaloneINimbus.) (ResourceMetrics. (StormCustomMetricsRegistry.)) supers {} topologies {})
        node-map (Node/getAllNodesFrom cluster)]
     ;; assign one node so it is not in the pool
     (.assign (.get node-map "super0") "topology1" (list executor1) cluster)
@@ -181,7 +181,7 @@
                     executor2 "bolt1"
                     executor3 "bolt2"} "user")
        topologies (Topologies. {"topology1" topology1})
-       cluster (Cluster. (Nimbus$StandaloneINimbus.) (ResourceMetrics. (StormMetricsRegistry.)) supers {} topologies {})
+       cluster (Cluster. (Nimbus$StandaloneINimbus.) (ResourceMetrics. (StormCustomMetricsRegistry.)) supers {} topologies {})
        node-map (Node/getAllNodesFrom cluster)]
     ;; assign one node so it is not in the pool
     (.assign (.get node-map "super0") "topology1" (list executor1) cluster)
@@ -222,7 +222,7 @@
                     executor3 "bolt1"
                     executor4 "bolt1"
                     executor5 "bolt2"} "user")
-       cluster (Cluster. (Nimbus$StandaloneINimbus.) (ResourceMetrics. (StormMetricsRegistry.)) supers {} (Topologies. {"topology1" topology1}) {})
+       cluster (Cluster. (Nimbus$StandaloneINimbus.) (ResourceMetrics. (StormCustomMetricsRegistry.)) supers {} (Topologies. {"topology1" topology1}) {})
        node-map (Node/getAllNodesFrom cluster)]
     ;; assign one node so it is not in the pool
     (.assign (.get node-map "super0") "topology1" (list executor1) cluster)
@@ -263,7 +263,7 @@
                     executor4 "bolt3"
                     executor5 "bolt4"} "user")
        topologies (Topologies. {"topology1" topology1})
-       single-cluster (Cluster. (Nimbus$StandaloneINimbus.) (ResourceMetrics. (StormMetricsRegistry.)) single-super {} topologies {})]
+       single-cluster (Cluster. (Nimbus$StandaloneINimbus.) (ResourceMetrics. (StormCustomMetricsRegistry.)) single-super {} topologies {})]
     (let [node-map (Node/getAllNodesFrom single-cluster)
          free-pool (FreePool. )
          default-pool (DefaultPool. )]
@@ -276,7 +276,7 @@
       (is (= "Running with fewer slots than requested (4/5)" (.get (.getStatusMap single-cluster) "topology1")))
     )
 
-    (let [cluster (Cluster. (Nimbus$StandaloneINimbus.) (ResourceMetrics. (StormMetricsRegistry.)) supers (.getAssignments single-cluster) topologies {})
+    (let [cluster (Cluster. (Nimbus$StandaloneINimbus.) (ResourceMetrics. (StormCustomMetricsRegistry.)) supers (.getAssignments single-cluster) topologies {})
          node-map (Node/getAllNodesFrom cluster)
          free-pool (FreePool. )
          default-pool (DefaultPool. )]
@@ -318,7 +318,7 @@
                      executor13 "bolt13"
                      executor14 "bolt14"} "user")
        topologies (Topologies. {"topology1" topology1 "topology2" topology2})
-       cluster (Cluster. (Nimbus$StandaloneINimbus.) (ResourceMetrics. (StormMetricsRegistry.)) supers {} topologies {})
+       cluster (Cluster. (Nimbus$StandaloneINimbus.) (ResourceMetrics. (StormCustomMetricsRegistry.)) supers {} topologies {})
        node-map (Node/getAllNodesFrom cluster)]
     ;; assign one node so it is not in the pool
     (.assign (.get node-map "super0") "topology1" (list executor1) cluster)
@@ -392,7 +392,7 @@
                     executor3 "bolt2"
                     executor4 "bolt4"} "user")
        topologies (Topologies. {"topology1" topology1})
-       cluster (Cluster. (Nimbus$StandaloneINimbus.) (ResourceMetrics. (StormMetricsRegistry.)) supers {} topologies {})
+       cluster (Cluster. (Nimbus$StandaloneINimbus.) (ResourceMetrics. (StormCustomMetricsRegistry.)) supers {} topologies {})
        node-map (Node/getAllNodesFrom cluster)]
     ;; assign one node so it is not in the pool
     (.assign (.get node-map "super0") "topology1" (list executor1) cluster)
@@ -437,7 +437,7 @@
                     executor3 "bolt2"
                     executor4 "bolt4"} "user")
        topologies (Topologies. {"topology1" topology1})
-       cluster (Cluster. (Nimbus$StandaloneINimbus.) (ResourceMetrics. (StormMetricsRegistry.)) supers {} topologies {})
+       cluster (Cluster. (Nimbus$StandaloneINimbus.) (ResourceMetrics. (StormCustomMetricsRegistry.)) supers {} topologies {})
        node-map (Node/getAllNodesFrom cluster)]
     ;; assign one node so it is not in the pool
     (.assign (.get node-map "super0") "topology1" (list executor1) cluster)
@@ -494,7 +494,7 @@
                      executor13 "bolt13"
                      executor14 "bolt14"} "user")
        topologies (Topologies. {"topology1" topology1 "topology2" topology2})
-       cluster (Cluster. (Nimbus$StandaloneINimbus.) (ResourceMetrics. (StormMetricsRegistry.)) supers {} topologies {})
+       cluster (Cluster. (Nimbus$StandaloneINimbus.) (ResourceMetrics. (StormCustomMetricsRegistry.)) supers {} topologies {})
        node-map (Node/getAllNodesFrom cluster)]
     ;; assign one node so it is not in the pool
     (.assign (.get node-map "super0") "topology1" (list executor1) cluster)
@@ -600,7 +600,7 @@
                      executor13 "bolt13"
                      executor14 "bolt14"} "user")
        topologies (Topologies. {"topology1" topology1 "topology2" topology2})
-       cluster (Cluster. (Nimbus$StandaloneINimbus.) (ResourceMetrics. (StormMetricsRegistry.)) supers {} topologies {})
+       cluster (Cluster. (Nimbus$StandaloneINimbus.) (ResourceMetrics. (StormCustomMetricsRegistry.)) supers {} topologies {})
        node-map (Node/getAllNodesFrom cluster)]
     ;; assign one node so it is not in the pool
     (.assign (.get node-map "super0") "topology1" (list executor1) cluster)
@@ -668,13 +668,13 @@
                                 ["bolt23" 20 30]
                                 ["bolt24" 30 40]]) "userB")
        topologies (Topologies. (to-top-map [topology1 topology2 topology3]))
-       cluster (Cluster. (Nimbus$StandaloneINimbus.) (ResourceMetrics. (StormMetricsRegistry.)) supers {} topologies {})
+       cluster (Cluster. (Nimbus$StandaloneINimbus.) (ResourceMetrics. (StormCustomMetricsRegistry.)) supers {} topologies {})
        node-map (Node/getAllNodesFrom cluster)
        conf {MULTITENANT-SCHEDULER-USER-POOLS {"userA" 5 "userB" 5}}
        scheduler (MultitenantScheduler.)]
     (.assign (.get node-map "super0") "topology1" (list (ed 1)) cluster)
     (.assign (.get node-map "super1") "topology2" (list (ed 5)) cluster)
-    (.prepare scheduler conf (StormMetricsRegistry.))
+    (.prepare scheduler conf (StormCustomMetricsRegistry.))
     (try
     (.schedule scheduler topologies cluster)
     (let [assignment (.getAssignmentById cluster "topology1")
@@ -708,12 +708,12 @@
                                                                                   (ExecutorDetails. 15 20) (WorkerSlot. "super0" 1)} nil nil)
                                }
         topologies (Topologies. (to-top-map [topology1]))
-        cluster (Cluster. (Nimbus$StandaloneINimbus.) (ResourceMetrics. (StormMetricsRegistry.)) supers existing-assignments topologies {})
+        cluster (Cluster. (Nimbus$StandaloneINimbus.) (ResourceMetrics. (StormCustomMetricsRegistry.)) supers existing-assignments topologies {})
         node-map (Node/getAllNodesFrom cluster)
         conf {MULTITENANT-SCHEDULER-USER-POOLS {"userA" 5 "userB" 5}}
         scheduler (MultitenantScheduler.)]
     (.assign (.get node-map "super0") "topology1" (list (ed 1)) cluster)
-    (.prepare scheduler conf (StormMetricsRegistry.))
+    (.prepare scheduler conf (StormCustomMetricsRegistry.))
     (try
     (.schedule scheduler topologies cluster)
     (let [assignment (.getAssignmentById cluster "topology1")
@@ -752,10 +752,10 @@
           existing-assignments {"topology2" (SchedulerAssignmentImpl. "topology2" {(ExecutorDetails. 1 1) worker-slot-with-multiple-assignments} nil nil)
                                 "topology3" (SchedulerAssignmentImpl. "topology3" {(ExecutorDetails. 2 2) worker-slot-with-multiple-assignments} nil nil)}
           topologies (Topologies. (to-top-map [topology1 topology2 topology3]))
-          cluster (Cluster. (Nimbus$StandaloneINimbus.) (ResourceMetrics. (StormMetricsRegistry.)) supers existing-assignments topologies {})
+          cluster (Cluster. (Nimbus$StandaloneINimbus.) (ResourceMetrics. (StormCustomMetricsRegistry.)) supers existing-assignments topologies {})
           conf {MULTITENANT-SCHEDULER-USER-POOLS {"userA" 2 "userB" 1}}
           scheduler (MultitenantScheduler.)]
-      (.prepare scheduler conf (StormMetricsRegistry.))
+      (.prepare scheduler conf (StormCustomMetricsRegistry.))
       (try
       (.schedule scheduler topologies cluster)
       (let [assignment (.getAssignmentById cluster "topology1")
@@ -781,10 +781,10 @@
                                 (SchedulerAssignmentImpl. "topology1"
                                   {(ExecutorDetails. 0 0) (WorkerSlot. "super0" port-not-reported-by-supervisor)} nil nil)}
           topologies (Topologies. (to-top-map [topology1]))
-          cluster (Cluster. (Nimbus$StandaloneINimbus.) (ResourceMetrics. (StormMetricsRegistry.)) supers existing-assignments topologies {})
+          cluster (Cluster. (Nimbus$StandaloneINimbus.) (ResourceMetrics. (StormCustomMetricsRegistry.)) supers existing-assignments topologies {})
           conf {}
           scheduler (MultitenantScheduler.)]
-      (.prepare scheduler conf (StormMetricsRegistry.))
+      (.prepare scheduler conf (StormCustomMetricsRegistry.))
       (try
       (.schedule scheduler topologies cluster)
       (let [assignment (.getAssignmentById cluster "topology1")
@@ -821,10 +821,10 @@
                                   {(ExecutorDetails. 4 4) worker-slot-with-multiple-assignments
                                    (ExecutorDetails. 5 5) (WorkerSlot. dead-supervisor port-not-reported-by-supervisor)} nil nil)}
           topologies (Topologies. (to-top-map [topology1 topology2]))
-          cluster (Cluster. (Nimbus$StandaloneINimbus.) (ResourceMetrics. (StormMetricsRegistry.)) supers existing-assignments topologies {})
+          cluster (Cluster. (Nimbus$StandaloneINimbus.) (ResourceMetrics. (StormCustomMetricsRegistry.)) supers existing-assignments topologies {})
           conf {}
           scheduler (MultitenantScheduler.)]
-      (.prepare scheduler conf (StormMetricsRegistry.))
+      (.prepare scheduler conf (StormCustomMetricsRegistry.))
       (try
       (.schedule scheduler topologies cluster)
       (let [assignment (.getAssignmentById cluster "topology1")
@@ -861,10 +861,10 @@
                                  (ExecutorDetails. 4 4) (WorkerSlot. "super2" 1)
                                  (ExecutorDetails. 5 5) (WorkerSlot. "super2" 2)} nil nil)}
         topologies (Topologies. (to-top-map [topology1]))
-        cluster (Cluster. (Nimbus$StandaloneINimbus.) (ResourceMetrics. (StormMetricsRegistry.)) supers existing-assignments topologies {})
+        cluster (Cluster. (Nimbus$StandaloneINimbus.) (ResourceMetrics. (StormCustomMetricsRegistry.)) supers existing-assignments topologies {})
         conf {MULTITENANT-SCHEDULER-USER-POOLS {"userA" 2}}
         scheduler (MultitenantScheduler.)]
-    (.prepare scheduler conf (StormMetricsRegistry.))
+    (.prepare scheduler conf (StormCustomMetricsRegistry.))
     (try
     (.schedule scheduler topologies cluster)
     (finally (.cleanup scheduler)))
