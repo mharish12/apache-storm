@@ -18,35 +18,48 @@
 
 package org.apache.storm.metric;
 
-import com.codahale.metrics.MetricRegistry;
-import io.micrometer.core.instrument.Clock;
-import io.micrometer.core.instrument.util.HierarchicalNameMapper;
-import org.apache.storm.metric.micrometer.persister.DropwizardPersister;
+import com.codahale.metrics.Gauge;
+import io.micrometer.core.instrument.binder.jvm.JvmGcMetrics;
+import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics;
+import io.micrometer.core.instrument.binder.jvm.JvmThreadMetrics;
+import org.apache.storm.metric.collector.MetricsCollector;
+import org.apache.storm.metric.micrometer.RateCounter;
+import org.apache.storm.metric.micrometer.persister.PrometheusPersister;
 import org.apache.storm.metric.micrometer.persister.StormMetricsPersister;
-import org.apache.storm.metric.micrometer.persister.config.DropwizardStormConfig;
-import org.apache.storm.metric.micrometer.reporter.Reporter;
-import org.apache.storm.metric.micrometer.util.MetricsUtils;
+import org.apache.storm.metric.reporter.Reporter;
+import org.apache.storm.metric.micrometer.utils.MetricsUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @SuppressWarnings("SpellCheckingInspection")
 public class StormCustomMetricsRegistry {
+
     private static final Logger LOG = LoggerFactory.getLogger(StormCustomMetricsRegistry.class);
+
+    private static final int RATE_COUNTER_UPDATE_INTERVAL_SECONDS = 2;
+
     private final StormMetricsPersister stormMetricsPersister;
+    private List<MetricsCollector> metricsCollectors;
     private List<Reporter> reporters;
     private boolean reportersStarted = false;
+    private boolean collectorsStarted = false;
 
     public StormCustomMetricsRegistry() {
-        this(new DropwizardPersister(new DropwizardStormConfig(), new MetricRegistry(), HierarchicalNameMapper.DEFAULT, Clock.SYSTEM, 0d), Collections.emptyList());
+        this(new PrometheusPersister(), Collections.emptyList(), Collections.emptyList());
     }
 
-    public StormCustomMetricsRegistry(StormMetricsPersister stormMetricsPersister, List<Reporter> reporters) {
+    public StormCustomMetricsRegistry(StormMetricsPersister stormMetricsPersister, List<Reporter> reporters, List<MetricsCollector> metricsCollectors) {
         this.stormMetricsPersister = stormMetricsPersister;
         this.reporters = reporters;
+        this.metricsCollectors = metricsCollectors;
+        new JvmGcMetrics().bindTo(stormMetricsPersister.getRegistry());
+        new JvmThreadMetrics().bindTo(stormMetricsPersister.getRegistry());
+        new JvmMemoryMetrics().bindTo(stormMetricsPersister.getRegistry());
     }
 
     public IMeter registerMeter(String name) {
@@ -57,6 +70,11 @@ public class StormCustomMetricsRegistry {
         return stormMetricsPersister.meter(name, tags);
     }
 
+    public IMeter registerMeter(String name, IMeter meter) {
+//        return stormMetricsPersister.meter(name, () -> meter);
+        return null;
+    }
+
     public ICounter registerCounter(String name) {
         return stormMetricsPersister.counter(name);
     }
@@ -65,9 +83,12 @@ public class StormCustomMetricsRegistry {
         return stormMetricsPersister.counter(name, tags);
     }
 
-    public IMeter registerMeter(String name, IMeter meter) {
-//        return stormMetricsPersister.meter(name, () -> meter);
-        return null;
+    public RateCounter rateCounter(String name) {
+        return stormMetricsPersister.rateCounter(name);
+    }
+
+    public RateCounter rateCounter(String name, String... tags) {
+        return stormMetricsPersister.rateCounter(name, tags);
     }
 
     public ITimer registerTimer(String name) {
@@ -96,13 +117,20 @@ public class StormCustomMetricsRegistry {
         return null;
     }
 
+    public <T extends Number> IGauge<T> gauge(String name, IGauge<T> gauge, String... tags) {
+        stormMetricsPersister.gauge(name, gauge.getValue(), gauge, tags);
+        return gauge;
+    }
+
+    public <T extends Number> Gauge<T> gauge(String name, Gauge<T> gauge, String componentId, Integer taskId) {
+        return gauge;
+    }
+
     public void registerAll(IMetricSet metrics) {
         stormMetricsPersister.registerAll(metrics.getMetrics());
     }
 
     public void removeAll(IMetricSet metrics) {
-        //Could be replaced when metrics support remove all functions
-        // https://github.com/dropwizard/metrics/pull/1280
         Map<String, IStormMetric> nameToMetric = metrics.getMetrics();
 //        stormMetricsPersister.removeMatching((name, metric) -> nameToMetric.containsKey(name));
     }
@@ -112,7 +140,7 @@ public class StormCustomMetricsRegistry {
         return null;
     }
 
-    public void startMetricsReporters(Map<String, Object> daemonConf) {
+    private void startMetricsReporters(Map<String, Object> daemonConf) {
         reporters = MetricsUtils.getReporters(daemonConf);
         for (Reporter reporter : reporters) {
             reporter.prepare(stormMetricsPersister, daemonConf);
@@ -122,7 +150,22 @@ public class StormCustomMetricsRegistry {
         reportersStarted = true;
     }
 
-    public void stopMetricsReporters() {
+    private void startMetricsCollectors(Map<String, Object> daemonConf) {
+        metricsCollectors = MetricsUtils.getCollectors(daemonConf);
+        for (MetricsCollector metricsCollector : metricsCollectors) {
+            metricsCollector.prepare(stormMetricsPersister, daemonConf);
+            metricsCollector.start();
+            LOG.info("Started collectors...");
+        }
+        collectorsStarted = true;
+    }
+
+    public void startMetricsComponents(Map<String, Object> daemonConf) {
+        startMetricsReporters(daemonConf);
+        startMetricsCollectors(daemonConf);
+    }
+
+    private void stopMetricsReporters() {
         if (reportersStarted) {
             for (Reporter reporter : reporters) {
                 reporter.stop();
@@ -130,4 +173,79 @@ public class StormCustomMetricsRegistry {
             reportersStarted = false;
         }
     }
+
+    private void stopMetricsCollectors() {
+        if (collectorsStarted) {
+            for (MetricsCollector metricsCollector : metricsCollectors) {
+                metricsCollector.stop();
+            }
+            collectorsStarted = false;
+        }
+    }
+
+    public void stopMetricsComponents() {
+        stopMetricsReporters();
+        stopMetricsCollectors();
+    }
+
+    public void deregister(Set<IStormMetric> metrics) {
+
+    }
+
+    public int getRateCounterUpdateIntervalSeconds() {
+        return RATE_COUNTER_UPDATE_INTERVAL_SECONDS;
+    }
+
+    public Map<String, IGauge> getTaskGauges(int taskId) {
+        return getTaskGauges(String.valueOf(taskId));
+    }
+
+    public Map<String, IGauge> getTaskGauges(String taskId) {
+        return null;
+    }
+
+    public Map<String, ICounter> getTaskCounters(int taskId) {
+        return getTaskCounters(String.valueOf(taskId));
+    }
+
+    public Map<String, ICounter> getTaskCounters(String taskId) {
+        return null;
+    }
+
+    public Map<String, IHistogram> getTaskHistograms(int taskId) {
+        return getTaskHistograms(String.valueOf(taskId));
+    }
+
+    public Map<String, IHistogram> getTaskHistograms(String taskId) {
+        return null;
+    }
+    public Map<String, IMeter> getTaskMeters(int taskId) {
+        return getTaskMeters(String.valueOf(taskId));
+    }
+
+    public Map<String, IMeter> getTaskMeters(String taskId) {
+        return null;
+    }
+    public Map<String, ITimer> getTaskTimers(int taskId) {
+        return getTaskTimers(String.valueOf(taskId));
+    }
+
+    public Map<String, ITimer> getTaskTimers(String taskId) {
+        return null;
+    }
+
+    public void stop() {
+        for (Reporter sr : reporters) {
+            sr.stop();
+        }
+    }
+
+    protected StormMetricsPersister getStormMetricsPersister() {
+        return stormMetricsPersister;
+    }
+
+    public String getMetricsAsText() {
+        return stormMetricsPersister.getMetricsAsText();
+    }
+
 }

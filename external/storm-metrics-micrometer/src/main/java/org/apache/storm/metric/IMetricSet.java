@@ -22,6 +22,14 @@ package org.apache.storm.metric;
 
 import java.util.Map;
 
+/**
+ * A wrapper class for map of metrics.
+ */
 public interface IMetricSet extends IStormMetric {
+
+    /**
+     *
+     * @return {@code Map<String, IStormMetric>}
+     */
     Map<String, IStormMetric> getMetrics();
 }

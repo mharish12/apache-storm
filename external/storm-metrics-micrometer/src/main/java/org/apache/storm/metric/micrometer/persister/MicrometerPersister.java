@@ -19,25 +19,34 @@
 package org.apache.storm.metric.micrometer.persister;
 
 import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.DistributionSummary;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Metrics;
+import io.micrometer.core.instrument.Tags;
 import io.micrometer.core.instrument.Timer;
 import io.micrometer.core.instrument.composite.CompositeMeterRegistry;
+import io.micrometer.prometheusmetrics.PrometheusConfig;
+import io.micrometer.prometheusmetrics.PrometheusMeterRegistry;
 import org.apache.storm.metric.ICounter;
+import org.apache.storm.metric.IGauge;
 import org.apache.storm.metric.IHistogram;
 import org.apache.storm.metric.IMeter;
 import org.apache.storm.metric.IStormMetric;
 import org.apache.storm.metric.ITimer;
+import org.apache.storm.metric.micrometer.RateCounter;
 import org.apache.storm.metric.micrometer.StormHistogram;
 import org.apache.storm.metric.micrometer.StormMeter;
-import org.apache.storm.metric.micrometer.StormTimer;
+import org.apache.storm.metric.micrometer.StormTimerMetric;
 
 import java.util.Map;
 
 @SuppressWarnings("SpellCheckingInspection")
 public class MicrometerPersister implements StormMetricsPersister {
 
-    private final MeterRegistry registry = new CompositeMeterRegistry();
+    private final MeterRegistry registry;
+
+    public MicrometerPersister() {
+        registry = Metrics.globalRegistry;
+    }
 
     @Override
     public IMeter meter(String name) {
@@ -61,9 +70,19 @@ public class MicrometerPersister implements StormMetricsPersister {
     }
 
     @Override
+    public RateCounter rateCounter(String name) {
+        return null;
+    }
+
+    @Override
+    public RateCounter rateCounter(String name, String... tags) {
+        return null;
+    }
+
+    @Override
     public ITimer timer(String name) {
         Timer timer = registry.timer(name);
-        return new StormTimer(timer);
+        return new StormTimerMetric(timer);
     }
 
     @Override
@@ -87,6 +106,11 @@ public class MicrometerPersister implements StormMetricsPersister {
     }
 
     @Override
+    public <T extends Number> T gauge(String name, T number, IGauge<T> gauge, String... tags) {
+        return registry.gauge(name, Tags.of(tags), number, value -> gauge.getValue().doubleValue());
+    }
+
+    @Override
     public void registerAll(Map<String, IStormMetric> metrics) {
         //TODO: implement regiterAll
     }
@@ -96,5 +120,10 @@ public class MicrometerPersister implements StormMetricsPersister {
         return registry;
     }
 
+    @Override
+    public String getMetricsAsText() {
+        PrometheusMeterRegistry prometheusMeterRegistry = (PrometheusMeterRegistry) registry;
+        return prometheusMeterRegistry.scrape();
+    }
 }
 

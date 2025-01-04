@@ -18,6 +18,7 @@
 
 package org.apache.storm.metric.micrometer;
 
+import io.micrometer.core.instrument.Metrics;
 import io.micrometer.core.instrument.Timer;
 import org.apache.storm.metric.ITimer;
 
@@ -26,11 +27,15 @@ import java.time.temporal.ChronoField;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
-public class StormTimer implements ITimer {
+public class StormTimerMetric implements ITimer {
     private final Timer timer;
     private final Clock clock;
 
-    public StormTimer(Timer timer) {
+    public StormTimerMetric(String name) {
+        this(Metrics.timer(name));
+    }
+
+    public StormTimerMetric(Timer timer) {
         this.timer = timer;
         this.clock = Clock.systemUTC();
     }
@@ -53,7 +58,6 @@ public class StormTimer implements ITimer {
     @Override
     public <T> T time(Callable<T> event) throws Exception {
         long startTime = this.clock.millis();
-
         T result;
         try {
             result = event.call();
@@ -82,6 +86,7 @@ public class StormTimer implements ITimer {
             return elapsed;
         }
 
+        @Override
         public void close() {
             this.stop();
         }

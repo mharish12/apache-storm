@@ -18,7 +18,14 @@
 
 package org.apache.storm.metric;
 
-
+/**
+ * A gauge tracks a value that may go up or down. The value that is published
+ * for gauges is an instantaneous sample of the gauge at publishing time.
+ * @param <T> genetic type.
+ */
 public interface IGauge<T> extends IStormMetric {
+    /**
+     * @return get the Gauge Value.
+     */
     T getValue();
 }

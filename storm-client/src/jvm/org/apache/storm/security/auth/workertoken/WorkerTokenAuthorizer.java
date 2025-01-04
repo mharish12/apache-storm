@@ -12,7 +12,6 @@
 
 package org.apache.storm.security.auth.workertoken;
 
-import com.codahale.metrics.Meter;
 import java.io.Closeable;
 import java.util.Base64;
 import java.util.Map;
@@ -26,6 +25,8 @@ import org.apache.storm.cluster.IStormClusterState;
 import org.apache.storm.generated.PrivateWorkerKey;
 import org.apache.storm.generated.WorkerTokenInfo;
 import org.apache.storm.generated.WorkerTokenServiceType;
+import org.apache.storm.metric.IMeter;
+import org.apache.storm.metric.micrometer.StormMeter;
 import org.apache.storm.security.auth.ClientAuthUtils;
 import org.apache.storm.security.auth.ThriftConnectionType;
 import org.apache.storm.security.auth.sasl.PasswordProvider;
@@ -45,7 +46,7 @@ public class WorkerTokenAuthorizer implements PasswordProvider, Closeable {
     private static final Logger LOG = LoggerFactory.getLogger(WorkerTokenAuthorizer.class);
     private final LoadingCache<WorkerTokenInfo, PrivateWorkerKey> keyCache;
     private final IStormClusterState state;
-    private static final Meter passwordFailures = new Meter();
+    private static final IMeter passwordFailures = new StormMeter("password.failures");
 
     /**
      * Constructor.
@@ -141,7 +142,7 @@ public class WorkerTokenAuthorizer implements PasswordProvider, Closeable {
         }
     }
 
-    public static Meter getPasswordFailuresMeter() {
+    public static IMeter getPasswordFailuresMeter() {
         return passwordFailures;
     }
 

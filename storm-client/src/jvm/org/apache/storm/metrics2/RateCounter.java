@@ -12,39 +12,40 @@
 
 package org.apache.storm.metrics2;
 
-import com.codahale.metrics.Counter;
-import com.codahale.metrics.Gauge;
+import org.apache.storm.metric.ICounter;
+import org.apache.storm.metric.IGauge;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 
 /**
  * A Counter metric that also implements a Gauge to report the average rate of events per second over 1 minute.  This class
  * was added as a compromise to using a Meter, which has a much larger performance impact.
  */
-public class RateCounter implements Gauge<Double> {
-    private Counter counter;
+public class RateCounter implements IGauge<Double> {
+    private final ICounter counter;
     private double currentRate = 0;
     private int time = 0;
-    private final long[] values;
+    private final double[] values;
     private final int timeSpanInSeconds;
 
-    RateCounter(StormMetricRegistry metricRegistry, String metricName, String topologyId,
+    RateCounter(StormCustomMetricsRegistry metricRegistry, String metricName, String topologyId,
                 String componentId, int taskId, int workerPort, String streamId) {
         if (streamId != null) {
-            counter = metricRegistry.counter(metricName, topologyId, componentId,
-                    taskId, workerPort, streamId);
-            metricRegistry.gauge(metricName + ".m1_rate", this, topologyId, componentId, streamId,
-                    taskId, workerPort);
+            counter = metricRegistry.registerCounter(metricName, "topologyId", topologyId, "componentId", componentId,
+                    "taskId", String.valueOf(taskId), "workerPort", String.valueOf(workerPort), "streamId", streamId);
+            metricRegistry.gauge(metricName + ".m1_rate", this, "topologyId", topologyId, "componentId", componentId,
+                    "taskId", String.valueOf(taskId), "workerPort", String.valueOf(workerPort), "streamId", streamId);
         } else {
-            counter = metricRegistry.counter(metricName, componentId, taskId);
-            metricRegistry.gauge(metricName + ".m1_rate", this, componentId, taskId);
+            counter = metricRegistry.registerCounter(metricName, "componentId", componentId, "taskId", String.valueOf(taskId));
+            metricRegistry.gauge(metricName + ".m1_rate", this, "componentId", componentId, "taskId", String.valueOf(taskId));
         }
 
         this.timeSpanInSeconds = Math.max(60 - (60 % metricRegistry.getRateCounterUpdateIntervalSeconds()),
                 metricRegistry.getRateCounterUpdateIntervalSeconds());
-        this.values = new long[this.timeSpanInSeconds / metricRegistry.getRateCounterUpdateIntervalSeconds() + 1];
+        this.values = new double[this.timeSpanInSeconds / metricRegistry.getRateCounterUpdateIntervalSeconds() + 1];
 
     }
 
-    RateCounter(StormMetricRegistry metricRegistry, String metricName, String topologyId,
+    RateCounter(StormCustomMetricsRegistry metricRegistry, String metricName, String topologyId,
                 String componentId, int taskId, int workerPort) {
         this(metricRegistry, metricName, topologyId, componentId, taskId, workerPort, null);
     }
@@ -68,10 +69,10 @@ public class RateCounter implements Gauge<Double> {
     void update() {
         time = (time + 1) % values.length;
         values[time] = counter.getCount();
-        currentRate =  ((double) (values[time] - values[(time + 1) % values.length]) / timeSpanInSeconds);
+        currentRate =  ((values[time] - values[(time + 1) % values.length]) / timeSpanInSeconds);
     }
 
-    Counter getCounter() {
+    ICounter getCounter() {
         return counter;
     }
 }

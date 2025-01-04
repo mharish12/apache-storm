@@ -175,8 +175,8 @@ public class UIServer {
         holderPwd.setInitParameter("dirAllowed", "true");
         context.addServlet(holderPwd, "/");
 
-        metricsRegistry.startMetricsReporters(conf);
-        Utils.addShutdownHookWithForceKillIn1Sec(metricsRegistry::stopMetricsReporters);
+        metricsRegistry.startMetricsComponents(conf);
+        Utils.addShutdownHookWithForceKillIn1Sec(metricsRegistry::stopMetricsComponents);
         try {
             jettyServer.start();
             jettyServer.join();

@@ -27,6 +27,8 @@ import javax.security.auth.kerberos.KerberosTicket;
 import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
 import javax.xml.bind.DatatypeConverter;
+
+import org.apache.storm.metric.IGauge;
 import org.apache.storm.metric.api.IMetricsRegistrant;
 import org.apache.storm.security.auth.ClientAuthUtils;
 import org.apache.storm.security.auth.IAutoCredentials;
@@ -260,7 +262,7 @@ public class AutoTGT implements IAutoCredentials, ICredentialsRenewer, IMetricsR
 
     @Override
     public void registerMetrics(TopologyContext topoContext, Map<String, Object> topoConf) {
-        topoContext.registerGauge("TGT-TimeToExpiryMsecs", new Gauge<Long>() {
+        topoContext.registerGauge("TGT-TimeToExpiryMsecs", new IGauge<Long>() {
             @Override
             public Long getValue() {
                 return getMsecsUntilExpiration();

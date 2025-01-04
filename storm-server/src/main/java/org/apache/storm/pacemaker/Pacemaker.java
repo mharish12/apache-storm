@@ -12,9 +12,6 @@
 
 package org.apache.storm.pacemaker;
 
-import com.codahale.metrics.ExponentiallyDecayingReservoir;
-import com.codahale.metrics.Histogram;
-import com.codahale.metrics.Meter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Map;
@@ -64,8 +61,8 @@ public class Pacemaker implements IServerMessageHandler {
         StormCustomMetricsRegistry metricsRegistry = new StormCustomMetricsRegistry();
         final Pacemaker serverHandler = new Pacemaker(conf, metricsRegistry);
         serverHandler.launchServer();
-        metricsRegistry.startMetricsReporters(conf);
-        Utils.addShutdownHookWithForceKillIn1Sec(metricsRegistry::stopMetricsReporters);
+        metricsRegistry.startMetricsComponents(conf);
+        Utils.addShutdownHookWithForceKillIn1Sec(metricsRegistry::stopMetricsComponents);
     }
 
     @Override

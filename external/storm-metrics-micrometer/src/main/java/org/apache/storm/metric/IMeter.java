@@ -18,10 +18,25 @@
 
 package org.apache.storm.metric;
 
+/**
+ * Meter.
+ */
 public interface IMeter extends IStormMetric {
+
+    /**
+     * increment by 1.
+     */
     void mark();
 
+    /**
+     * increment by n.
+     * @param n value
+     */
     void mark(double n);
 
+    /**
+     *
+     * @return get the current count.
+     */
     double getCount();
 }

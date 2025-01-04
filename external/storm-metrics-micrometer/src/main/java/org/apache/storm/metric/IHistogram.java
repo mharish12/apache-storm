@@ -18,8 +18,19 @@
 
 package org.apache.storm.metric;
 
-public interface IHistogram extends IStormMetric{
+/**
+ * Histogram for Storm.
+ */
+public interface IHistogram extends IStormMetric {
+    /**
+     * Method to update histogram value.
+     *
+     * @param value value to be updated.
+     */
     void update(long value);
 
+    /**
+     * @return get the Histogram Value.
+     */
     long getCount();
 }

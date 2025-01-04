@@ -19,11 +19,21 @@
 package org.apache.storm.metric.micrometer;
 
 import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.Metrics;
+import io.micrometer.core.instrument.Tags;
 import org.apache.storm.metric.ICounter;
 import org.apache.storm.metric.IMeter;
 
 public class StormMeter implements IMeter, ICounter {
     private final Counter counter;
+
+    public StormMeter(String name) {
+        this(Metrics.counter(name));
+    }
+
+    public StormMeter(String name, Tags tags) {
+        this(Metrics.counter(name, tags));
+    }
 
     public StormMeter(Counter counter) {
         this.counter = counter;

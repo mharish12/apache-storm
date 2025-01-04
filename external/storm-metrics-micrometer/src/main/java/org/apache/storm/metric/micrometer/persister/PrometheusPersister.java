@@ -21,21 +21,28 @@ package org.apache.storm.metric.micrometer.persister;
 
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Metrics;
+import io.micrometer.core.instrument.Tags;
 import io.micrometer.core.instrument.composite.CompositeMeterRegistry;
+import io.micrometer.prometheusmetrics.PrometheusConfig;
+import io.micrometer.prometheusmetrics.PrometheusMeterRegistry;
 import org.apache.storm.metric.*;
+import org.apache.storm.metric.micrometer.RateCounter;
 import org.apache.storm.metric.micrometer.StormHistogram;
 import org.apache.storm.metric.micrometer.StormMeter;
-import org.apache.storm.metric.micrometer.StormTimer;
+import org.apache.storm.metric.micrometer.StormTimerMetric;
 
 import java.util.Map;
+import java.util.function.ToDoubleFunction;
 
 @SuppressWarnings("SpellCheckingInspection")
 public class PrometheusPersister implements StormMetricsPersister {
 
-    private final CompositeMeterRegistry prometheusMeterRegistry;
+    private final PrometheusMeterRegistry prometheusMeterRegistry;
 
     public PrometheusPersister() {
-        prometheusMeterRegistry = new CompositeMeterRegistry();
+        prometheusMeterRegistry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
+        Metrics.addRegistry(prometheusMeterRegistry);
     }
 
     @Override
@@ -61,13 +68,23 @@ public class PrometheusPersister implements StormMetricsPersister {
     }
 
     @Override
+    public RateCounter rateCounter(String name) {
+        return null;
+    }
+
+    @Override
+    public RateCounter rateCounter(String name, String... tags) {
+        return null;
+    }
+
+    @Override
     public ITimer timer(String name) {
-        return new StormTimer(prometheusMeterRegistry.timer(name));
+        return new StormTimerMetric(prometheusMeterRegistry.timer(name));
     }
 
     @Override
     public ITimer timer(String name, String... tags) {
-        return new StormTimer(prometheusMeterRegistry.timer(name, tags));
+        return new StormTimerMetric(prometheusMeterRegistry.timer(name, tags));
     }
 
     @Override
@@ -82,7 +99,12 @@ public class PrometheusPersister implements StormMetricsPersister {
 
     @Override
     public <T extends Number> T gauge(String name, T number) {
-        return null;
+        return prometheusMeterRegistry.gauge(name, number);
+    }
+
+    @Override
+    public <T extends Number> T gauge(String name, T number, IGauge<T> gauge, String... tags) {
+        return prometheusMeterRegistry.gauge(name, Tags.of(tags), number, value -> gauge.getValue().doubleValue());
     }
 
     @Override
@@ -95,5 +117,9 @@ public class PrometheusPersister implements StormMetricsPersister {
         return prometheusMeterRegistry;
     }
 
+    @Override
+    public String getMetricsAsText() {
+        return prometheusMeterRegistry.scrape();
+    }
 }
 

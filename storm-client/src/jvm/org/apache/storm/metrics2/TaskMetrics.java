@@ -12,13 +12,15 @@
 
 package org.apache.storm.metrics2;
 
-import com.codahale.metrics.Counter;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.task.WorkerTopologyContext;
 import org.apache.storm.utils.ConfigUtils;
 import org.apache.storm.utils.Utils;
+import org.apache.storm.metric.micrometer.RateCounter;
 
 public class TaskMetrics {
     private static final String METRIC_NAME_ACKED = "__ack-count";
@@ -38,12 +40,12 @@ public class TaskMetrics {
     private final String componentId;
     private final Integer taskId;
     private final Integer workerPort;
-    private final StormMetricRegistry metricRegistry;
+    private final StormCustomMetricsRegistry metricRegistry;
     private final int samplingRate;
 
 
     public TaskMetrics(WorkerTopologyContext context, String componentId, Integer taskid,
-                       StormMetricRegistry metricRegistry, Map<String, Object> topoConf) {
+                       StormCustomMetricsRegistry metricRegistry, Map<String, Object> topoConf) {
         this.metricRegistry = metricRegistry;
         this.topologyId = context.getStormId();
         this.componentId = componentId;
@@ -125,8 +127,8 @@ public class TaskMetrics {
             synchronized (this) {
                 rc = this.rateCounters.get(metricName);
                 if (rc == null) {
-                    rc = metricRegistry.rateCounter(metricName, this.topologyId, this.componentId,
-                            this.taskId, this.workerPort, streamId);
+                    rc = metricRegistry.rateCounter(metricName, "topologyId", this.topologyId, "componentId", this.componentId,
+                            "taskId", String.valueOf(this.taskId), "workerPort", String.valueOf(this.workerPort), "streamId",streamId);
                     this.rateCounters.put(metricName, rc);
                 }
             }
@@ -141,12 +143,16 @@ public class TaskMetrics {
                 gauge = this.gauges.get(metricName);
                 if (gauge == null) {
                     gauge = new RollingAverageGauge();
-                    metricRegistry.gauge(metricName, gauge, this.topologyId, this.componentId,
-                            streamId, this.taskId, this.workerPort);
+                    metricRegistry.gauge(metricName, gauge, getTags(metricName, streamId));
                     this.gauges.put(metricName, gauge);
                 }
             }
         }
         return gauge;
+    }
+
+    private String[] getTags(String metricName, String streamId) {
+        return new String[] {"topologyId", this.topologyId, "componentId",this.componentId,"streamId",
+                streamId, "taskId", String.valueOf(this.taskId), "workerPort", String.valueOf(this.workerPort)};
     }
 }

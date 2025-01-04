@@ -18,7 +18,6 @@
 
 package org.apache.storm.daemon.drpc;
 
-import com.codahale.metrics.Meter;
 import com.google.common.annotations.VisibleForTesting;
 import jakarta.servlet.DispatcherType;
 import java.util.Arrays;
@@ -227,10 +226,10 @@ public class DRPCServer implements AutoCloseable {
         Map<String, Object> conf = ConfigUtils.readStormConfig();
         StormCustomMetricsRegistry metricsRegistry = new StormCustomMetricsRegistry();
         try (DRPCServer server = new DRPCServer(conf, metricsRegistry)) {
-            metricsRegistry.startMetricsReporters(conf);
+            metricsRegistry.startMetricsComponents(conf);
             Utils.addShutdownHookWithForceKillIn1Sec(() -> {
                 server.meterShutdownCalls.mark();
-                metricsRegistry.stopMetricsReporters();
+                metricsRegistry.stopMetricsComponents();
                 server.close();
             });
             server.start();

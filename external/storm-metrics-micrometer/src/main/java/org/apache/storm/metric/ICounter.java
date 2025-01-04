@@ -18,14 +18,36 @@
 
 package org.apache.storm.metric;
 
+/**
+ * Counter.
+ */
 public interface ICounter extends IStormMetric {
+
+    /**
+     * Increment by one.
+     */
     void inc();
 
+    /**
+     * Increment by count.
+     * @param count - count to be incremented.
+     */
     void inc(double count);
 
+    /**
+     * Decrement by one.
+     */
     void dec();
 
+    /**
+     * Decrement by count.
+     * @param count - count to be decremented.
+     */
     void dec(double count);
 
+    /**
+     * Method to get the current count.
+     * @return current count.
+     */
     double getCount();
 }

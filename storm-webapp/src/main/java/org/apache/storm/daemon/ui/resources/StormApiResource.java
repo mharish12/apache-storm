@@ -18,7 +18,6 @@
 
 package org.apache.storm.daemon.ui.resources;
 
-import com.codahale.metrics.Meter;
 import jakarta.inject.Inject;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.Consumes;
@@ -59,6 +58,8 @@ public class StormApiResource {
 
     public static Map<String, Object> config = ConfigUtils.readStormConfig();
 
+    private final StormCustomMetricsRegistry metricsRegistry;
+
     private final IMeter clusterConfigurationRequestMeter;
     private final IMeter clusterSummaryRequestMeter;
     private final IMeter nimbusSummaryRequestMeter;
@@ -81,6 +82,7 @@ public class StormApiResource {
 
     @Inject
     public StormApiResource(StormCustomMetricsRegistry metricsRegistry) {
+        this.metricsRegistry = metricsRegistry;
         this.clusterConfigurationRequestMeter = metricsRegistry.registerMeter("ui:num-cluster-configuration-http-requests");
         this.clusterSummaryRequestMeter = metricsRegistry.registerMeter("ui:num-cluster-summary-http-requests");
         this.nimbusSummaryRequestMeter = metricsRegistry.registerMeter("ui:num-nimbus-summary-http-requests");
@@ -100,6 +102,13 @@ public class StormApiResource {
         this.topologyOpResponseMeter = metricsRegistry.registerMeter("ui:num-topology-op-response-http-requests");
         this.topologyLagRequestMeter = metricsRegistry.registerMeter("ui:num-topology-lag-http-requests");
         this.getOwnerResourceSummariesMeter = metricsRegistry.registerMeter("ui:num-get-owner-resource-summaries-http-request");
+    }
+
+    @GET
+    @Path("/metrics")
+    @Produces
+    public Response getMetrics() {
+        return Response.ok().entity(metricsRegistry.getMetricsAsText()).build();
     }
 
     /**

@@ -22,18 +22,24 @@ package org.apache.storm.metric.micrometer.persister;
 import com.codahale.metrics.MetricRegistry;
 import io.micrometer.core.instrument.Clock;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Metrics;
+import io.micrometer.core.instrument.Tags;
+import io.micrometer.core.instrument.binder.jvm.JvmGcMetrics;
+import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics;
+import io.micrometer.core.instrument.binder.jvm.JvmThreadMetrics;
 import io.micrometer.core.instrument.dropwizard.DropwizardConfig;
 import io.micrometer.core.instrument.dropwizard.DropwizardMeterRegistry;
 import io.micrometer.core.instrument.util.HierarchicalNameMapper;
 import org.apache.storm.metric.ICounter;
+import org.apache.storm.metric.IGauge;
 import org.apache.storm.metric.IHistogram;
 import org.apache.storm.metric.IMeter;
 import org.apache.storm.metric.IStormMetric;
 import org.apache.storm.metric.ITimer;
+import org.apache.storm.metric.micrometer.RateCounter;
 import org.apache.storm.metric.micrometer.StormHistogram;
 import org.apache.storm.metric.micrometer.StormMeter;
-import org.apache.storm.metric.micrometer.StormTimer;
-
+import org.apache.storm.metric.micrometer.StormTimerMetric;
 
 import java.util.Map;
 
@@ -49,6 +55,7 @@ public class DropwizardPersister implements StormMetricsPersister {
                 return guageDefault;
             }
         };
+        Metrics.addRegistry(dropwizardMeterRegistry);
     }
 
     @Override
@@ -72,13 +79,23 @@ public class DropwizardPersister implements StormMetricsPersister {
     }
 
     @Override
+    public RateCounter rateCounter(String name) {
+        return null;
+    }
+
+    @Override
+    public RateCounter rateCounter(String name, String... tags) {
+        return null;
+    }
+
+    @Override
     public ITimer timer(String name) {
-        return new StormTimer(dropwizardMeterRegistry.timer(name));
+        return new StormTimerMetric(dropwizardMeterRegistry.timer(name));
     }
 
     @Override
     public ITimer timer(String name, String... tags) {
-        return new StormTimer(dropwizardMeterRegistry.timer(name, tags));
+        return new StormTimerMetric(dropwizardMeterRegistry.timer(name, tags));
     }
 
     @Override
@@ -97,6 +114,11 @@ public class DropwizardPersister implements StormMetricsPersister {
     }
 
     @Override
+    public <T extends Number> T gauge(String name, T number, IGauge<T> gauge, String... tags) {
+        return dropwizardMeterRegistry.gauge(name, Tags.of(tags), number, value -> gauge.getValue().doubleValue());
+    }
+
+    @Override
     public void registerAll(Map<String, IStormMetric> metrics) {
         //TODO: implement registerAll API.
     }
@@ -105,5 +127,32 @@ public class DropwizardPersister implements StormMetricsPersister {
     public MeterRegistry getRegistry() {
         return dropwizardMeterRegistry;
     }
+
+    @Override
+    public String getMetricsAsText() {
+        MetricRegistry metricRegistry = dropwizardMeterRegistry.getDropwizardRegistry();
+        StringBuilder metricsText = new StringBuilder();
+
+        // Iterate over the metrics and format them
+        metricRegistry.getMetrics().forEach((name, metric) -> {
+            metricsText.append(name).append(" = ");
+            if (metric instanceof com.codahale.metrics.Counter) {
+                metricsText.append(((com.codahale.metrics.Counter) metric).getCount());
+            } else if (metric instanceof com.codahale.metrics.Gauge) {
+                metricsText.append(((com.codahale.metrics.Gauge<?>) metric).getValue());
+            } else if (metric instanceof com.codahale.metrics.Histogram) {
+                metricsText.append(((com.codahale.metrics.Histogram) metric).getSnapshot().getMean());
+            } else if (metric instanceof com.codahale.metrics.Meter) {
+                metricsText.append(((com.codahale.metrics.Meter) metric).getCount());
+            } else if (metric instanceof com.codahale.metrics.Timer) {
+                metricsText.append(((com.codahale.metrics.Timer) metric).getSnapshot().getMean());
+            } else {
+                metricsText.append("Unsupported metric type: ").append(metric.getClass().getName());
+            }
+            metricsText.append("\n");
+        });
+        return metricsText.toString();
+    }
+
 
 }

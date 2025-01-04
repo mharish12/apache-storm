@@ -18,11 +18,12 @@
 
 package org.apache.storm.utils;
 
-import com.codahale.metrics.Gauge;
 import java.io.Closeable;
 import java.util.concurrent.atomic.AtomicLong;
+
+import org.apache.storm.metric.IGauge;
 import org.apache.storm.metric.internal.RateTracker;
-import org.apache.storm.metrics2.StormMetricRegistry;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.shade.org.jctools.queues.MpscArrayQueue;
 import org.apache.storm.shade.org.jctools.queues.MpscUnboundedArrayQueue;
 
@@ -33,38 +34,38 @@ public class JCQueueMetrics implements Closeable {
     private final AtomicLong droppedMessages = new AtomicLong(0);
 
     public JCQueueMetrics(String metricNamePrefix, String topologyId, String componentId, int taskId, int port,
-                          StormMetricRegistry metricRegistry, MpscArrayQueue<Object> receiveQ,
+                          StormCustomMetricsRegistry metricRegistry, MpscArrayQueue<Object> receiveQ,
                           MpscUnboundedArrayQueue<Object> overflowQ) {
 
-        Gauge<Integer> cap = new Gauge<Integer>() {
+        IGauge<Integer> cap = new IGauge<Integer>() {
             @Override
             public Integer getValue() {
                 return receiveQ.capacity();
             }
         };
 
-        Gauge<Float> pctFull = new Gauge<Float>() {
+        IGauge<Float> pctFull = new IGauge<Float>() {
             @Override
             public Float getValue() {
                 return (1.0F * receiveQ.size() / receiveQ.capacity());
             }
         };
 
-        Gauge<Integer> pop = new Gauge<Integer>() {
+        IGauge<Integer> pop = new IGauge<Integer>() {
             @Override
             public Integer getValue() {
                 return receiveQ.size();
             }
         };
 
-        Gauge<Double> arrivalRate = new Gauge<Double>() {
+        IGauge<Double> arrivalRate = new IGauge<Double>() {
             @Override
             public Double getValue() {
                 return arrivalsTracker.reportRate();
             }
         };
 
-        Gauge<Double> sojourn = new Gauge<Double>() {
+        IGauge<Double> sojourn = new IGauge<Double>() {
             @Override
             public Double getValue() {
                 // Assume the recvQueue is stable, in which the arrival rate is equal to the consumption rate.
@@ -74,35 +75,35 @@ public class JCQueueMetrics implements Closeable {
             }
         };
 
-        Gauge<Double> insertFailures = new Gauge<Double>() {
+        IGauge<Double> insertFailures = new IGauge<Double>() {
             @Override
             public Double getValue() {
                 return insertFailuresTracker.reportRate();
             }
         };
 
-        Gauge<Long> dropped = new Gauge<Long>() {
+        IGauge<Long> dropped = new IGauge<Long>() {
             @Override
             public Long getValue() {
                 return droppedMessages.get();
             }
         };
 
-        Gauge<Integer> overflow = new Gauge<Integer>() {
+        IGauge<Integer> overflow = new IGauge<Integer>() {
             @Override
             public Integer getValue() {
                 return overflowQ.size();
             }
         };
 
-        metricRegistry.gauge(metricNamePrefix + "-capacity", cap, topologyId, componentId, taskId, port);
-        metricRegistry.gauge(metricNamePrefix + "-pct_full", pctFull, topologyId, componentId, taskId, port);
-        metricRegistry.gauge(metricNamePrefix + "-population", pop, topologyId, componentId, taskId, port);
-        metricRegistry.gauge(metricNamePrefix + "-arrival_rate_secs", arrivalRate, topologyId, componentId, taskId, port);
-        metricRegistry.gauge(metricNamePrefix + "-sojourn_time_ms", sojourn, topologyId, componentId, taskId, port);
-        metricRegistry.gauge(metricNamePrefix + "-insert_failures", insertFailures, topologyId, componentId, taskId, port);
-        metricRegistry.gauge(metricNamePrefix + "-dropped_messages", dropped, topologyId, componentId, taskId, port);
-        metricRegistry.gauge(metricNamePrefix + "-overflow", overflow, topologyId, componentId, taskId, port);
+        metricRegistry.gauge(metricNamePrefix + "-capacity", cap,"topologyId", topologyId, "componentId", componentId, "taskId", String.valueOf(taskId), "port", String.valueOf(port));
+        metricRegistry.gauge(metricNamePrefix + "-pct_full", pctFull,"topologyId", topologyId, "componentId", componentId, "taskId", String.valueOf(taskId), "port", String.valueOf(port));
+        metricRegistry.gauge(metricNamePrefix + "-population", pop,"topologyId", topologyId, "componentId", componentId, "taskId", String.valueOf(taskId), "port", String.valueOf(port));
+        metricRegistry.gauge(metricNamePrefix + "-arrival_rate_secs", arrivalRate,"topologyId", topologyId, "componentId", componentId, "taskId", String.valueOf(taskId), "port", String.valueOf(port));
+        metricRegistry.gauge(metricNamePrefix + "-sojourn_time_ms", sojourn,"topologyId", topologyId, "componentId", componentId, "taskId", String.valueOf(taskId), "port", String.valueOf(port));
+        metricRegistry.gauge(metricNamePrefix + "-insert_failures", insertFailures,"topologyId", topologyId, "componentId", componentId, "taskId", String.valueOf(taskId), "port", String.valueOf(port));
+        metricRegistry.gauge(metricNamePrefix + "-dropped_messages", dropped,"topologyId", topologyId, "componentId", componentId, "taskId", String.valueOf(taskId), "port", String.valueOf(port));
+        metricRegistry.gauge(metricNamePrefix + "-overflow", overflow,"topologyId", topologyId, "componentId", componentId, "taskId", String.valueOf(taskId), "port", String.valueOf(port));
     }
 
     public void notifyArrivals(long counts) {

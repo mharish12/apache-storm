@@ -16,7 +16,17 @@
  * limitations under the License.
  */
 
-package org.apache.storm.metric.micrometer.reporter;
+package org.apache.storm.metric.reporter;
 
-public interface TimedReporter extends Reporter {
+import java.util.concurrent.TimeUnit;
+
+public interface ScheduleReporter extends Reporter {
+
+    /**
+     * Set the interval and time unit for reporting.
+     *
+     * @param interval the reporting interval
+     * @param timeUnit the unit of time for the interval
+     */
+    void setReportingInterval(long interval, TimeUnit timeUnit);
 }

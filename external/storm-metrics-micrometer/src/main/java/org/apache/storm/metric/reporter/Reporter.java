@@ -16,7 +16,18 @@
  * limitations under the License.
  */
 
-package org.apache.storm.metric.micrometer.reporter;
+package org.apache.storm.metric.reporter;
 
-public class AbstractTimeReporter {
+
+import org.apache.storm.metric.micrometer.persister.StormMetricsPersister;
+
+import java.util.Map;
+
+public interface Reporter {
+
+    void prepare(StormMetricsPersister stormMetricsPersister, Map<String, Object> daemonConf);
+
+    void start();
+
+    void stop();
 }

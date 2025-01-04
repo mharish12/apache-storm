@@ -12,12 +12,12 @@
 
 package org.apache.storm.metrics2.cgroup;
 
-import com.codahale.metrics.Gauge;
 
 import java.io.IOException;
 import java.util.Map;
 import org.apache.storm.container.cgroup.SubSystemType;
 import org.apache.storm.container.cgroup.core.CpuCore;
+import org.apache.storm.metric.IGauge;
 import org.apache.storm.metrics2.WorkerMetricRegistrant;
 import org.apache.storm.task.TopologyContext;
 
@@ -30,7 +30,7 @@ public class CGroupCpuStat extends CGroupMetricsBase implements WorkerMetricRegi
     @Override
     public void registerMetrics(TopologyContext topologyContext) {
         if (enabled) {
-            topologyContext.registerGauge("CGroupCpuStat.nr.period-count", new Gauge<Long>() {
+            topologyContext.registerGauge("CGroupCpuStat.nr.period-count", new IGauge<Long>() {
                 @Override
                 public Long getValue() {
                     try {
@@ -42,7 +42,7 @@ public class CGroupCpuStat extends CGroupMetricsBase implements WorkerMetricRegi
                 }
             });
 
-            topologyContext.registerGauge("CGroupCpuStat.nr.throttled-count", new Gauge<Long>() {
+            topologyContext.registerGauge("CGroupCpuStat.nr.throttled-count", new IGauge<Long>() {
                 @Override
                 public Long getValue() {
                     try {
@@ -54,7 +54,7 @@ public class CGroupCpuStat extends CGroupMetricsBase implements WorkerMetricRegi
                 }
             });
 
-            topologyContext.registerGauge("CGroupCpuStat.nr.throttled-percentage", new Gauge<Long>() {
+            topologyContext.registerGauge("CGroupCpuStat.nr.throttled-percentage", new IGauge<Long>() {
                 @Override
                 public Long getValue() {
                     try {
@@ -66,7 +66,7 @@ public class CGroupCpuStat extends CGroupMetricsBase implements WorkerMetricRegi
                 }
             });
 
-            topologyContext.registerGauge("CGroupCpuStat.throttled.time-ms", new Gauge<Long>() {
+            topologyContext.registerGauge("CGroupCpuStat.throttled.time-ms", new IGauge<Long>() {
                 @Override
                 public Long getValue() {
                     try {

@@ -10,6 +10,7 @@ public abstract class DerivativeGauge<F, T> implements IGauge<T> {
         this.base = base;
     }
 
+    @Override
     public T getValue() {
         return this.transform(this.base.getValue());
     }

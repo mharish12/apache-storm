@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.apache.storm.metric.micrometer.reporter;
+package org.apache.storm.metric.reporter;
 
 import org.apache.storm.metric.micrometer.persister.StormMetricsPersister;
 

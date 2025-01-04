@@ -26,6 +26,7 @@ public abstract class CachedGauge<T> implements IGauge<T> {
 
     protected abstract T loadValue();
 
+    @Override
     public T getValue() {
         T currentValue = (T)this.value.get();
         if (!this.shouldLoad() && currentValue != null) {

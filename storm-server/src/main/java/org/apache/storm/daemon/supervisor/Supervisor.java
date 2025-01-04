@@ -18,8 +18,6 @@
 
 package org.apache.storm.daemon.supervisor;
 
-import com.codahale.metrics.Meter;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.BindException;
@@ -61,7 +59,8 @@ import org.apache.storm.generated.SupervisorWorkerHeartbeat;
 import org.apache.storm.localizer.AsyncLocalizer;
 import org.apache.storm.logging.ThriftAccessLogger;
 import org.apache.storm.messaging.IContext;
-import org.apache.storm.metric.StormCustomMetricsRegistry;
+import org.apache.storm.metric.IGauge;
+import org.apache.storm.metric.IMeter;
 import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.scheduler.ISupervisor;
 import org.apache.storm.security.auth.IAuthorizer;
@@ -112,7 +111,7 @@ public class Supervisor implements DaemonCommon, AutoCloseable {
     private final ExecutorService heartbeatExecutor;
     private final AsyncLocalizer asyncLocalizer;
     private final StormCustomMetricsRegistry metricsRegistry;
-    private Meter killErrorMeter;
+    private IMeter killErrorMeter;
     private final ContainerMemoryTracker containerMemoryTracker;
     private final SlotMetrics slotMetrics;
     private volatile boolean active;
@@ -345,17 +344,17 @@ public class Supervisor implements DaemonCommon, AutoCloseable {
             }
             launch();
 
-            metricsRegistry.registerGauge("supervisor:num-slots-used-gauge", () -> SupervisorUtils.supervisorWorkerIds(conf).size());
+            metricsRegistry.registerGauge("supervisor:num-slots-used-gauge", (IGauge<Integer>) () -> SupervisorUtils.supervisorWorkerIds(conf).size());
             //This will only get updated once
             metricsRegistry.registerMeter("supervisor:num-launched").mark();
-            metricsRegistry.registerMeter("supervisor:num-shell-exceptions", ShellUtils.numShellExceptions);
+            metricsRegistry.registerMeter("supervisor:num-shell-exceptions", (IMeter) ShellUtils.numShellExceptions);
             metricsRegistry.registerMeter(Constants.SUPERVISOR_HEALTH_CHECK_TIMEOUTS);
             killErrorMeter = metricsRegistry.registerMeter("supervisor:num-kill-worker-errors");
             metricsRegistry.registerMeter("supervisor:workerTokenAuthorizer-get-password-failures",
                     WorkerTokenAuthorizer.getPasswordFailuresMeter());
-            metricsRegistry.startMetricsReporters(conf);
+            metricsRegistry.startMetricsComponents(conf);
             Utils.addShutdownHookWithForceKillIn1Sec(() -> {
-                metricsRegistry.stopMetricsReporters();
+                metricsRegistry.stopMetricsComponents();
                 this.close();
             });
 

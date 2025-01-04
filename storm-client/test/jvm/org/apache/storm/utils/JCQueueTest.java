@@ -19,7 +19,8 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-import org.apache.storm.metrics2.StormMetricRegistry;
+
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.policy.IWaitStrategy;
 import org.apache.storm.policy.WaitStrategyPark;
 import org.junit.jupiter.api.Assertions;
@@ -156,7 +157,7 @@ public class JCQueueTest {
     }
 
     private JCQueue createQueue(String name, int batchSize, int queueSize) {
-        return new JCQueue(name, name, queueSize, 0, batchSize, waitStrategy, "test", "test", Collections.singletonList(1000), 1000, new StormMetricRegistry());
+        return new JCQueue(name, name, queueSize, 0, batchSize, waitStrategy, "test", "test", Collections.singletonList(1000), 1000, new StormCustomMetricsRegistry());
     }
 
     private static class IncProducer implements Runnable {

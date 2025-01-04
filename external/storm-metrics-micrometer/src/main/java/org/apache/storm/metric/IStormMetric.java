@@ -18,5 +18,8 @@
 
 package org.apache.storm.metric;
 
+/**
+ * Interface for a Storm Metric.
+ */
 public interface IStormMetric {
 }

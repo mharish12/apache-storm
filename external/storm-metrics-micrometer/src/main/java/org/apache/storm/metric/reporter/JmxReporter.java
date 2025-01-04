@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.apache.storm.metric.micrometer.reporter;
+package org.apache.storm.metric.reporter;
 
 import io.micrometer.core.instrument.Clock;
 import io.micrometer.core.instrument.dropwizard.DropwizardMeterRegistry;

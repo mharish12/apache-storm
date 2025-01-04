@@ -18,7 +18,6 @@
 
 package org.apache.storm.daemon.logviewer;
 
-import com.codahale.metrics.Meter;
 import com.google.common.annotations.VisibleForTesting;
 
 import java.io.File;
@@ -37,7 +36,6 @@ import org.apache.storm.daemon.logviewer.webapp.LogviewerApplication;
 import org.apache.storm.daemon.ui.FilterConfiguration;
 import org.apache.storm.daemon.ui.UIHelpers;
 import org.apache.storm.metric.IMeter;
-import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.utils.ConfigUtils;
 import org.apache.storm.utils.ObjectReader;
@@ -175,10 +173,10 @@ public class LogviewerServer implements AutoCloseable {
 
         try (LogviewerServer server = new LogviewerServer(conf, metricsRegistry);
              LogCleaner logCleaner = new LogCleaner(conf, workerLogs, directoryCleaner, logRootDir.toPath(), metricsRegistry)) {
-            metricsRegistry.startMetricsReporters(conf);
+            metricsRegistry.startMetricsComponents(conf);
             Utils.addShutdownHookWithForceKillIn1Sec(() -> {
                 server.meterShutdownCalls.mark();
-                metricsRegistry.stopMetricsReporters();
+                metricsRegistry.stopMetricsComponents();
                 server.close();
             });
             logCleaner.start();

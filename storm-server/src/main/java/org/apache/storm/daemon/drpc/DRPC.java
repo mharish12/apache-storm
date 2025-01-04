@@ -18,7 +18,6 @@
 
 package org.apache.storm.daemon.drpc;
 
-import com.codahale.metrics.Meter;
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;

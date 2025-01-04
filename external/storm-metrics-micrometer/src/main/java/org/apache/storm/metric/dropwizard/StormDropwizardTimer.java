@@ -22,6 +22,7 @@ import com.codahale.metrics.Clock;
 import com.codahale.metrics.Timer;
 import org.apache.storm.metric.ITimer;
 
+import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 public class StormDropwizardTimer implements ITimer {
@@ -44,6 +45,11 @@ public class StormDropwizardTimer implements ITimer {
     @Override
     public IContext time() {
         return new Context(this.timer, Clock.defaultClock());
+    }
+
+    @Override
+    public <T> T time(Callable<T> event) throws Exception {
+        return null;
     }
 
     public static class Context implements IContext {

@@ -378,7 +378,7 @@ public abstract class LocallyCachedBlob {
         if (this.isFullyDownloaded()) {
             numBlobUpdateVersionChanged.mark();
         }
-        Timer.Context timer = singleBlobLocalizationDuration.time();
+        ITimer.IContext timer = singleBlobLocalizationDuration.time();
         try {
             long newVersion = this.fetchUnzipToTemp(blobStore);
             this.informReferencesAndCommitNewVersion(newVersion);

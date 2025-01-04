@@ -95,7 +95,6 @@ import org.apache.storm.scheduler.ISupervisor;
 import org.apache.storm.security.auth.IGroupMappingServiceProvider;
 import org.apache.storm.security.auth.ThriftConnectionType;
 import org.apache.storm.security.auth.ThriftServer;
-import org.apache.storm.shade.org.apache.zookeeper.server.ServerConfig;
 import org.apache.storm.task.IBolt;
 import org.apache.storm.testing.InProcessZookeeper;
 import org.apache.storm.testing.NonRichBoltTracker;
@@ -285,7 +284,7 @@ public class LocalCluster implements ILocalClusterTrackedTopologyAware, Iface {
             }
             success = true;
             
-            metricRegistry.startMetricsReporters(daemonConf);
+            metricRegistry.startMetricsComponents(daemonConf);
         } finally {
             if (!success) {
                 close();
@@ -620,7 +619,7 @@ public class LocalCluster implements ILocalClusterTrackedTopologyAware, Iface {
     @Override
     public synchronized void close() throws Exception {
         if (metricRegistry != null) {
-            metricRegistry.stopMetricsReporters();
+            metricRegistry.stopMetricsComponents();
         }
         if (nimbusOverride != null) {
             nimbusOverride.close();

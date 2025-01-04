@@ -296,7 +296,7 @@ public class LogviewerResource {
         String callback = request.getParameter(StormApiResource.callbackParameterName);
         String origin = request.getHeader("Origin");
 
-        try (Timer.Context t = searchLogRequestDuration.time()) {
+        try (ITimer.IContext t = searchLogRequestDuration.time()) {
             return logSearchHandler.searchLogFile(decodedFileName, user, isDaemon,
                 searchString, numMatchesStr, startByteOffset, callback, origin);
         } catch (InvalidRequestException e) {
@@ -307,6 +307,8 @@ public class LogviewerResource {
         } catch (IOException e) {
             numSearchExceptions.mark();
             throw e;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -333,9 +335,11 @@ public class LogviewerResource {
         } else {
             numDeepSearchNonArchived.mark();
         }
-        try (Timer.Context t = deepSearchRequestDuration.time()) {
+        try (ITimer.IContext t = deepSearchRequestDuration.time()) {
             return logSearchHandler.deepSearchLogsForTopology(topologyId, user, searchString, numMatchesStr, portStr, startFileOffset,
                 startByteOffset, alsoSearchArchived, callback, origin);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 

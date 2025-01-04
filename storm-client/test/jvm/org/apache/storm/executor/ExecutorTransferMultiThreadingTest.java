@@ -24,7 +24,7 @@ import org.apache.storm.daemon.worker.WorkerState;
 import org.apache.storm.daemon.worker.WorkerTransfer;
 import org.apache.storm.generated.StormTopology;
 import org.apache.storm.messaging.TaskMessage;
-import org.apache.storm.metrics2.StormMetricRegistry;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.policy.WaitStrategyPark;
 import org.apache.storm.serialization.KryoTupleDeserializer;
 import org.apache.storm.task.GeneralTopologyContext;
@@ -88,7 +88,7 @@ public class ExecutorTransferMultiThreadingTest {
         when(workerState.getLocalReceiveQueues()).thenReturn(receiveQMap);
         when(workerState.getTopologyId()).thenReturn(topologyId);
         when(workerState.getPort()).thenReturn(6701);
-        when(workerState.getMetricRegistry()).thenReturn(new StormMetricRegistry());
+        when(workerState.getMetricRegistry()).thenReturn(new StormCustomMetricsRegistry());
         when(workerState.tryTransferRemote(any(), any(), any())).thenCallRealMethod();
 
         //the actual worker transfer queue to be used in this test

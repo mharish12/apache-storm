@@ -84,7 +84,6 @@ import org.apache.storm.container.oci.OciUtils;
 import org.apache.storm.daemon.DaemonCommon;
 import org.apache.storm.daemon.Shutdownable;
 import org.apache.storm.daemon.StormCommon;
-import org.apache.storm.daemon.common.FileWatcher;
 import org.apache.storm.generated.AlreadyAliveException;
 import org.apache.storm.generated.Assignment;
 import org.apache.storm.generated.AuthorizationException;
@@ -1590,9 +1589,9 @@ public class Nimbus implements Iface, Shutdownable, DaemonCommon {
             multiThriftServer.add(new ThriftServer(conf, new Processor<>(nimbus), ThriftConnectionType.NIMBUS_TLS));
         }
 
-        metricsRegistry.startMetricsReporters(conf);
+        metricsRegistry.startMetricsComponents(conf);
         Utils.addShutdownHookWithDelayedForceKill(() -> {
-            metricsRegistry.stopMetricsReporters();
+            metricsRegistry.stopMetricsComponents();
             nimbus.shutdown();
             multiThriftServer.stop();
         }, 10);

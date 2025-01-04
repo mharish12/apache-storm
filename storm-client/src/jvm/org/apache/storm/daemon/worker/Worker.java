@@ -14,7 +14,6 @@ package org.apache.storm.daemon.worker;
 
 import static org.apache.storm.Constants.WORKER_METRICS_REGISTRY;
 
-import com.codahale.metrics.Meter;
 import com.codahale.metrics.SharedMetricRegistries;
 import java.io.File;
 import java.io.IOException;
@@ -55,7 +54,8 @@ import org.apache.storm.generated.LogConfig;
 import org.apache.storm.generated.SupervisorWorkerHeartbeat;
 import org.apache.storm.messaging.IConnection;
 import org.apache.storm.messaging.IContext;
-import org.apache.storm.metrics2.StormMetricRegistry;
+import org.apache.storm.metric.IMeter;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.security.auth.ClientAuthUtils;
 import org.apache.storm.security.auth.IAutoCredentials;
 import org.apache.storm.shade.com.google.common.base.Preconditions;
@@ -87,8 +87,8 @@ public class Worker implements Shutdownable, DaemonCommon {
     private final int port;
     private final String workerId;
     private final LogConfigManager logConfigManager;
-    private final StormMetricRegistry metricRegistry;
-    private Meter heatbeatMeter;
+    private final StormCustomMetricsRegistry metricRegistry;
+    private IMeter heatbeatMeter;
 
     private WorkerState workerState;
     private AtomicReference<List<IRunningExecutor>> executorsAtom;
@@ -97,6 +97,7 @@ public class Worker implements Shutdownable, DaemonCommon {
     private Subject subject;
     private Collection<IAutoCredentials> autoCreds;
     private final Supplier<SupervisorIfaceFactory> supervisorIfaceSupplier;
+    private final String hostName;
 
     /**
      * TODO: should worker even take the topologyId as input? this should be deducible from cluster state (by searching through assignments)
@@ -121,7 +122,7 @@ public class Worker implements Shutdownable, DaemonCommon {
         this.port = port;
         this.workerId = workerId;
         this.logConfigManager = new LogConfigManager();
-        this.metricRegistry = new StormMetricRegistry();
+        this.metricRegistry = new StormCustomMetricsRegistry();
 
         this.topologyConf = ConfigUtils.overrideLoginConfigWithSystemProperty(ConfigUtils.readSupervisorStormConf(conf, topologyId));
 
@@ -142,6 +143,11 @@ public class Worker implements Shutdownable, DaemonCommon {
             };
         } else {
             this.supervisorIfaceSupplier = supervisorIfaceSupplier;
+        }
+        try {
+            hostName = Utils.hostname();
+        } catch (UnknownHostException e) {
+            throw  new RuntimeException(e);
         }
     }
 
@@ -191,8 +197,9 @@ public class Worker implements Shutdownable, DaemonCommon {
         IStateStorage stateStorage = ClusterUtils.mkStateStorage(conf, topologyConf, csContext);
         IStormClusterState stormClusterState = ClusterUtils.mkStormClusterState(stateStorage, null, csContext);
 
-        metricRegistry.start(topologyConf, port);
-        SharedMetricRegistries.add(WORKER_METRICS_REGISTRY, metricRegistry.getRegistry());
+        // Micrometer registry is added to global registry.
+//        metricRegistry.start(topologyConf, port);
+//        SharedMetricRegistries.add(WORKER_METRICS_REGISTRY, metricRegistry.getRegistry());
 
         Credentials initialCredentials = stormClusterState.credentials(topologyId, null);
         Map<String, String> initCreds = new HashMap<>();
@@ -215,8 +222,8 @@ public class Worker implements Shutdownable, DaemonCommon {
             new WorkerState(conf, context, topologyId, assignmentId, supervisorIfaceSupplier, port, workerId,
                             topologyConf, stateStorage, stormClusterState,
                             autoCreds, metricRegistry, initialCredentials);
-        this.heatbeatMeter = metricRegistry.meter("doHeartbeat-calls", workerState.getWorkerTopologyContext(),
-                Constants.SYSTEM_COMPONENT_ID, (int) Constants.SYSTEM_TASK_ID);
+        this.heatbeatMeter = metricRegistry.registerMeter("doHeartbeat-calls", "stormId", workerState.getWorkerTopologyContext().getStormId(),
+                "componentId", Constants.SYSTEM_COMPONENT_ID, "TaskId", String.valueOf(Constants.SYSTEM_TASK_ID));
 
         // Heartbeat here so that worker process dies if this fails
         // it's important that worker heartbeat to supervisor ASAP so that supervisor knows

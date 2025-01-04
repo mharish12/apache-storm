@@ -322,7 +322,7 @@ public class AsyncLocalizer implements AutoCloseable {
      */
     @VisibleForTesting
     void updateBlobs() {
-        try (Timer.Context t = blobCacheUpdateDuration.time()) {
+        try (ITimer.IContext t = blobCacheUpdateDuration.time()) {
             List<CompletableFuture<?>> futures = new ArrayList<>();
             futures.add(downloadOrUpdate(topologyBlobs.values()));
             if (symlinksDisabled) {

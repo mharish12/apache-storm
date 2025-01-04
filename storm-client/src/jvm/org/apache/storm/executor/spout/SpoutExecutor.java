@@ -2,9 +2,9 @@
  * Licensed to the Apache Software Foundation (ASF) under one or more contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.  The ASF licenses this file to you under the Apache License, Version
  * 2.0 (the "License"); you may not use this file except in compliance with the License.  You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
  * and limitations under the License.
@@ -12,11 +12,6 @@
 
 package org.apache.storm.executor.spout;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.storm.Config;
 import org.apache.storm.Constants;
 import org.apache.storm.ICredentialsListener;
@@ -28,7 +23,7 @@ import org.apache.storm.executor.Executor;
 import org.apache.storm.executor.TupleInfo;
 import org.apache.storm.hooks.info.SpoutAckInfo;
 import org.apache.storm.hooks.info.SpoutFailInfo;
-import org.apache.storm.metrics2.RateCounter;
+import org.apache.storm.metric.micrometer.RateCounter;
 import org.apache.storm.policy.IWaitStrategy;
 import org.apache.storm.policy.IWaitStrategy.WaitSituation;
 import org.apache.storm.spout.ISpout;
@@ -46,6 +41,12 @@ import org.apache.storm.utils.Time;
 import org.apache.storm.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class SpoutExecutor extends Executor {
 
@@ -80,13 +81,13 @@ public class SpoutExecutor extends Executor {
         this.emittedCount = new MutableLong(0);
         this.emptyEmitStreak = new MutableLong(0);
         this.stats = new SpoutExecutorStats(
-            ConfigUtils.samplingRate(this.getTopoConf()), ObjectReader.getInt(this.getTopoConf().get(Config.NUM_STAT_BUCKETS)));
-        this.skippedMaxSpoutMs = workerData.getMetricRegistry().rateCounter("__skipped-max-spout-ms", componentId,
-                taskIds.get(0));
-        this.skippedInactiveMs = workerData.getMetricRegistry().rateCounter("__skipped-inactive-ms", componentId,
-                taskIds.get(0));
-        this.skippedBackpressureMs = workerData.getMetricRegistry().rateCounter("__skipped-backpressure-ms", componentId,
-                taskIds.get(0));
+                ConfigUtils.samplingRate(this.getTopoConf()), ObjectReader.getInt(this.getTopoConf().get(Config.NUM_STAT_BUCKETS)));
+        this.skippedMaxSpoutMs = workerData.getMetricRegistry().rateCounter("__skipped-max-spout-ms", "componentId", componentId,
+                "taskId", String.valueOf(taskIds.get(0)));
+        this.skippedInactiveMs = workerData.getMetricRegistry().rateCounter("__skipped-inactive-ms", "componentId", componentId,
+                "taskId", String.valueOf(taskIds.get(0)));
+        this.skippedBackpressureMs = workerData.getMetricRegistry().rateCounter("__skipped-backpressure-ms", "componentId", componentId,
+                "taskId", String.valueOf(taskIds.get(0)));
     }
 
     @Override

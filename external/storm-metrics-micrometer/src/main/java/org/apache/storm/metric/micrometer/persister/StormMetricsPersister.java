@@ -20,16 +20,17 @@ package org.apache.storm.metric.micrometer.persister;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import org.apache.storm.metric.ICounter;
+import org.apache.storm.metric.IGauge;
 import org.apache.storm.metric.IHistogram;
 import org.apache.storm.metric.IMeter;
 import org.apache.storm.metric.IStormMetric;
 import org.apache.storm.metric.ITimer;
+import org.apache.storm.metric.micrometer.RateCounter;
 
 import java.util.Map;
 
 @SuppressWarnings("SpellCheckingInspection")
 public interface StormMetricsPersister {
-
 
     IMeter meter(String name);
 
@@ -38,6 +39,10 @@ public interface StormMetricsPersister {
     ICounter counter(String name);
 
     ICounter counter(String name, String... tags);
+
+    RateCounter rateCounter(String name);
+
+    RateCounter rateCounter(String name, String... tags);
 
     ITimer timer(String name);
 
@@ -49,8 +54,12 @@ public interface StormMetricsPersister {
 
     <T extends Number> T gauge(String name, T number);
 
+    <T extends Number> T gauge(String name, T number, IGauge<T> gauge, String... tags);
+
     void registerAll(Map<String, IStormMetric> metrics);
 
     MeterRegistry getRegistry();
+
+    String getMetricsAsText();
 
 }

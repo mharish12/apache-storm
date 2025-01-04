@@ -23,6 +23,10 @@ import com.codahale.metrics.Metric;
 import com.codahale.metrics.MetricSet;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.apache.storm.metric.IGauge;
+import org.apache.storm.metric.IMetricSet;
+import org.apache.storm.metric.IStormMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +41,7 @@ import org.slf4j.LoggerFactory;
  * topicName/totalRecordsInPartitions //total number of records in all the associated partitions of this spout
  * </p>
  */
-public class KafkaOffsetTopicMetrics implements MetricSet {
+public class KafkaOffsetTopicMetrics implements IMetricSet {
 
     private static final Logger LOG = LoggerFactory.getLogger(KafkaOffsetTopicMetrics.class);
 
@@ -62,45 +66,45 @@ public class KafkaOffsetTopicMetrics implements MetricSet {
     }
 
     @Override
-    public Map<String, Metric> getMetrics() {
-        Map<String, Metric> metrics = new HashMap();
+    public Map<String, IStormMetric> getMetrics() {
+        Map<String, IStormMetric> metrics = new HashMap();
 
-        Gauge<Long> totalSpoutLagGauge = new Gauge<Long>() {
+        IGauge<Long> totalSpoutLagGauge = new IGauge<Long>() {
             @Override
             public Long getValue() {
                 return totalSpoutLag;
             }
         };
 
-        Gauge<Long> totalEarliestTimeOffsetGauge = new Gauge<Long>() {
+        IGauge<Long> totalEarliestTimeOffsetGauge = new IGauge<Long>() {
             @Override
             public Long getValue() {
                 return totalEarliestTimeOffset;
             }
         };
 
-        Gauge<Long> totalLatestTimeOffsetGauge = new Gauge<Long>() {
+        IGauge<Long> totalLatestTimeOffsetGauge = new IGauge<Long>() {
             @Override
             public Long getValue() {
                 return totalLatestTimeOffset;
             }
         };
 
-        Gauge<Long> totalLatestEmittedOffsetGauge = new Gauge<Long>() {
+        IGauge<Long> totalLatestEmittedOffsetGauge = new IGauge<Long>() {
             @Override
             public Long getValue() {
                 return totalLatestEmittedOffset;
             }
         };
 
-        Gauge<Long> totalLatestCompletedOffsetGauge = new Gauge<Long>() {
+        IGauge<Long> totalLatestCompletedOffsetGauge = new IGauge<Long>() {
             @Override
             public Long getValue() {
                 return totalLatestCompletedOffset;
             }
         };
 
-        Gauge<Long> totalRecordsInPartitionsGauge = new Gauge<Long>() {
+        IGauge<Long> totalRecordsInPartitionsGauge = new IGauge<Long>() {
             @Override
             public Long getValue() {
                 return totalRecordsInPartitions;

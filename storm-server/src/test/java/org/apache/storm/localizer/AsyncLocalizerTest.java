@@ -51,6 +51,7 @@ import org.apache.storm.generated.ReadableBlobMeta;
 import org.apache.storm.generated.SettableBlobMeta;
 import org.apache.storm.generated.StormTopology;
 import org.apache.storm.metric.StormCustomMetricsRegistry;
+import org.apache.storm.metric.micrometer.StormTimerMetric;
 import org.apache.storm.security.auth.DefaultPrincipalToLocal;
 import org.apache.storm.testing.TmpPath;
 import org.apache.storm.utils.ConfigUtils;
@@ -970,7 +971,7 @@ public class AsyncLocalizerTest {
     public void validatePNAImplementationsMatch() {
         LocalAssignment la = new LocalAssignment("Topology1", null);
         PortAndAssignment pna = new PortAndAssignmentImpl(1, la);
-        PortAndAssignment tpna = new TimePortAndAssignment(pna, new Timer());
+        PortAndAssignment tpna = new TimePortAndAssignment(pna, new StormTimerMetric("time-port-assignment"));
 
         assertEquals(pna, tpna);
         assertEquals(tpna, pna);

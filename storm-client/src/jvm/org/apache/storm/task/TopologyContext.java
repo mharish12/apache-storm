@@ -12,12 +12,7 @@
 
 package org.apache.storm.task;
 
-import com.codahale.metrics.Counter;
-import com.codahale.metrics.Gauge;
-import com.codahale.metrics.Histogram;
-import com.codahale.metrics.Meter;
-import com.codahale.metrics.MetricSet;
-import com.codahale.metrics.Timer;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -29,12 +24,18 @@ import org.apache.storm.generated.GlobalStreamId;
 import org.apache.storm.generated.Grouping;
 import org.apache.storm.generated.StormTopology;
 import org.apache.storm.hooks.ITaskHook;
+import org.apache.storm.metric.ICounter;
+import org.apache.storm.metric.IGauge;
+import org.apache.storm.metric.IHistogram;
+import org.apache.storm.metric.IMeter;
+import org.apache.storm.metric.IMetricSet;
+import org.apache.storm.metric.ITimer;
 import org.apache.storm.metric.api.CombinedMetric;
 import org.apache.storm.metric.api.ICombiner;
 import org.apache.storm.metric.api.IMetric;
 import org.apache.storm.metric.api.IReducer;
 import org.apache.storm.metric.api.ReducedMetric;
-import org.apache.storm.metrics2.StormMetricRegistry;
+import org.apache.storm.metric.StormCustomMetricsRegistry;
 import org.apache.storm.shade.net.minidev.json.JSONValue;
 import org.apache.storm.shade.org.apache.commons.lang.NotImplementedException;
 import org.apache.storm.state.ISubscribedState;
@@ -55,9 +56,10 @@ public class TopologyContext extends WorkerTopologyContext implements IMetricsCo
     private final Map<String, Object> executorData;
     private final Map<Integer, Map<Integer, Map<String, IMetric>>> registeredMetrics;
     private final AtomicBoolean openOrPrepareWasCalled;
-    private final StormMetricRegistry metricRegistry;
+    private final StormCustomMetricsRegistry metricRegistry;
     // This is updated by the Worker and the topology has shared access to it
     private final Map<String, Long> blobToLastKnownVersion;
+    private final String hostName;
 
     public TopologyContext(StormTopology topology,
                            Map<String, Object> topoConf,
@@ -76,7 +78,7 @@ public class TopologyContext extends WorkerTopologyContext implements IMetricsCo
                            Map<String, Object> executorData,
                            Map<Integer, Map<Integer, Map<String, IMetric>>> registeredMetrics,
                            AtomicBoolean openOrPrepareWasCalled,
-                           StormMetricRegistry metricRegistry) {
+                           StormCustomMetricsRegistry metricRegistry) {
         super(topology, topoConf, taskToComponent, componentToSortedTasks,
               componentToStreamToFields, stormId, codeDir, pidDir,
               workerPort, workerTasks, defaultResources, userResources);
@@ -86,6 +88,11 @@ public class TopologyContext extends WorkerTopologyContext implements IMetricsCo
         this.registeredMetrics = registeredMetrics;
         this.openOrPrepareWasCalled = openOrPrepareWasCalled;
         blobToLastKnownVersion = blobToLastKnownVersionShared;
+        try {
+            this.hostName = Utils.localHostname();
+        } catch (UnknownHostException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @SuppressWarnings("checkstyle:AbbreviationAsWordInName")
@@ -427,32 +434,37 @@ public class TopologyContext extends WorkerTopologyContext implements IMetricsCo
     }
 
     @Override
-    public Timer registerTimer(String name) {
-        return metricRegistry.timer(name, this);
+    public ITimer registerTimer(String name) {
+        return metricRegistry.registerTimer(name, getTags());
     }
 
     @Override
-    public Histogram registerHistogram(String name) {
-        return metricRegistry.histogram(name, this);
+    public IHistogram registerHistogram(String name) {
+        return metricRegistry.registerHistogram(name, getTags());
     }
 
     @Override
-    public Meter registerMeter(String name) {
-        return metricRegistry.meter(name, this);
+    public IMeter registerMeter(String name) {
+        return metricRegistry.registerMeter(name, getTags());
     }
 
     @Override
-    public Counter registerCounter(String name) {
-        return metricRegistry.counter(name, this);
+    public ICounter registerCounter(String name) {
+        return metricRegistry.registerCounter(name, getTags());
     }
 
     @Override
-    public <T> Gauge<T> registerGauge(String name, Gauge<T> gauge) {
-        return metricRegistry.gauge(name, gauge, this);
+    public <T extends Number> IGauge<T> registerGauge(String name, IGauge<T> gauge) {
+        return metricRegistry.gauge(name, gauge, getTags());
     }
 
     @Override
-    public void registerMetricSet(String prefix, MetricSet set) {
-        metricRegistry.metricSet(prefix, set, this);
+    public void registerMetricSet(String prefix, IMetricSet set) {
+        //TODO: update implementation.
+        //metricRegistry.metricSet(prefix, set, this);
+    }
+
+    private String[] getTags() {
+        return new String[] {"stormId", this.getStormId(), "hostName",  hostName, "componentId", getThisComponentId(), "taskId", String.valueOf(getThisTaskId()), "port", String.valueOf(getThisWorkerPort())};
     }
 }
