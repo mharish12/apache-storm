@@ -297,7 +297,7 @@ public class TestDefaultResourceAwareStrategy {
             assertTopologiesFullyScheduled(cluster, strategyClass, topo[1].getName());
 
             // check negative resource count
-            assertThat(cluster.getResourceMetrics().getNegativeResourceEventsMeter().getCount(), is(0L));
+            assertThat(cluster.getResourceMetrics().getNegativeResourceEventsMeter().getCount(), is(0D));
         }
     }
 
